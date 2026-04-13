@@ -1,36 +1,220 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MalesBeliGrocery — Frontend
+
+Online grocery store built with **Next.js 16 App Router**, **TailwindCSS v4**, and **shadcn/ui**.
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm 9+
+- Backend API running (see backend repo)
+
+### Install & run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App runs at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Other commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # production build
+npm run start   # serve production build
+npm run lint    # run ESLint
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Layer | Library |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Styling | TailwindCSS v4 + shadcn/ui |
+| HTTP client | Axios |
+| Global state | Zustand |
+| Forms | React Hook Form + Zod |
+| Animation | lottie-react (available, not yet wired) |
+| Font | Geist (via `next/font`) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Folder Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                        # Next.js App Router — pages & layouts
+│   ├── layout.tsx              # Root layout (Navbar, Footer, AuthProvider)
+│   ├── page.tsx                # Homepage
+│   ├── globals.css             # Global styles & CSS custom properties
+│   ├── auth/                   # Auth pages (login, register, verify, etc.)
+│   ├── products/               # Product listing & detail
+│   ├── cart/
+│   ├── checkout/
+│   ├── account/                # User account (profile, addresses, orders)
+│   └── dashboard/              # Admin dashboard (store admin & super admin)
+│
+├── features/                   # Vertical feature slices
+│   ├── auth/
+│   │   ├── api/                # API call functions (no try/catch — handled in hooks)
+│   │   ├── hooks/              # Form hooks (useFormLogin, useFormRegister, …)
+│   │   ├── schemas/            # Zod validation schemas
+│   │   └── types.ts            # Feature-scoped TypeScript types
+│   ├── home/
+│   │   └── components/         # Homepage section components (HeroSection, etc.)
+│   ├── products/
+│   ├── cart/
+│   ├── orders/
+│   ├── stores/
+│   ├── user/
+│   └── dashboard/
+│       └── components/         # Sidebar, admin menus
+│
+├── components/                 # Shared UI components
+│   ├── Navbar.tsx
+│   ├── Footer.tsx
+│   └── ui/                     # shadcn/ui primitives (Button, Input, Card, …)
+│
+├── stores/                     # Zustand stores
+│   └── useAuthStore.ts         # Holds authenticated user state
+│
+├── hooks/                      # Shared custom hooks
+│   └── useDebounce.ts          # Delays a value update (use for search inputs)
+│
+├── providers/
+│   └── AuthProvider.tsx        # Hydrates auth store from session on mount
+│
+├── types/
+│   ├── api.ts                  # Shared API response shapes
+│   └── global.d.ts             # Global type augmentations
+│
+├── utils/
+│   └── axiosInstance.ts        # Pre-configured Axios instance (base URL, cookies)
+│
+├── lib/
+│   └── utils.ts                # `cn()` helper — merges Tailwind class names
+│
+└── proxy.ts                    # Route-guard logic (imported by middleware)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Architecture & Data Flow
+
+### 1. Rendering model
+
+Pages under `src/app/` are **Server Components** by default.  
+Components that need browser APIs, hooks, or event handlers must declare `'use client'` at the top.
+
+```
+page.tsx (Server Component)
+  └── SomeFeatureSection.tsx (Server Component)
+        └── SomeInteractiveWidget.tsx  ('use client')
+```
+
+### 2. Feature slice convention
+
+Every feature lives in `src/features/<name>/` and owns its full vertical:
+
+```
+features/auth/
+  api/login.api.ts        ← calls the backend, throws on error (no try/catch)
+  hooks/useFormLogin.ts   ← react-hook-form + Zod + calls the API, catches errors
+  schemas/login.schema.ts ← Zod schema shared between hook and form
+  types.ts                ← TypeScript types for this feature
+```
+
+**Rule:** API functions never catch errors. Hooks do — using `axios.isAxiosError()` narrowing.
+
+### 3. Auth flow
+
+```
+Browser request
+  └── middleware (proxy.ts)
+        ├── Reads `access_token` cookie
+        ├── Decodes JWT payload (client-side safe — no secret needed)
+        ├── Checks expiry
+        └── Redirects based on role:
+              • /auth/*      → redirect to / or /dashboard if already logged in
+              • /account/*   → redirect to /auth/login if not logged in (user only)
+              • /dashboard/* → redirect to /auth/login if not logged in
+                               redirect to / if role is 'user'
+```
+
+Roles: `user` | `store_admin` | `super_admin`
+
+On the client side, `AuthProvider` calls the session endpoint on mount and hydrates `useAuthStore` so components can read `user` synchronously.
+
+### 4. API calls
+
+All requests go through `src/utils/axiosInstance.ts` which sets:
+- `baseURL` pointing to the backend
+- `withCredentials: true` so cookies (auth token) are sent automatically
+
+### 5. Form handling
+
+1. Define a **Zod schema** in `features/<name>/schemas/`
+2. Infer the form type with `z.infer<typeof schema>`
+3. Wire up with `useForm` + `zodResolver` inside a hook in `features/<name>/hooks/`
+4. The page/component only imports the hook — keeps forms thin
+
+### 6. Global state
+
+Only minimal shared state lives in Zustand stores:
+
+| Store | What it holds |
+|---|---|
+| `useAuthStore` | `user` object or `null`, `setUser()` |
+
+Feature-local state stays inside components or hooks — no global store needed.
+
+---
+
+## Route Map
+
+| Path | Access | Description |
+|---|---|---|
+| `/` | Public | Homepage |
+| `/products` | Public | Product listing |
+| `/products/[slug]` | Public | Product detail |
+| `/auth/login` | Guest only | Login |
+| `/auth/register` | Guest only | Register |
+| `/auth/verify-email` | Guest only | Email verification |
+| `/auth/forgot-password` | Guest only | Request password reset |
+| `/auth/reset-password/[token]` | Guest only | Set new password |
+| `/auth/complete-profile` | Guest only | Complete social-login profile |
+| `/auth/callback` | Guest only | OAuth callback handler |
+| `/cart` | User only | Shopping cart |
+| `/checkout` | User only | Checkout |
+| `/account/profile` | User only | Profile settings |
+| `/account/addresses` | User only | Saved addresses |
+| `/account/orders` | User only | Order history |
+| `/account/orders/[id]` | User only | Order detail |
+| `/dashboard` | Admin only | Dashboard home |
+| `/dashboard/orders` | Admin only | Order management |
+| `/dashboard/inventory` | Admin only | Inventory |
+| `/dashboard/stock-mutations` | Admin only | Stock mutations |
+| `/dashboard/discounts` | Admin only | Discounts |
+| `/dashboard/products` | Admin only | Product management |
+| `/dashboard/categories` | Admin only | Category management |
+| `/dashboard/vouchers` | Admin only | Vouchers |
+| `/dashboard/stores` | Super admin | Store management |
+| `/dashboard/users` | Super admin | User management |
+
+---
+
+## Key Conventions
+
+- **Imports** use the `@/` path alias (e.g. `@/components/ui/button`)
+- **No `any`** — use proper types or `unknown` with narrowing
+- **API functions** live in `features/<name>/api/` and do not catch errors
+- **Hooks** catch errors with `axios.isAxiosError()` and surface them to the UI
+- **shadcn/ui** components live in `src/components/ui/` — add new ones with `npx shadcn add <component>`
+- **Shared hooks** (not feature-specific) live in `src/hooks/`
+- **Mobile-first** responsive design — start with small screen, add `md:` / `lg:` breakpoints
