@@ -1,7 +1,7 @@
 import HeroSection from '@/features/home/components/HeroSection';
 import FeaturesSection from '@/features/home/components/FeaturesSection';
 import CategoriesSection from '@/features/home/components/CategoriesSection';
-import FeaturedProductsSection from '@/features/home/components/FeaturedProductsSection';
+import NearestStoreProducts from '@/features/geolocation/components/NearestStoreProducts';
 import NewsletterSection from '@/features/home/components/NewsletterSection';
 
 export default function HomePage() {
@@ -10,7 +10,7 @@ export default function HomePage() {
       <HeroSection />
       <FeaturesSection />
       <CategoriesSection />
-      <FeaturedProductsSection />
+      <NearestStoreProducts />
       <NewsletterSection />
     </div>
   );

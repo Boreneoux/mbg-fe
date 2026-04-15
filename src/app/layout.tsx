@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/providers/AuthProvider';
+import GeolocationProvider from '@/providers/GeolocationProvider';
+import MSWProvider from '@/components/MSWProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -28,11 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
-        <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </AuthProvider>
+        <MSWProvider>
+          <AuthProvider>
+            <GeolocationProvider>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+            </GeolocationProvider>
+          </AuthProvider>
+        </MSWProvider>
       </body>
     </html>
   );
