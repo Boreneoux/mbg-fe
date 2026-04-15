@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# MSW generated service worker
+/public/mockServiceWorker.js
+
 # next.js
 /.next/
 /out/
