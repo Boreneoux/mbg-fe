@@ -28,6 +28,7 @@ export type Order = {
   total_discount: number;
   shipping_cost: number;
   payment_method: PaymentMethod;
+  payment_deadline?: string;
   created_at: string;
   order_items: OrderItem[];
 };
