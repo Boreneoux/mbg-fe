@@ -70,6 +70,11 @@ src/
 │   │   └── components/         # Homepage section components (HeroSection, etc.)
 │   ├── products/
 │   ├── cart/
+│   │   ├── api/                # API service functions (no try/catch)
+│   │   ├── hooks/              # useCart — cart management hook
+│   │   ├── components/         # CartItemCard, OrderSummary, EmptyCart, etc.
+│   │   ├── services/           # cart.service.ts — API calls
+│   │   └── types.ts            # Cart types (CartItem, Cart)
 │   ├── orders/
 │   ├── stores/
 │   ├── user/
@@ -171,8 +176,43 @@ Only minimal shared state lives in Zustand stores:
 | Store | What it holds |
 |---|---|
 | `useAuthStore` | `user` object or `null`, `setUser()` |
+| `useCartStore` | cart data, isLoading, error state, cart management actions |
 
 Feature-local state stays inside components or hooks — no global store needed.
+
+### 7. Cart feature architecture
+
+The cart feature demonstrates a complete, reusable component pattern:
+
+```
+features/cart/
+  ├── types.ts                  # CartItem, Cart types from backend
+  ├── services/
+  │   └── cart.service.ts       # Axios calls (getCart, addItem, updateItem, deleteItem)
+  ├── hooks/
+  │   └── useCart.ts            # Cart state + error handling (uses useCartStore)
+  └── components/
+      ├── CartItemCard.tsx      # Single cart item display + quantity/delete controls
+      ├── CartItemSkeleton.tsx  # Loading skeleton matching CartItemCard
+      ├── QuantityControl.tsx   # Reusable ±/quantity widget
+      ├── OrderSummary.tsx      # Sticky summary panel (subtotal, delivery, total)
+      ├── EmptyCart.tsx         # Empty state UI
+      └── index.ts              # Component barrel export
+```
+
+**Pattern highlights:**
+- **Service layer** (`cart.service.ts`) makes API calls without error handling
+- **Hook layer** (`useCart.ts`) manages state via `useCartStore`, catches errors, provides UI feedback
+- **Component layer** — reusable, composable UI components with simple props
+- **Page** (`src/app/cart/page.tsx`) orchestrates: fetches data → renders components
+
+**Component reusability:**
+- `CartItemCard` reusable in checkout preview, order history
+- `OrderSummary` reusable in checkout, order confirmation
+- `QuantityControl` reusable in product detail pages
+- `EmptyCart` reusable for empty state across the app
+
+This pattern applies to all features — separate concerns into service → hook → component layers.
 
 ---
 
