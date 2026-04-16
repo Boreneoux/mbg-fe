@@ -50,22 +50,44 @@ npm run lint    # run ESLint
 ```
 src/
 ├── app/                        # Next.js App Router — pages & layouts
-│   ├── layout.tsx              # Root layout (Navbar, Footer, AuthProvider)
-│   ├── page.tsx                # Homepage
+│   ├── layout.tsx              # Root layout — providers only (ThemeProvider, AuthProvider, etc.)
 │   ├── globals.css             # Global styles & CSS custom properties
-│   ├── auth/                   # Auth pages (login, register, verify, etc.)
-│   ├── products/               # Product listing & detail
-│   ├── cart/
-│   ├── checkout/
-│   ├── account/                # User account (profile, addresses, orders)
-│   └── dashboard/              # Admin dashboard (store admin & super admin)
+│   │
+│   ├── (main)/                 # Route group — user-facing pages (has Navbar + Footer)
+│   │   ├── layout.tsx          # Injects Navbar and Footer
+│   │   ├── page.tsx            # Homepage
+│   │   ├── auth/               # Auth pages (login, register, verify, etc.)
+│   │   ├── products/           # Product listing & detail
+│   │   ├── cart/
+│   │   ├── checkout/
+│   │   ├── account/            # User account (profile, addresses, orders)
+│   │   ├── reset-password/
+│   │   └── setup-password/
+│   │
+│   ├── admin/                  # Admin auth — no Navbar, no Footer
+│   │   ├── layout.tsx          # Minimal layout (renders children only)
+│   │   └── login/              # /admin/login — corporate-style login page
+│   │
+│   └── dashboard/              # Admin content — no Navbar, no Footer
+│       ├── layout.tsx          # Sidebar layout (DashboardSidebar + main)
+│       ├── page.tsx
+│       ├── orders/
+│       ├── inventory/
+│       ├── stock-mutations/
+│       ├── discounts/
+│       ├── products/
+│       ├── categories/
+│       ├── vouchers/
+│       ├── stores/
+│       └── users/
 │
 ├── features/                   # Vertical feature slices
 │   ├── auth/
 │   │   ├── api/                # API call functions (no try/catch — handled in hooks)
-│   │   ├── hooks/              # Form hooks (useFormLogin, useFormRegister, …)
+│   │   ├── hooks/              # Form hooks (useFormLogin, useFormAdminLogin, useLogout, …)
+│   │   ├── components/         # LoginFormCard, AdminLoginFormCard, etc.
 │   │   ├── schemas/            # Zod validation schemas
-│   │   └── types.ts            # Feature-scoped TypeScript types
+│   │   └── types.ts            # Feature-scoped TypeScript types (AuthUser, UserRole)
 │   ├── home/
 │   │   └── components/         # Homepage section components (HeroSection, etc.)
 │   ├── products/
@@ -79,12 +101,12 @@ src/
 │   ├── stores/
 │   ├── user/
 │   └── dashboard/
-│       └── components/         # Sidebar, admin menus
+│       └── components/         # DashboardSidebar, SuperAdminMenu, StoreAdminMenu
 │
 ├── components/                 # Shared UI components
 │   ├── Navbar.tsx
 │   ├── Footer.tsx
-│   └── ui/                     # shadcn/ui primitives (Button, Input, Card, …)
+│   └── ui/                     # shadcn/ui primitives (Button, Input, Card, Avatar, …)
 │
 ├── stores/                     # Zustand stores
 │   └── useAuthStore.ts         # Holds authenticated user state
@@ -105,7 +127,7 @@ src/
 ├── lib/
 │   └── utils.ts                # `cn()` helper — merges Tailwind class names
 │
-└── proxy.ts                    # Route-guard logic (imported by middleware)
+└── proxy.ts                    # Route-guard logic — Next.js proxy convention (replaces middleware.ts)
 ```
 
 ---
@@ -141,18 +163,23 @@ features/auth/
 
 ```
 Browser request
-  └── middleware (proxy.ts)
+  └── proxy.ts  (Next.js proxy convention — runs on every request)
         ├── Reads `access_token` cookie
         ├── Decodes JWT payload (client-side safe — no secret needed)
         ├── Checks expiry
         └── Redirects based on role:
-              • /auth/*      → redirect to / or /dashboard if already logged in
-              • /account/*   → redirect to /auth/login if not logged in (user only)
-              • /dashboard/* → redirect to /auth/login if not logged in
+              • /auth/*      → redirect to / (user) or /dashboard (admin) if already logged in
+              • /admin/*     → redirect to /dashboard (admin) or / (user) if already logged in
+              • /account/*   → redirect to /auth/login if not logged in; /dashboard if admin
+              • /dashboard/* → redirect to /admin/login if not logged in
                                redirect to / if role is 'user'
 ```
 
 Roles: `user` | `store_admin` | `super_admin`
+
+**Two separate login entry points:**
+- `/auth/login` — customer-facing, colorful brand UI
+- `/admin/login` — admin portal, clean corporate UI (no Navbar/Footer)
 
 On the client side, `AuthProvider` calls the session endpoint on mount and hydrates `useAuthStore` so components can read `user` synchronously.
 
@@ -218,32 +245,45 @@ This pattern applies to all features — separate concerns into service → hook
 
 ## Route Map
 
+### User-facing — `(main)` group (with Navbar + Footer)
+
 | Path | Access | Description |
 |---|---|---|
 | `/` | Public | Homepage |
 | `/products` | Public | Product listing |
 | `/products/[slug]` | Public | Product detail |
-| `/auth/login` | Guest only | Login |
+| `/auth/login` | Guest only | Customer login |
 | `/auth/register` | Guest only | Register |
 | `/auth/verify-email` | Guest only | Email verification |
 | `/auth/forgot-password` | Guest only | Request password reset |
 | `/auth/reset-password/[token]` | Guest only | Set new password |
-| `/auth/complete-profile` | Guest only | Complete social-login profile |
-| `/auth/callback` | Guest only | OAuth callback handler |
+| `/auth/complete-profile` | Exempt | Complete social-login profile |
+| `/auth/callback` | Exempt | OAuth callback handler |
 | `/cart` | User only | Shopping cart |
 | `/checkout` | User only | Checkout |
 | `/account/profile` | User only | Profile settings |
 | `/account/addresses` | User only | Saved addresses |
 | `/account/orders` | User only | Order history |
 | `/account/orders/[id]` | User only | Order detail |
-| `/dashboard` | Admin only | Dashboard home |
+
+### Admin auth — `admin/` (no Navbar, no Footer)
+
+| Path | Access | Description |
+|---|---|---|
+| `/admin/login` | Guest only | Admin portal login |
+
+### Admin content — `dashboard/` (sidebar layout, no Navbar, no Footer)
+
+| Path | Access | Description |
+|---|---|---|
+| `/dashboard` | Admin only | Dashboard overview |
 | `/dashboard/orders` | Admin only | Order management |
-| `/dashboard/inventory` | Admin only | Inventory |
-| `/dashboard/stock-mutations` | Admin only | Stock mutations |
-| `/dashboard/discounts` | Admin only | Discounts |
-| `/dashboard/products` | Admin only | Product management |
-| `/dashboard/categories` | Admin only | Category management |
-| `/dashboard/vouchers` | Admin only | Vouchers |
+| `/dashboard/inventory` | Store admin | Inventory |
+| `/dashboard/stock-mutations` | Store admin | Stock mutations |
+| `/dashboard/discounts` | Store admin | Discounts |
+| `/dashboard/products` | Super admin | Product management |
+| `/dashboard/categories` | Super admin | Category management |
+| `/dashboard/vouchers` | Super admin | Vouchers |
 | `/dashboard/stores` | Super admin | Store management |
 | `/dashboard/users` | Super admin | User management |
 
