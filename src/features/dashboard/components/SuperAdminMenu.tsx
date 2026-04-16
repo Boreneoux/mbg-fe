@@ -1,27 +1,53 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+  LayoutDashboard,
+  Store,
+  Package,
+  Tag,
+  Ticket,
+  Users,
+  ShoppingBag,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const MENU_ITEMS = [
-  { label: 'Overview', href: '/dashboard' },
-  { label: 'Stores', href: '/dashboard/stores' },
-  { label: 'Products', href: '/dashboard/products' },
-  { label: 'Categories', href: '/dashboard/categories' },
-  { label: 'Vouchers', href: '/dashboard/vouchers' },
-  { label: 'Users', href: '/dashboard/users' },
-  { label: 'Orders', href: '/dashboard/orders' },
+  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Stores', href: '/dashboard/stores', icon: Store },
+  { label: 'Products', href: '/dashboard/products', icon: Package },
+  { label: 'Categories', href: '/dashboard/categories', icon: Tag },
+  { label: 'Vouchers', href: '/dashboard/vouchers', icon: Ticket },
+  { label: 'Users', href: '/dashboard/users', icon: Users },
+  { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
 ];
 
 export default function SuperAdminMenu() {
+  const pathname = usePathname();
+
   return (
-    <nav className="flex flex-col gap-1">
-      {MENU_ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className="rounded-md px-3 py-2 text-sm hover:bg-gray-100"
-        >
-          {item.label}
-        </Link>
-      ))}
+    <nav className="flex flex-col gap-0.5">
+      {MENU_ITEMS.map(({ label, href, icon: Icon }) => {
+        const isActive =
+          href === '/dashboard' ? pathname === href : pathname.startsWith(href);
+
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+            )}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
