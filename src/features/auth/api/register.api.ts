@@ -5,6 +5,8 @@ type RegisterPayload = {
   first_name: string;
   last_name: string;
   email: string;
+  phone: string;
+  referral_code?: string;
 };
 
 export async function registerApi(payload: RegisterPayload) {
