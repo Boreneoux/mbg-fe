@@ -5,8 +5,6 @@ import { ThemeProvider } from 'next-themes';
 import AuthProvider from '@/providers/AuthProvider';
 import GeolocationProvider from '@/providers/GeolocationProvider';
 import MSWProvider from '@/components/MSWProvider';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
@@ -30,15 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <MSWProvider>
             <AuthProvider>
               <GeolocationProvider>
-                <Navbar />
-                <main>{children}</main>
-                <Footer />
+                {children}
                 <Toaster />
               </GeolocationProvider>
             </AuthProvider>

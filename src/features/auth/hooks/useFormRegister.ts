@@ -13,6 +13,8 @@ export function useFormRegister() {
       first_name: '',
       last_name: '',
       email: '',
+      phone: '',
+      referral_code: '',
     },
   });
 

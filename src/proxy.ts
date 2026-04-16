@@ -17,8 +17,10 @@ function decodeJwt(token: string): JwtPayload | null {
 }
 
 const AUTH_ROUTES = ['/auth'];
+const AUTH_ROUTES_EXEMPT = ['/auth/complete-profile', '/auth/callback'];
 const USER_ROUTES = ['/account', '/cart', '/checkout'];
 const ADMIN_ROUTES = ['/dashboard'];
+const ADMIN_AUTH_ROUTES = ['/admin'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -35,11 +37,20 @@ export function proxy(request: NextRequest) {
 
   const isAuthenticated = !!payload;
   const role = payload?.role;
+  const isAdmin = role === 'store_admin' || role === 'super_admin';
 
-  // Redirect logged-in users away from auth pages
+  // Redirect logged-in users away from /auth/* pages
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
-  if (isAuthRoute && isAuthenticated) {
-    const dest = role === 'user' ? '/' : '/dashboard';
+  const isAuthExempt = AUTH_ROUTES_EXEMPT.some((r) => pathname.startsWith(r));
+  if (isAuthRoute && !isAuthExempt && isAuthenticated) {
+    const dest = isAdmin ? '/dashboard' : '/';
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  // Redirect logged-in users away from /admin/* (e.g. /admin/login)
+  const isAdminAuthRoute = ADMIN_AUTH_ROUTES.some((r) => pathname.startsWith(r));
+  if (isAdminAuthRoute && isAuthenticated) {
+    const dest = isAdmin ? '/dashboard' : '/';
     return NextResponse.redirect(new URL(dest, request.url));
   }
 
@@ -49,7 +60,7 @@ export function proxy(request: NextRequest) {
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL('/auth/login', request.url));
     }
-    if (role !== 'user') {
+    if (isAdmin) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }
@@ -58,9 +69,9 @@ export function proxy(request: NextRequest) {
   const isAdminRoute = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
   if (isAdminRoute) {
     if (!isAuthenticated) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
-    if (role === 'user') {
+    if (!isAdmin) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
