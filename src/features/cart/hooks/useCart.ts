@@ -1,11 +1,10 @@
 import { useCallback } from 'react';
 import axios from 'axios';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { cartService } from '../services/cart.service';
-import useCartStore from '@/stores/useCartStore';
+import { useCartStore } from '@/stores/useCartStore';
 
 export const useCart = () => {
-  const { toast } = useToast();
   const cartStore = useCartStore();
 
   const fetchCart = useCallback(async () => {
@@ -19,15 +18,11 @@ export const useCart = () => {
         ? error.response?.data?.message || 'Failed to fetch cart'
         : 'Failed to fetch cart';
       cartStore.setError(message);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: message,
-      });
+      toast.error(message);
     } finally {
       cartStore.setLoading(false);
     }
-  }, [cartStore, toast]);
+  }, [cartStore]);
 
   const updateQuantity = useCallback(
     async (cartItemId: number, quantity: number) => {
@@ -39,23 +34,16 @@ export const useCart = () => {
         }
         await cartService.updateItem(cartItemId, quantity);
         cartStore.updateItem(cartItemId, quantity);
-        toast({
-          title: 'Success',
-          description: 'Cart updated',
-        });
+        toast.success('Cart updated');
       } catch (error) {
         const message = axios.isAxiosError(error)
           ? error.response?.data?.message || 'Failed to update cart'
           : 'Failed to update cart';
         cartStore.setError(message);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: message,
-        });
+        toast.error(message);
       }
     },
-    [cartStore, toast]
+    [cartStore]
   );
 
   const removeFromCart = useCallback(
@@ -64,23 +52,16 @@ export const useCart = () => {
       try {
         await cartService.deleteItem(cartItemId);
         cartStore.removeItem(cartItemId);
-        toast({
-          title: 'Success',
-          description: 'Item removed from cart',
-        });
+        toast.success('Item removed from cart');
       } catch (error) {
         const message = axios.isAxiosError(error)
           ? error.response?.data?.message || 'Failed to remove item'
           : 'Failed to remove item';
         cartStore.setError(message);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: message,
-        });
+        toast.error(message);
       }
     },
-    [cartStore, toast]
+    [cartStore]
   );
 
   const clearCart = useCallback(async () => {
@@ -91,22 +72,15 @@ export const useCart = () => {
         cartStore.cart.cart_items.map((item) => cartService.deleteItem(item.id))
       );
       cartStore.clear();
-      toast({
-        title: 'Success',
-        description: 'Cart cleared',
-      });
+      toast.success('Cart cleared');
     } catch (error) {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || 'Failed to clear cart'
         : 'Failed to clear cart';
       cartStore.setError(message);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: message,
-      });
+      toast.error(message);
     }
-  }, [cartStore, toast]);
+  }, [cartStore]);
 
   return {
     cart: cartStore.cart,
