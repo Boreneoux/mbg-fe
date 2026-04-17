@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import HeroIllustration from './HeroIllustration';
 
 const STATS = [
-  { value: '50rb+', label: 'Produk' },
-  { value: '< 2 Jam', label: 'Pengiriman' },
-  { value: '4.8', label: 'Rating Aplikasi' }
+  { value: '50rb+', label: 'Products' },
+  { value: '< 2 Jam', label: 'Delivery' },
+  { value: '4.8', label: 'App Rating' }
 ];
 
 export default function HeroSection() {
@@ -23,14 +23,14 @@ export default function HeroSection() {
             {/* Badge */}
             <span className="inline-flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Produk Segar Pilihan, Dikirim Hari Ini
+              Fresh Picks, Dikirim Hari Ini
             </span>
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-[1.15] tracking-tight">
-              Belanja Bahan Makanan Segar,{' '}
+              Groceries Segar,{' '}
               <span className="relative inline-block">
-                <span className="relative z-10 text-primary">Diantar</span>
+                <span className="relative z-10 text-primary">Delivered</span>
                 {/* Hand-drawn SVG underline */}
                 <svg
                   aria-hidden="true"
@@ -52,15 +52,14 @@ export default function HeroSection() {
 
             {/* Tagline — moved from badge into content */}
             <p className="text-sm md:text-base italic text-muted-foreground border-l-2 border-primary/40 pl-3 mb-6 leading-relaxed">
-              Belanja Tanpa Keluar Rumah — Satuan Pengantar Paket Grocer (SPPG)
-              Mengantar ke Pintu Anda
+              Shop from home — semua kebutuhan dapur diantar langsung ke depan
+              pintu.
             </p>
 
             {/* Body */}
             <p className="text-lg text-muted-foreground mb-8 max-w-md leading-relaxed">
-              Belanja dari ribuan produk segar — mulai dari sayuran renyah
-              hingga bahan dapur pilihan — dan nikmati pengiriman langsung ke
-              depan pintu rumahmu.
+              Browse ribuan produk segar — dari sayuran renyah sampai bahan
+              dapur pilihan — dan enjoy same-day delivery ke rumahmu.
             </p>
 
             {/* CTA buttons */}
@@ -70,7 +69,7 @@ export default function HeroSection() {
                 className="text-base px-8 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
                 asChild>
                 <Link href="/products">
-                  Belanja Sekarang <ArrowRight className="ml-2 w-5 h-5" />
+                  Shop Now <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button
@@ -78,7 +77,7 @@ export default function HeroSection() {
                 variant="outline"
                 className="text-base px-8"
                 asChild>
-                <Link href="/products">Lihat Semua Kategori</Link>
+                <Link href="/products">Semua Kategori</Link>
               </Button>
             </div>
 
