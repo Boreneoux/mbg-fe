@@ -1,7 +1,5 @@
+import { UnderConstruction } from '@/components/UnderConstruction';
+
 export default function CategoriesPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Categories</h1>
-    </div>
-  );
+  return <UnderConstruction title="Categories" description="Category management is under development." />;
 }

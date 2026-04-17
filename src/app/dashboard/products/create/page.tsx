@@ -1,7 +1,5 @@
+import { UnderConstruction } from '@/components/UnderConstruction';
+
 export default function CreateProductPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Create Product</h1>
-    </div>
-  );
+  return <UnderConstruction title="Create Product" description="Product creation form is under development." />;
 }

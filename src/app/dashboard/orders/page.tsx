@@ -1,7 +1,5 @@
+import { UnderConstruction } from '@/components/UnderConstruction';
+
 export default function DashboardOrdersPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Orders</h1>
-    </div>
-  );
+  return <UnderConstruction title="Orders" description="Order management is under development." />;
 }

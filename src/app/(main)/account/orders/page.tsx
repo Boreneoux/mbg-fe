@@ -1,7 +1,5 @@
+import { UnderConstruction } from '@/components/UnderConstruction';
+
 export default function OrdersPage() {
-  return (
-    <main>
-      <h1>My Orders</h1>
-    </main>
-  );
+  return <UnderConstruction title="Pesanan Saya" description="Riwayat dan pelacakan pesanan sedang kami siapkan." />;
 }
