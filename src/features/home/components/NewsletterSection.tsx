@@ -3,9 +3,9 @@ import { Input } from '@/components/ui/input';
 import { Check } from 'lucide-react';
 
 const PERKS = [
-  'Promo mingguan & diskon kilat',
+  'Weekly promos & flash deals',
   'Info produk baru setiap minggu',
-  'Penawaran eksklusif khusus member',
+  'Exclusive offers khusus member',
 ];
 
 export default function NewsletterSection() {
@@ -22,11 +22,11 @@ export default function NewsletterSection() {
           <div className="text-white">
             <div className="text-5xl mb-5 select-none">📬</div>
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
-              Dapatkan Promo &amp; Info Terbaru
+              Get Latest Promos &amp; Updates
             </h2>
             <p className="text-white/70 mb-6 leading-relaxed">
-              Berlangganan newsletter kami dan jadilah yang pertama tahu tentang
-              promo, produk baru, dan penawaran eksklusif yang sayang untuk dilewatkan.
+              Subscribe ke newsletter kami dan jadilah yang pertama tahu soal
+              promo, new arrivals, dan exclusive deals yang sayang untuk dilewatkan.
             </p>
             <ul className="flex flex-col gap-2.5">
               {PERKS.map((perk) => (
@@ -42,24 +42,24 @@ export default function NewsletterSection() {
 
           {/* Right: form card */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-            <h3 className="text-white font-semibold text-lg mb-1">Bergabung Sekarang</h3>
+            <h3 className="text-white font-semibold text-lg mb-1">Join Now</h3>
             <p className="text-white/50 text-sm mb-6">
-              Tanpa spam. Berhenti berlangganan kapan saja.
+              No spam. Unsubscribe kapan saja.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 type="email"
-                placeholder="Masukkan alamat email kamu"
+                placeholder="Enter your email address"
                 className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary focus:bg-white/15 h-11"
               />
               <Button
                 size="lg"
                 className="shrink-0 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow">
-                Langganan
+                Subscribe
               </Button>
             </div>
             <p className="text-white/30 text-xs mt-4">
-              Dengan berlangganan, kamu menyetujui Kebijakan Privasi kami.
+              Dengan subscribe, kamu setuju dengan Privacy Policy kami.
             </p>
           </div>
         </div>

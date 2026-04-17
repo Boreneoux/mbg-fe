@@ -62,7 +62,7 @@ export default function Navbar() {
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white/70 min-w-0">
             <Truck className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="truncate">
-              Gratis ongkir untuk pesanan di atas{' '}
+              Free ongkir untuk order di atas{' '}
               <span className="text-primary font-semibold">Rp 200.000</span>
             </span>
           </div>
@@ -122,7 +122,7 @@ export default function Navbar() {
                   {user ? (
                     <>
                       <p className="text-xs text-muted-foreground px-1 mb-1">
-                        Masuk sebagai{' '}
+                        Signed in as{' '}
                         <span className="font-semibold text-foreground">
                           {user.first_name ?? user.email}
                         </span>
@@ -131,13 +131,13 @@ export default function Navbar() {
                         href="/account/profile"
                         className="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground" />
-                        Akun Saya
+                        My Account
                       </Link>
                       <button
                         onClick={logout}
                         disabled={isLoading}
                         className="px-3 py-2.5 rounded-lg text-sm font-medium text-left hover:bg-secondary transition-colors disabled:opacity-50 text-destructive">
-                        Keluar
+                        Sign Out
                       </button>
                     </>
                   ) : (
@@ -146,7 +146,7 @@ export default function Navbar() {
                         <Link href="/auth/login">Masuk</Link>
                       </Button>
                       <Button asChild className="w-full">
-                        <Link href="/auth/register">Buat Akun</Link>
+                        <Link href="/auth/register">Sign Up</Link>
                       </Button>
                     </>
                   )}
@@ -182,7 +182,7 @@ export default function Navbar() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               <Input
                 type="search"
-                placeholder="Cari bahan makanan segar..."
+                placeholder="Search produk segar..."
                 className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60 focus:bg-white focus:border-primary transition-colors"
               />
             </div>
@@ -209,7 +209,7 @@ export default function Navbar() {
                   onClick={logout}
                   disabled={isLoading}
                   className="hidden lg:flex text-sm text-muted-foreground hover:text-destructive">
-                  Keluar
+                  Sign Out
                 </Button>
               </div>
             ) : (
@@ -224,7 +224,7 @@ export default function Navbar() {
                   asChild
                   className="shadow-sm shadow-primary/20">
                   <Link href="/auth/register" className="text-sm">
-                    Daftar
+                    Sign Up
                   </Link>
                 </Button>
               </div>
@@ -250,7 +250,7 @@ export default function Navbar() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Cari bahan makanan segar..."
+              placeholder="Search produk segar..."
               className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60"
             />
           </div>

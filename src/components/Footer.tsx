@@ -2,18 +2,18 @@ import Link from 'next/link';
 import { Mail, Phone, MapPin, ShoppingCart } from 'lucide-react';
 
 const QUICK_LINKS = [
-  { label: 'Belanja Sekarang', href: '/products' },
-  { label: 'Pesanan Saya', href: '/account/orders' },
-  { label: 'Akun Saya', href: '/account/profile' },
-  { label: 'Keranjang Saya', href: '/cart' }
+  { label: 'Shop Now', href: '/products' },
+  { label: 'My Orders', href: '/account/orders' },
+  { label: 'My Account', href: '/account/profile' },
+  { label: 'My Cart', href: '/cart' }
 ];
 
 const SUPPORT_LINKS = [
-  { label: 'Pusat Bantuan', href: '#' },
-  { label: 'Informasi Pengiriman', href: '#' },
-  { label: 'Kebijakan Pengembalian', href: '#' },
+  { label: 'Help Center', href: '#' },
+  { label: 'Info Pengiriman', href: '#' },
+  { label: 'Return Policy', href: '#' },
   { label: 'Syarat & Ketentuan', href: '#' },
-  { label: 'Kebijakan Privasi', href: '#' }
+  { label: 'Privacy Policy', href: '#' }
 ];
 
 const SOCIALS = [
@@ -40,8 +40,8 @@ export default function Footer() {
               <h3 className="font-bold text-lg">MalesBeliGrocery</h3>
             </div>
             <p className="text-gray-400 text-sm mb-5 leading-relaxed">
-              Toko bahan makanan online terpercaya yang mengantarkan produk
-              segar dan berkualitas langsung ke pintu rumahmu.
+              Online grocery store terpercaya yang deliver produk segar dan
+              berkualitas langsung ke pintu rumahmu.
             </p>
             <div className="flex flex-wrap gap-3">
               {SOCIALS.map(({ label, href }) => (
@@ -57,7 +57,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-base mb-4">Tautan Cepat</h3>
+            <h3 className="font-bold text-base mb-4">Quick Links</h3>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map(({ label, href }) => (
                 <li key={label}>
@@ -73,7 +73,7 @@ export default function Footer() {
 
           {/* Customer Service */}
           <div>
-            <h3 className="font-bold text-base mb-4">Layanan Pelanggan</h3>
+            <h3 className="font-bold text-base mb-4">Customer Service</h3>
             <ul className="space-y-2.5">
               {SUPPORT_LINKS.map(({ label, href }) => (
                 <li key={label}>
@@ -89,7 +89,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-bold text-base mb-4">Hubungi Kami</h3>
+            <h3 className="font-bold text-base mb-4">Contact Us</h3>
             <ul className="space-y-3.5">
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
