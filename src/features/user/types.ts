@@ -11,3 +11,16 @@ export type UserAddress = {
   longitude: number;
   is_primary: boolean;
 };
+
+export type UserProfile = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  role: 'user' | 'store_admin' | 'super_admin';
+  is_verified: boolean;
+  profile_image: string | null;
+  referral_code: string | null;
+  created_at: string;
+};
