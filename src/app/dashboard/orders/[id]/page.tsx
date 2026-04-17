@@ -1,7 +1,5 @@
+import { UnderConstruction } from '@/components/UnderConstruction';
+
 export default function DashboardOrderDetailPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Order Detail</h1>
-    </div>
-  );
+  return <UnderConstruction title="Order Detail" description="Order detail view is under development." />;
 }
