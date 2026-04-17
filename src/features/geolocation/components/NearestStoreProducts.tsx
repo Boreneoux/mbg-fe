@@ -59,7 +59,7 @@ function ProductCard({ product }: { product: Product }) {
 
         <Button size="sm" className="w-full gap-1.5 text-xs md:text-sm" disabled>
           <ShoppingCart className="w-3.5 h-3.5" />
-          Tambah ke Keranjang
+          Add to Cart
         </Button>
       </CardContent>
     </Card>
@@ -76,10 +76,10 @@ function StoreBanner() {
       <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 mb-6 text-sm">
         <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
         <div>
-          <p className="font-medium text-yellow-800">Lokasi di luar jangkauan</p>
+          <p className="font-medium text-yellow-800">Location out of range</p>
           <p className="text-yellow-700 mt-0.5">{outOfRangeMessage}</p>
           <p className="text-yellow-700 mt-1">
-            Menampilkan produk dari toko utama:{' '}
+            Menampilkan produk dari main store:{' '}
             <span className="font-medium">{selectedStoreName}</span>
           </p>
         </div>
@@ -92,7 +92,7 @@ function StoreBanner() {
       <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 px-4 py-3 mb-6 text-sm">
         <Info className="w-4 h-4 text-muted-foreground shrink-0" />
         <p className="text-muted-foreground">
-          Menampilkan produk dari toko utama:{' '}
+          Showing produk dari main store:{' '}
           <span className="font-medium text-foreground">{selectedStoreName}</span>
         </p>
       </div>
@@ -104,7 +104,7 @@ function StoreBanner() {
       <div className="flex items-center gap-2 mb-6">
         <MapPin className="w-4 h-4 text-primary shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Produk dari toko terdekat:{' '}
+          Products dari nearest store:{' '}
           <span className="font-medium text-foreground">{selectedStoreName}</span>
         </p>
       </div>
@@ -128,12 +128,12 @@ export default function NearestStoreProducts() {
         <div className="flex items-end justify-between mb-4">
           <div>
             <p className="text-sm font-medium text-primary mb-1">
-              Pilihan terbaik untukmu
+              Best picks untukmu
             </p>
-            <h2 className="text-2xl md:text-3xl font-bold">Produk Unggulan</h2>
+            <h2 className="text-2xl md:text-3xl font-bold">Featured Products</h2>
           </div>
           <Button variant="outline" size="sm" asChild className="shrink-0">
-            <Link href="/products">Lihat Semua</Link>
+            <Link href="/products">See All</Link>
           </Button>
         </div>
 

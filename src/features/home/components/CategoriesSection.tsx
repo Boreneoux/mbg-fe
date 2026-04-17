@@ -67,11 +67,11 @@ export default function CategoriesSection() {
       <div className="container mx-auto px-4">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-sm font-medium text-primary mb-1">Mau belanja apa hari ini?</p>
-            <h2 className="text-2xl md:text-3xl font-bold">Belanja per Kategori</h2>
+            <p className="text-sm font-medium text-primary mb-1">What are you shopping for today?</p>
+            <h2 className="text-2xl md:text-3xl font-bold">Shop by Kategori</h2>
           </div>
           <Button variant="outline" size="sm" asChild className="shrink-0">
-            <Link href="/products">Lihat Semua</Link>
+            <Link href="/products">See All</Link>
           </Button>
         </div>
 
