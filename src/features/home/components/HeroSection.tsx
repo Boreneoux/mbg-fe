@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HeroIllustration from './HeroIllustration';
 
 const STATS = [
-  { value: '50rb+', label: 'Products' },
-  { value: '< 2 Jam', label: 'Delivery' },
-  { value: '4.8', label: 'App Rating' }
+  { value: '1.000+', label: 'Produk Segar' },
+  { value: 'Same Day', label: 'Pengiriman' },
+  { value: 'Multi-Kurir', label: 'JNE, TIKI & POS' },
 ];
 
 export default function HeroSection() {
@@ -89,9 +89,6 @@ export default function HeroSection() {
                   <div>
                     <p className="text-xl font-bold text-foreground leading-none mb-0.5">
                       {value}
-                      {label === 'Rating Aplikasi' && (
-                        <Star className="inline w-4 h-4 text-yellow-400 fill-yellow-400 ml-0.5 -mt-0.5" />
-                      )}
                     </p>
                     <p className="text-xs text-muted-foreground">{label}</p>
                   </div>
