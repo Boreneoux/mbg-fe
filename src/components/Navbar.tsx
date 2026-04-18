@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -17,6 +18,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import useAuthStore from '@/stores/useAuthStore';
 import useLocationStore from '@/stores/useLocationStore';
 import { useLogout } from '@/features/auth/hooks/useLogout';
+import { DeliveryAddressSheet } from '@/features/addresses/components/DeliveryAddressSheet';
 
 const NAV_LINKS = [
   { label: 'Semua Produk', href: '/products' },
@@ -25,14 +27,23 @@ const NAV_LINKS = [
   { label: 'Daging & Seafood', href: '/products?category=3' },
   { label: 'Roti & Kue', href: '/products?category=4' },
   { label: 'Dapur & Bumbu', href: '/products?category=5' },
-  { label: 'Minuman', href: '/products?category=6' },
+  { label: 'Minuman', href: '/products?category=6' }
 ];
 
 export default function Navbar() {
   const { user } = useAuthStore();
   const { logout, isLoading } = useLogout();
-  const displayLocation = useLocationStore((s) => s.displayLocation);
-  const openLocationDialog = useLocationStore((s) => s.openLocationDialog);
+  const displayLocation = useLocationStore(s => s.displayLocation);
+  const openLocationDialog = useLocationStore(s => s.openLocationDialog);
+  const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+
+  function handleLocationClick() {
+    if (user) {
+      setAddressSheetOpen(true);
+    } else {
+      openLocationDialog();
+    }
+  }
 
   // TODO: replace with cart store when implemented
   const cartCount = 0;
@@ -43,11 +54,9 @@ export default function Navbar() {
       <div className="bg-foreground text-white">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-4">
           {/* Location picker */}
-          {/* TODO: when user addresses are ready, open an address-picker sheet here instead */}
           <button
-            onClick={openLocationDialog}
-            className="group flex items-center gap-1.5 shrink-0"
-          >
+            onClick={handleLocationClick}
+            className="group flex items-center gap-1.5 shrink-0">
             <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="hidden sm:inline text-white/50 text-xs mr-0.5">
               Kirim ke
@@ -93,9 +102,8 @@ export default function Navbar() {
                 {/* Location in sheet */}
                 <div className="px-6 py-3 bg-secondary/50 border-b border-border">
                   <button
-                    onClick={openLocationDialog}
-                    className="flex items-center gap-2 text-sm"
-                  >
+                    onClick={handleLocationClick}
+                    className="flex items-center gap-2 text-sm">
                     <MapPin className="w-4 h-4 text-primary" />
                     <span className="text-muted-foreground">Kirim ke:</span>
                     <span className="font-medium text-foreground truncate max-w-40">
@@ -268,6 +276,10 @@ export default function Navbar() {
           ))}
         </nav>
       </div>
+      <DeliveryAddressSheet
+        open={addressSheetOpen}
+        onClose={() => setAddressSheetOpen(false)}
+      />
     </header>
   );
 }
