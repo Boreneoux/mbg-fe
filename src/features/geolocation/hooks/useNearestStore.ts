@@ -80,5 +80,5 @@ export function useNearestStore() {
     setStatus('denied');
   }, [setHasPrompted, setSelectedStore, setStatus]);
 
-  return { promptLocation, skipLocation };
+  return { promptLocation, skipLocation, resolveNearestStore };
 }

@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/UnderConstruction';
+import { StoreForm } from '@/features/stores/components/StoreForm';
 
 export default function CreateStorePage() {
-  return <UnderConstruction title="Create Store" description="Store creation form is under development." />;
+  return <StoreForm />;
 }

@@ -6,6 +6,7 @@ import AuthProvider from '@/providers/AuthProvider';
 import GeolocationProvider from '@/providers/GeolocationProvider';
 import MSWProvider from '@/components/MSWProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import NavigationProgress from '@/components/NavigationProgress';
 
 const geistSans = Geist({
@@ -36,8 +37,10 @@ export default function RootLayout({
             <NavigationProgress />
             <AuthProvider>
               <GeolocationProvider>
-                {children}
-                <Toaster />
+                <TooltipProvider>
+                  {children}
+                  <Toaster />
+                </TooltipProvider>
               </GeolocationProvider>
             </AuthProvider>
           </MSWProvider>
