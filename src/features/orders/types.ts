@@ -31,3 +31,10 @@ export type Order = {
   created_at: string;
   order_items: OrderItem[];
 };
+
+export type OrderPaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
