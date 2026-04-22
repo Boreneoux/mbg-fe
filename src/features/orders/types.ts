@@ -1,5 +1,3 @@
-import { Product } from '@/features/products/types';
-
 export type OrderStatus =
   | 'waiting_for_payment'
   | 'waiting_for_confirmation'
@@ -29,7 +27,11 @@ export type OrderItem = {
   price: number;
   discount_amount: number;
   total_price: number;
-  product: Product;
+  product: {
+    id: number;
+    name: string;
+    product_images?: { id: number; image_url: string; is_primary: boolean }[];
+  };
 };
 
 export type Order = {
