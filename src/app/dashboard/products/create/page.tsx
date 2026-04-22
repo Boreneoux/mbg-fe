@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import useAuthStore from '@/stores/useAuthStore';
 import { useCreateProduct } from '@/features/products/hooks/useCreateProduct';
 import { ProductForm } from '@/features/products/components/ProductForm';
+import { CreateProductFormValues, UpdateProductFormValues } from '@/features/products/schemas/product.schema';
+import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CreateProductPage() {
@@ -33,7 +35,7 @@ export default function CreateProductPage() {
           <CardDescription>Fill in the details below to create a new product</CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductForm form={form} onSubmit={onSubmit} isSubmitting={isSubmitting} />
+          <ProductForm form={form as UseFormReturn<CreateProductFormValues | UpdateProductFormValues>} onSubmit={onSubmit} isSubmitting={isSubmitting} />
         </CardContent>
       </Card>
     </div>

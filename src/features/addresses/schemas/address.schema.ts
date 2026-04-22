@@ -5,12 +5,12 @@ export const addressSchema = z.object({
   recipient_name: z.string().min(1, 'Nama penerima wajib diisi').max(100),
   phone:          z.string().min(1, 'Nomor HP wajib diisi').max(20),
   address:        z.string().min(1, 'Alamat lengkap wajib diisi'),
-  province_id:    z.number({ required_error: 'Provinsi wajib dipilih' }).positive('Provinsi wajib dipilih'),
-  city_id:        z.number({ required_error: 'Kota/Kabupaten wajib dipilih' }).positive('Kota wajib dipilih'),
-  district_id:    z.number({ required_error: 'Kecamatan wajib dipilih' }).positive('Kecamatan wajib dipilih'),
+  province_id:    z.number({ error: 'Provinsi wajib dipilih' }).positive('Provinsi wajib dipilih'),
+  city_id:        z.number({ error: 'Kota/Kabupaten wajib dipilih' }).positive('Kota wajib dipilih'),
+  district_id:    z.number({ error: 'Kecamatan wajib dipilih' }).positive('Kecamatan wajib dipilih'),
   postal_code:    z.string().max(10).optional(),
-  latitude:       z.number({ required_error: 'Lokasi GPS wajib dideteksi' }),
-  longitude:      z.number({ required_error: 'Lokasi GPS wajib dideteksi' }),
+  latitude:       z.number({ error: 'Lokasi GPS wajib dideteksi' }),
+  longitude:      z.number({ error: 'Lokasi GPS wajib dideteksi' }),
   is_primary:     z.boolean().optional(),
 });
 
