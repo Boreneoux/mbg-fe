@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, CreditCard, ShoppingBag } from 'lucide-react';
+import { MapPin, CreditCard, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,17 +8,20 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useCheckout } from '@/features/checkout/useCheckout';
-import type { Address } from '@/features/checkout/types';
+import { UserAddress } from '@/features/addresses/types';
 
-function AddressOption({ address }: { address: Address }) {
+function AddressOption({ address }: { address: UserAddress }) {
   return (
     <div className="flex items-start space-x-3 p-4 border border-border rounded-lg">
-      <RadioGroupItem value={address.id} id={address.id} />
-      <Label htmlFor={address.id} className="flex-1 cursor-pointer">
-        <div className="font-semibold mb-1">{address.label}</div>
+      <RadioGroupItem value={address.id.toString()} id={`addr-${address.id}`} />
+      <Label htmlFor={`addr-${address.id}`} className="flex-1 cursor-pointer">
+        <div className="font-semibold mb-1">
+          {address.label || 'Address'}
+          {address.is_primary && <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">Primary</span>}
+        </div>
         <div className="text-sm text-muted-foreground">
-          {address.street}<br />
-          {address.city}, {address.state} {address.zipCode}
+          {address.address}<br />
+          {address.city.name}, {address.province.name} {address.postal_code}
         </div>
       </Label>
     </div>
@@ -63,6 +66,7 @@ export default function CheckoutPage() {
     addresses,
     appliedDiscount,
     signIn,
+    isPlacingOrder
   } = useCheckout();
 
   return (
@@ -85,7 +89,13 @@ export default function CheckoutPage() {
                 <Button onClick={signIn}>Sign In</Button>
               </div>
             ) : (
-              <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
+              <RadioGroup 
+                value={selectedAddress ? selectedAddress.toString() : ''} 
+                onValueChange={(val) => setSelectedAddress(Number(val))}
+              >
+                {addresses.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-2">No addresses found. Please add one in your profile.</p>
+                )}
                 {addresses.map((address) => (
                   <AddressOption key={address.id} address={address} />
                 ))}
@@ -101,26 +111,12 @@ export default function CheckoutPage() {
             </div>
 
             <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-              <PaymentOption value="card" id="card" label="Credit/Debit Card" />
-              <PaymentOption value="cash" id="cash" label="Cash on Delivery" />
+              <PaymentOption value="payment_gateway" id="payment_gateway" label="Midtrans Payment Gateway (Card / Bank Transfer / E-Wallet)" />
             </RadioGroup>
-
-            {paymentMethod === 'card' && (
-              <div className="mt-4 space-y-4">
-                <div>
-                  <Label>Card Number</Label>
-                  <Input placeholder="1234 5678 9012 3456" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Expiry Date</Label>
-                    <Input placeholder="MM/YY" />
-                  </div>
-                  <div>
-                    <Label>CVV</Label>
-                    <Input placeholder="123" />
-                  </div>
-                </div>
+            
+            {paymentMethod === 'payment_gateway' && (
+              <div className="mt-4 p-4 bg-muted/30 rounded-lg text-sm text-muted-foreground">
+                You will be redirected to the secure Midtrans payment gateway after placing your order.
               </div>
             )}
           </Card>
@@ -150,39 +146,47 @@ export default function CheckoutPage() {
               {cartItems.map((item) => {
                 if (!item.product) return null;
                 return (
-                  <div key={item.productId} className="flex justify-between text-sm">
+                  <div key={item.id} className="flex justify-between text-sm">
                     <span>
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <span>Rp {(item.product.price * item.quantity).toLocaleString('id-ID')}</span>
                   </div>
                 );
               })}
 
               <Separator />
 
-              <SummaryRow title="Subtotal" value={`$${subtotal.toFixed(2)}`} />
+              <SummaryRow title="Subtotal" value={`Rp ${subtotal.toLocaleString('id-ID')}`} />
 
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span>-${discount.toFixed(2)}</span>
+                  <span>-Rp {discount.toLocaleString('id-ID')}</span>
                 </div>
               )}
 
-              <SummaryRow title="Delivery Fee" value={`$${deliveryFee.toFixed(2)}`} />
+              <SummaryRow title="Delivery Fee" value={`Rp ${deliveryFee.toLocaleString('id-ID')}`} />
 
               <Separator />
 
-              <SummaryRow title="Total" value={`$${total.toFixed(2)}`} highlight />
+              <SummaryRow title="Total" value={`Rp ${total.toLocaleString('id-ID')}`} highlight />
             </div>
 
             <Button
-              className="w-full"
+              className="w-full relative"
               size="lg"
               onClick={handlePlaceOrder}
+              disabled={isPlacingOrder || addresses.length === 0}
             >
-              Place Order
+              {isPlacingOrder ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Place Order'
+              )}
             </Button>
           </Card>
         </div>
