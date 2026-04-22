@@ -5,38 +5,49 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import useAuthStore from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
+import { useAddresses } from '@/features/addresses/hooks/useAddresses';
+import { createOrderApi, getPaymentUrlApi } from '@/features/orders/api/orders.api';
 import { discountSchema, type DiscountFormData } from './schema';
-import { mockProducts, mockAddresses } from '@/data/mockData';
 
 export const useCheckout = () => {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { cart, clearCart, appliedDiscount, setAppliedDiscount } = useCartStore();
-  const [selectedAddress, setSelectedAddress] = useState(mockAddresses[0]?.id || '');
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const { cart, appliedDiscount, setAppliedDiscount, clear } = useCartStore();
+  const { addresses } = useAddresses();
+  
+  // Set default address to ID of primary address or first address
+  const defaultAddressId = addresses.find(a => a.is_primary)?.id || addresses[0]?.id;
+  const [selectedAddress, setSelectedAddress] = useState<number | ''>('');
+
+  useEffect(() => {
+    if (defaultAddressId && selectedAddress === '') {
+      setSelectedAddress(defaultAddressId);
+    }
+  }, [defaultAddressId, selectedAddress]);
+
+  const [paymentMethod, setPaymentMethod] = useState('payment_gateway');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const form = useForm<DiscountFormData>({
     resolver: zodResolver(discountSchema),
     defaultValues: { code: '' },
   });
 
+  const cartItems = cart?.cart_items || [];
+
   useEffect(() => {
-    if (cart.length === 0) {
+    if (cartItems.length === 0) {
       router.push('/cart');
     }
-  }, [cart.length, router]);
-
-  const cartItems = cart.map((item) => {
-    const product = mockProducts.find((p) => p.id === item.productId);
-    return { ...item, product };
-  });
+  }, [cartItems.length, router]);
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
     0
   );
+  
   const discount = appliedDiscount === 'WELCOME10' ? subtotal * 0.1 : 0;
-  const deliveryFee = 4.99;
+  const deliveryFee = 20000;
   const total = subtotal - discount + deliveryFee;
 
   const handleApplyDiscount = (data: DiscountFormData) => {
@@ -49,7 +60,7 @@ export const useCheckout = () => {
     }
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!user) {
       router.push('/login');
       return;
@@ -60,10 +71,35 @@ export const useCheckout = () => {
       return;
     }
 
-    // Simulate order placement
-    toast.success('Order placed successfully!');
-    clearCart();
-    router.push('/orders');
+    setIsPlacingOrder(true);
+    try {
+      // 1. Create order
+      const createResponse = await createOrderApi({
+        address_id: selectedAddress as number,
+        payment_method: 'payment_gateway',
+        shipping_method: 'Standard',
+        shipping_cost: deliveryFee,
+        ...(appliedDiscount ? { voucher_code: appliedDiscount } : {})
+      });
+      
+      const orderId = createResponse.data.order.id;
+      
+      // 2. Get payment URL
+      const paymentResponse = await getPaymentUrlApi(orderId);
+      const paymentUrl = paymentResponse.data.payment_url;
+      
+      clear();
+      toast.success('Order created, redirecting to payment gateway...');
+      
+      // 3. Redirect to midtrans
+      window.location.href = paymentUrl;
+      
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to place order';
+      toast.error(message);
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   const signIn = () => router.push('/login');
@@ -82,8 +118,9 @@ export const useCheckout = () => {
     handleApplyDiscount,
     handlePlaceOrder,
     isAuthenticated: !!user,
-    addresses: mockAddresses,
+    addresses,
     appliedDiscount,
     signIn,
+    isPlacingOrder
   };
 };
