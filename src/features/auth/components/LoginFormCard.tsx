@@ -6,15 +6,19 @@ import { Eye, EyeOff, ShoppingCart, Smile } from 'lucide-react';
 import { useFormLogin } from '@/features/auth/hooks/useFormLogin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 
 export function LoginFormCard() {
   const { form, onSubmit } = useFormLogin();
   const [showPassword, setShowPassword] = useState(false);
-  const {
-    register,
-    formState: { errors, isSubmitting },
-  } = form;
+  const { formState: { errors, isSubmitting } } = form;
 
   return (
     <div className="flex-1 flex flex-col justify-center items-center px-4 py-12">
@@ -23,7 +27,7 @@ export function LoginFormCard() {
         <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center ring-2 ring-white/30">
           <ShoppingCart className="w-5 h-5 text-white" />
         </div>
-        <span className="font-bold text-lg">MalesBeliGrocery</span>
+        <span className="font-bold text-lg">MagerBeliGrocery</span>
       </div>
 
       {/* Card */}
@@ -39,88 +43,81 @@ export function LoginFormCard() {
           </p>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-5" noValidate>
-          {/* Server / root error */}
-          {errors.root && (
-            <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
-              {errors.root.message}
-            </div>
-          )}
+        <Form {...form}>
+          <form onSubmit={onSubmit} className="space-y-5" noValidate>
+            {errors.root && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+                {errors.root.message}
+              </div>
+            )}
 
-          {/* Email */}
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="contoh@email.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register('email')}
-              className={
-                errors.email
-                  ? 'border-destructive focus-visible:ring-destructive/50'
-                  : ''
-              }
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="contoh@email.com"
+                      autoComplete="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
-              <Link
-                href="/auth/forgot-password"
-                className="text-xs text-primary hover:underline underline-offset-2 font-medium"
-                tabIndex={-1}
-              >
-                Lupa password?
-              </Link>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Masukkan password kamu"
-                autoComplete="current-password"
-                aria-invalid={!!errors.password}
-                {...register('password')}
-                className={`pr-10 ${
-                  errors.password
-                    ? 'border-destructive focus-visible:ring-destructive/50'
-                    : ''
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="text-xs text-primary hover:underline underline-offset-2 font-medium"
+                      tabIndex={-1}
+                    >
+                      Lupa password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Masukkan password kamu"
+                        autoComplete="current-password"
+                        className="pr-10"
+                        {...field}
+                      />
+                    </FormControl>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full font-semibold"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Sedang masuk…' : 'Masuk'}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              className="w-full font-semibold"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Sedang masuk…' : 'Masuk'}
+            </Button>
+          </form>
+        </Form>
 
         {/* Divider */}
         <div className="relative my-6">

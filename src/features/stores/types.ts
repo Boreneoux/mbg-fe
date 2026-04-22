@@ -57,6 +57,13 @@ export type Store = {
   store_admins: StoreAdmin[];
 };
 
+export type StorePaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
 export type EligibleStoreAdminUser = {
   id: number;
   first_name: string | null;

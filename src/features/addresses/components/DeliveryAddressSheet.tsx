@@ -18,7 +18,7 @@ import { FALLBACK_STORE_ID } from '@/mocks/handlers/stores.handlers';
 import { getAddressesApi } from '../api/address.api';
 import { UserAddress } from '../types';
 
-const FALLBACK_STORE_NAME = 'MalesBeliGrocery – Sudirman';
+const FALLBACK_STORE_NAME = 'MagerBeliGrocery – Sudirman';
 
 type Props = {
   open: boolean;

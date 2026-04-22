@@ -131,6 +131,7 @@
   to   { transform: rotate(360deg); }
 }
 
+
 @layer utilities {
   .animate-float   { animation: float 3.0s ease-in-out infinite; }
   .animate-float-1 { animation: float 3.2s ease-in-out 0.3s  infinite; }

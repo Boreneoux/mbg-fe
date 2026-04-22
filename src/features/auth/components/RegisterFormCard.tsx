@@ -5,14 +5,18 @@ import { ShoppingCart } from 'lucide-react';
 import { useFormRegister } from '@/features/auth/hooks/useFormRegister';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 
 export function RegisterFormCard() {
   const { form, onSubmit } = useFormRegister();
-  const {
-    register,
-    formState: { errors, isSubmitting },
-  } = form;
+  const { formState: { errors, isSubmitting } } = form;
 
   return (
     <div className="flex-1 flex flex-col justify-center items-center px-4 py-12">
@@ -21,7 +25,7 @@ export function RegisterFormCard() {
         <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center ring-2 ring-white/30">
           <ShoppingCart className="w-5 h-5 text-white" />
         </div>
-        <span className="font-bold text-lg">MalesBeliGrocery</span>
+        <span className="font-bold text-lg">MagerBeliGrocery</span>
       </div>
 
       {/* Card */}
@@ -34,135 +38,128 @@ export function RegisterFormCard() {
           </p>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-5" noValidate>
-          {/* Server / root error */}
-          {errors.root && (
-            <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
-              {errors.root.message}
-            </div>
-          )}
-
-          {/* First name + Last name */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="first_name" className="text-sm font-medium">
-                Nama depan
-              </Label>
-              <Input
-                id="first_name"
-                type="text"
-                placeholder="Budi"
-                autoComplete="given-name"
-                aria-invalid={!!errors.first_name}
-                {...register('first_name')}
-                className={
-                  errors.first_name
-                    ? 'border-destructive focus-visible:ring-destructive/50'
-                    : ''
-                }
-              />
-              {errors.first_name && (
-                <p className="text-xs text-destructive">{errors.first_name.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="last_name" className="text-sm font-medium">
-                Nama belakang
-              </Label>
-              <Input
-                id="last_name"
-                type="text"
-                placeholder="Santoso"
-                autoComplete="family-name"
-                aria-invalid={!!errors.last_name}
-                {...register('last_name')}
-                className={
-                  errors.last_name
-                    ? 'border-destructive focus-visible:ring-destructive/50'
-                    : ''
-                }
-              />
-              {errors.last_name && (
-                <p className="text-xs text-destructive">{errors.last_name.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Email */}
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="contoh@email.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register('email')}
-              className={
-                errors.email
-                  ? 'border-destructive focus-visible:ring-destructive/50'
-                  : ''
-              }
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
+        <Form {...form}>
+          <form onSubmit={onSubmit} className="space-y-5" noValidate>
+            {errors.root && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+                {errors.root.message}
+              </div>
             )}
-          </div>
 
-          {/* Phone */}
-          <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-sm font-medium">
-              Nomor telepon
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="08123456789"
-              autoComplete="tel"
-              aria-invalid={!!errors.phone}
-              {...register('phone')}
-              className={
-                errors.phone
-                  ? 'border-destructive focus-visible:ring-destructive/50'
-                  : ''
-              }
+            {/* First name + Last name */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama depan</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Budi"
+                        autoComplete="given-name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama belakang</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Santoso"
+                        autoComplete="family-name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="contoh@email.com"
+                      autoComplete="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone.message}</p>
-            )}
-          </div>
 
-          {/* Referral code (optional) */}
-          <div className="space-y-1.5">
-            <Label htmlFor="referral_code" className="text-sm font-medium">
-              Kode referral{' '}
-              <span className="font-normal text-muted-foreground">(opsional)</span>
-            </Label>
-            <Input
-              id="referral_code"
-              type="text"
-              placeholder="Masukkan kode referral"
-              autoComplete="off"
-              {...register('referral_code')}
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor telepon</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="tel"
+                      placeholder="08123456789"
+                      autoComplete="tel"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <p className="text-xs text-muted-foreground">
-            Link verifikasi akan dikirim ke email kamu untuk mengaktifkan akun.
-          </p>
+            <FormField
+              control={form.control}
+              name="referral_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Kode referral{' '}
+                    <span className="font-normal text-muted-foreground">(opsional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Masukkan kode referral"
+                      autoComplete="off"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full font-semibold"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Mendaftarkan akun...' : 'Daftar sekarang'}
-          </Button>
-        </form>
+            <p className="text-xs text-muted-foreground">
+              Link verifikasi akan dikirim ke email kamu untuk mengaktifkan akun.
+            </p>
+
+            <Button
+              type="submit"
+              className="w-full font-semibold"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Mendaftarkan akun...' : 'Daftar sekarang'}
+            </Button>
+          </form>
+        </Form>
 
         {/* Divider */}
         <div className="relative my-6">

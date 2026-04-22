@@ -37,7 +37,7 @@ export default function Footer() {
               <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
                 <ShoppingCart className="w-4 h-4 text-white" />
               </div>
-              <h3 className="font-bold text-lg">MalesBeliGrocery</h3>
+              <h3 className="font-bold text-lg">MagerBeliGrocery</h3>
             </div>
             <p className="text-gray-400 text-sm mb-5 leading-relaxed">
               Online grocery store terpercaya yang deliver produk segar dan
@@ -94,25 +94,27 @@ export default function Footer() {
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
                 <span className="text-sm text-gray-400">
-                  0800-MALES-BELI
+                  0800-MAGER-BELI
                   <br />
                   <span className="text-gray-500 text-xs">
-                    (0800-6253-2354)
+                    (0800-6243-7235)
                   </span>
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
                 <span className="text-sm text-gray-400">
-                  support@malesbeligrocery.com
+                  magerbeligroser.dev@gmail.com
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
                 <span className="text-sm text-gray-400">
-                  Jl. Sudirman No. 123
+                  Jl. BSD Green Office Park, GOP 9 - G Floor
                   <br />
-                  Jakarta, 10220
+                  BSD City, Sampora, Kec. Cisauk,
+                  <br />
+                  Kabupaten Tangerang, Banten 15345
                 </span>
               </li>
             </ul>
@@ -122,7 +124,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-500">
           <p>
-            &copy; {new Date().getFullYear()} MalesBeliGrocery. All rights
+            &copy; {new Date().getFullYear()} MagerBeliGrocery. All rights
             reserved.
           </p>
           <p className="text-xs">Made with ❤️ by Group 1</p>
