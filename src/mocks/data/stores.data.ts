@@ -7,7 +7,7 @@ const mockDistrict = { id: 1, city_id: 151, name: 'Gambir', rajaongkir_district_
 export const mockStores: Store[] = [
   {
     id: 1,
-    name: 'MalesBeliGrocery – Sudirman',
+    name: 'MagerBeliGrocery – Sudirman',
     address: 'Jl. Jend. Sudirman No.1, Karet Tengsin, Jakarta Pusat',
     district_id: 1,
     city_id: 151,
@@ -26,7 +26,7 @@ export const mockStores: Store[] = [
   },
   {
     id: 2,
-    name: 'MalesBeliGrocery – Kelapa Gading',
+    name: 'MagerBeliGrocery – Kelapa Gading',
     address: 'Jl. Boulevard Raya No.1, Kelapa Gading, Jakarta Utara',
     district_id: 1,
     city_id: 151,
@@ -45,7 +45,7 @@ export const mockStores: Store[] = [
   },
   {
     id: 3,
-    name: 'MalesBeliGrocery – Fatmawati',
+    name: 'MagerBeliGrocery – Fatmawati',
     address: 'Jl. RS Fatmawati No.10, Cilandak, Jakarta Selatan',
     district_id: 1,
     city_id: 151,

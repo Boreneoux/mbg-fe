@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -17,8 +17,14 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import useAuthStore from '@/stores/useAuthStore';
 import useLocationStore from '@/stores/useLocationStore';
+import { useCartStore } from '@/stores/useCartStore';
+import { useCart } from '@/features/cart/hooks/useCart';
 import { useLogout } from '@/features/auth/hooks/useLogout';
 import { DeliveryAddressSheet } from '@/features/addresses/components/DeliveryAddressSheet';
+import { NavbarProfileDropdown } from '@/components/NavbarProfileDropdown';
+import { NavbarCartPopover } from '@/components/NavbarCartPopover';
+
+type ActiveOverlay = 'search' | 'nav' | null;
 
 const NAV_LINKS = [
   { label: 'Semua Produk', href: '/products' },
@@ -36,6 +42,37 @@ export default function Navbar() {
   const displayLocation = useLocationStore(s => s.displayLocation);
   const openLocationDialog = useLocationStore(s => s.openLocationDialog);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+  const [activeOverlay, setActiveOverlay] = useState<ActiveOverlay>(null);
+  const overlayCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openNavOverlay = useCallback(() => {
+    if (overlayCloseTimer.current) {
+      clearTimeout(overlayCloseTimer.current);
+      overlayCloseTimer.current = null;
+    }
+    setActiveOverlay('nav');
+  }, []);
+
+  const closeNavOverlayDelayed = useCallback(() => {
+    overlayCloseTimer.current = setTimeout(() => setActiveOverlay(null), 150);
+  }, []);
+
+  const closeOverlay = useCallback(() => {
+    if (overlayCloseTimer.current) {
+      clearTimeout(overlayCloseTimer.current);
+      overlayCloseTimer.current = null;
+    }
+    setActiveOverlay(null);
+  }, []);
+
+  useEffect(() => {
+    if (!activeOverlay) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') closeOverlay();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeOverlay, closeOverlay]);
 
   function handleLocationClick() {
     if (user) {
@@ -45,11 +82,24 @@ export default function Navbar() {
     }
   }
 
-  // TODO: replace with cart store when implemented
-  const cartCount = 0;
+  const cart = useCartStore(s => s.cart);
+  const { fetchCart } = useCart();
+
+  useEffect(() => {
+    if (user) fetchCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
+    <>
+      {/* Overlay backdrop */}
+      {activeOverlay && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-200"
+          onClick={closeOverlay}
+        />
+      )}
+      <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
       {/* Top bar: Location + Promo */}
       <div className="bg-foreground text-white">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-4">
@@ -96,7 +146,7 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
                     <ShoppingCart className="w-4 h-4 text-white" />
                   </div>
-                  <span className="font-bold text-lg">MalesBeliGrocery</span>
+                  <span className="font-bold text-lg">MagerBeliGrocery</span>
                 </div>
 
                 {/* Location in sheet */}
@@ -144,7 +194,7 @@ export default function Navbar() {
                       <button
                         onClick={logout}
                         disabled={isLoading}
-                        className="px-3 py-2.5 rounded-lg text-sm font-medium text-left hover:bg-secondary transition-colors disabled:opacity-50 text-destructive">
+                        className="px-3 py-2.5 rounded-lg text-sm font-medium text-left hover:bg-secondary transition-colors disabled:opacity-50 text-destructive cursor-pointer">
                         Sign Out
                       </button>
                     </>
@@ -170,7 +220,7 @@ export default function Navbar() {
               <span className="text-lg font-bold inline-flex whitespace-nowrap overflow-hidden">
                 M
                 <span className="max-w-0 overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-[4ch]">
-                  ales
+                  ager
                 </span>
                 B
                 <span className="max-w-0 overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-[3ch]">
@@ -192,33 +242,25 @@ export default function Navbar() {
                 type="search"
                 placeholder="Search produk segar..."
                 className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60 focus:bg-white focus:border-primary transition-colors"
+                onFocus={() => setActiveOverlay('search')}
+                onBlur={closeOverlay}
               />
             </div>
           </div>
 
           {/* Right: auth + cart */}
-          <div className="flex items-center gap-1.5 ml-auto lg:ml-0">
+          <div
+            className="flex items-center gap-1.5 ml-auto lg:ml-0"
+            onMouseEnter={openNavOverlay}
+            onMouseLeave={closeNavOverlayDelayed}>
+            {/* Desktop profile dropdown / auth buttons */}
             {user ? (
-              <div className="hidden md:flex items-center gap-1">
-                <Link href="/account/profile">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-2 text-sm font-medium">
-                    <User className="w-4 h-4" />
-                    <span className="hidden lg:inline max-w-30 truncate">
-                      {user.first_name ?? user.email}
-                    </span>
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={logout}
-                  disabled={isLoading}
-                  className="hidden lg:flex text-sm text-muted-foreground hover:text-destructive">
-                  Sign Out
-                </Button>
+              <div className="hidden md:flex items-center">
+                <NavbarProfileDropdown
+                  user={user}
+                  onLogout={() => { closeOverlay(); logout(); }}
+                  isLoggingOut={isLoading}
+                />
               </div>
             ) : (
               <div className="hidden md:flex items-center gap-2">
@@ -238,13 +280,16 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Cart */}
-            <Link href="/cart" className="relative">
+            {/* Cart — desktop shows popover, mobile is plain link */}
+            <div className="hidden md:block">
+              <NavbarCartPopover cart={cart} />
+            </div>
+            <Link href="/cart" className="relative md:hidden">
               <Button variant="ghost" size="icon">
                 <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
+                {(cart?.cart_items.length ?? 0) > 0 && (
                   <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-primary text-white text-xs">
-                    {cartCount}
+                    {(cart?.cart_items.length ?? 0) > 99 ? '99+' : cart?.cart_items.length}
                   </Badge>
                 )}
               </Button>
@@ -260,6 +305,8 @@ export default function Navbar() {
               type="search"
               placeholder="Search produk segar..."
               className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60"
+              onFocus={() => setActiveOverlay('search')}
+              onBlur={closeOverlay}
             />
           </div>
         </div>
@@ -281,5 +328,6 @@ export default function Navbar() {
         onClose={() => setAddressSheetOpen(false)}
       />
     </header>
+    </>
   );
 }

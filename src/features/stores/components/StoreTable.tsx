@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Pencil, UserPlus, Trash2, MapPin } from 'lucide-react';
+import { Plus, Pencil, UserPlus, Trash2, MapPin, Search } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -14,19 +14,34 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { AssignAdminDialog } from './AssignAdminDialog';
 import { DeleteStoreDialog } from './DeleteStoreDialog';
-import { Store } from '@/features/stores/types';
+import { Store, StorePaginationMeta } from '@/features/stores/types';
 
 type Props = {
   stores: Store[];
   isLoading: boolean;
   onRefetch: () => void;
+  pagination: StorePaginationMeta;
+  page: number;
+  onPageChange: (page: number) => void;
+  search: string;
+  onSearchChange: (value: string) => void;
 };
 
 type DialogState =
@@ -45,9 +60,27 @@ function getAdminNames(store: Store) {
     });
 }
 
-export function StoreTable({ stores, isLoading, onRefetch }: Props) {
+function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, 'ellipsis', total];
+  if (current >= total - 3) return [1, 'ellipsis', total - 4, total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
+
+export function StoreTable({
+  stores,
+  isLoading,
+  onRefetch,
+  pagination,
+  page,
+  onPageChange,
+  search,
+  onSearchChange,
+}: Props) {
   const router = useRouter();
   const [dialog, setDialog] = useState<DialogState>(null);
+
+  const pageNumbers = buildPageNumbers(page, pagination.totalPages);
 
   return (
     <div className="space-y-4">
@@ -63,6 +96,17 @@ export function StoreTable({ stores, isLoading, onRefetch }: Props) {
           <Plus className="h-4 w-4" />
           Add Store
         </Button>
+      </div>
+
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search stores..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-9"
+        />
       </div>
 
       {/* Table */}
@@ -91,7 +135,9 @@ export function StoreTable({ stores, isLoading, onRefetch }: Props) {
             ) : stores.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-16 text-muted-foreground">
-                  No stores yet. Click &quot;Add Store&quot; to get started.
+                  {search
+                    ? `No stores found for "${search}".`
+                    : 'No stores yet. Click "Add Store" to get started.'}
                 </TableCell>
               </TableRow>
             ) : (
@@ -188,7 +234,54 @@ export function StoreTable({ stores, isLoading, onRefetch }: Props) {
         </Table>
       </div>
 
-      {/* Dialogs — assign and delete stay as dialogs (lightweight, no map) */}
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * pagination.limit + 1}–
+            {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} stores
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => onPageChange(page - 1)}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+
+              {pageNumbers.map((p, i) =>
+                p === 'ellipsis' ? (
+                  <PaginationItem key={`ellipsis-${i}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      isActive={p === page}
+                      onClick={() => onPageChange(p)}
+                      className="cursor-pointer"
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => onPageChange(page + 1)}
+                  aria-disabled={page === pagination.totalPages}
+                  className={page === pagination.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
+      {/* Dialogs */}
       <AssignAdminDialog
         store={dialog?.type === 'assign' ? dialog.store : null}
         onOpenChange={(open) => { if (!open) setDialog(null); }}

@@ -8,7 +8,7 @@ export function LoginBrandPanel() {
         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center ring-2 ring-white/30">
           <ShoppingCart className="w-5 h-5 text-white" />
         </div>
-        <span className="font-bold text-lg tracking-wide">MalesBeliGrocery</span>
+        <span className="font-bold text-lg tracking-wide">MagerBeliGrocery</span>
       </div>
 
       {/* Middle: tagline + stats */}
@@ -38,7 +38,7 @@ export function LoginBrandPanel() {
 
       {/* Bottom: copyright */}
       <p className="text-xs text-white/40 font-medium tracking-widest uppercase">
-        © MalesBeliGrocery
+        © MagerBeliGrocery
       </p>
     </div>
   );

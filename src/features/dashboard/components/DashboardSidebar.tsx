@@ -43,7 +43,7 @@ function SidebarContent() {
             <ShoppingBasket className="h-5 w-5 text-white" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-bold">MalesBeliGrocery</p>
+            <p className="text-sm font-bold">MagerBeliGrocery</p>
             <p className="text-xs text-muted-foreground">Admin Panel</p>
           </div>
         </Link>
@@ -101,7 +101,7 @@ export default function DashboardSidebar() {
         </Sheet>
         <Link href="/dashboard" className="ml-3 flex items-center gap-2">
           <ShoppingBasket className="h-5 w-5 text-primary" />
-          <span className="text-sm font-bold">MalesBeliGrocery</span>
+          <span className="text-sm font-bold">MagerBeliGrocery</span>
         </Link>
       </div>
 
