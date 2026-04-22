@@ -6,7 +6,7 @@ import { reverseGeocodeApi } from '@/features/geolocation/api/geocoding.api';
 import { FALLBACK_STORE_ID } from '@/mocks/handlers/stores.handlers';
 
 // Fallback store name matches FALLBACK_STORE_ID = 1
-const FALLBACK_STORE_NAME = 'MalesBeliGrocery – Sudirman';
+const FALLBACK_STORE_NAME = 'MagerBeliGrocery – Sudirman';
 
 export function useNearestStore() {
   const {

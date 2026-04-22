@@ -5,15 +5,18 @@ import { ArrowLeft, Mail, MailCheck, ShoppingCart } from 'lucide-react';
 import { useFormForgotPassword } from '@/features/auth/hooks/useFormForgotPassword';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 
 export function ForgotPasswordCard() {
   const { form, onSubmit, successMessage } = useFormForgotPassword();
-  const {
-    register,
-    getValues,
-    formState: { errors, isSubmitting },
-  } = form;
+  const { getValues, formState: { errors, isSubmitting } } = form;
 
   return (
     <div className="flex flex-col items-center w-full max-w-sm px-4 py-12">
@@ -22,7 +25,7 @@ export function ForgotPasswordCard() {
         <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center ring-2 ring-white/30">
           <ShoppingCart className="w-5 h-5 text-white" />
         </div>
-        <span className="font-bold text-lg">MalesBeliGrocery</span>
+        <span className="font-bold text-lg">MagerBeliGrocery</span>
       </div>
 
       <div className="w-full bg-white rounded-2xl shadow-2xl p-8">
@@ -63,44 +66,43 @@ export function ForgotPasswordCard() {
               </p>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-5" noValidate>
-              {errors.root && (
-                <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
-                  {errors.root.message}
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="contoh@email.com"
-                  autoComplete="email"
-                  autoFocus
-                  aria-invalid={!!errors.email}
-                  {...register('email')}
-                  className={
-                    errors.email
-                      ? 'border-destructive focus-visible:ring-destructive/50'
-                      : ''
-                  }
-                />
-                {errors.email && (
-                  <p className="text-xs text-destructive">{errors.email.message}</p>
+            <Form {...form}>
+              <form onSubmit={onSubmit} className="space-y-5" noValidate>
+                {errors.root && (
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+                    {errors.root.message}
+                  </div>
                 )}
-              </div>
 
-              <Button
-                type="submit"
-                className="w-full font-semibold"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Mengirim...' : 'Kirim link reset password'}
-              </Button>
-            </form>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="contoh@email.com"
+                          autoComplete="email"
+                          autoFocus
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full font-semibold"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Mengirim...' : 'Kirim link reset password'}
+                </Button>
+              </form>
+            </Form>
 
             <div className="mt-6 text-center">
               <Link

@@ -5,7 +5,7 @@ import { ThemeProvider } from 'next-themes';
 import AuthProvider from '@/providers/AuthProvider';
 import GeolocationProvider from '@/providers/GeolocationProvider';
 import MSWProvider from '@/components/MSWProvider';
-import { Toaster } from '@/components/ui/sonner';
+import { AppToaster } from '@/components/AppToaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NavigationProgress from '@/components/NavigationProgress';
 
@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'MalesBeliGrocery',
+  title: 'MagerBeliGrocery',
   description: 'Online Grocery Store',
 };
 
@@ -39,7 +39,7 @@ export default function RootLayout({
               <GeolocationProvider>
                 <TooltipProvider>
                   {children}
-                  <Toaster />
+                  <AppToaster />
                 </TooltipProvider>
               </GeolocationProvider>
             </AuthProvider>
