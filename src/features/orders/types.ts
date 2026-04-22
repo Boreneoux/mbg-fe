@@ -10,6 +10,18 @@ export type OrderStatus =
 
 export type PaymentMethod = 'manual_transfer' | 'payment_gateway';
 
+export type UserAddress = {
+  id: number;
+  label?: string;
+  recipient_name: string;
+  phone: string;
+  address: string;
+  postal_code?: string;
+  city: { name: string };
+  province: { name: string };
+  district?: { name: string };
+};
+
 export type OrderItem = {
   id: number;
   product_id: number;
@@ -30,6 +42,7 @@ export type Order = {
   payment_method: PaymentMethod;
   created_at: string;
   order_items: OrderItem[];
+  address: UserAddress;
 };
 
 export type OrderPaginationMeta = {
