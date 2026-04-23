@@ -11,6 +11,13 @@ export async function updateProductApi(id: number, payload: UpdateProductFormVal
   if (payload.price !== undefined) formData.append('price', payload.price.toString());
   if (payload.weight !== undefined) formData.append('weight', payload.weight.toString());
   if (payload.category_id !== undefined) formData.append('category_id', payload.category_id.toString());
+  if (payload.primaryIndex !== undefined) formData.append('primaryIndex', payload.primaryIndex.toString());
+
+  if (payload.deleteImageIds && payload.deleteImageIds.length > 0) {
+    payload.deleteImageIds.forEach((id) => {
+      formData.append('deleteImageIds', id.toString());
+    });
+  }
 
   if (payload.photos && payload.photos.length > 0) {
     payload.photos.forEach((file) => {

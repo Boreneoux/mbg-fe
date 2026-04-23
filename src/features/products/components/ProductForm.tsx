@@ -33,6 +33,10 @@ interface ProductFormProps {
   isLoading?: boolean;
   product?: Product | null;
   submitLabel?: string;
+  onPrimaryChange?: (primaryIndex: number | null) => void;
+  onDeleteExisting?: (imageId: number) => void;
+  primaryIndex?: number | null;
+  deleteImageIds?: number[];
 }
 
 export function ProductForm({
@@ -42,6 +46,10 @@ export function ProductForm({
   isLoading = false,
   product,
   submitLabel = product ? 'Update Product' : 'Create Product',
+  onPrimaryChange,
+  onDeleteExisting,
+  primaryIndex,
+  deleteImageIds = [],
 }: ProductFormProps) {
   const { categories } = useCategories();
 
@@ -191,8 +199,11 @@ export function ProductForm({
             onFilesChange={(files) => {
               form.setValue('photos', files);
             }}
-            existingPhotos={product?.product_images ?? []}
+            onPrimaryChange={onPrimaryChange}
+            onDeleteExisting={onDeleteExisting}
+            existingPhotos={product?.product_images.filter(img => !deleteImageIds.includes(img.id)) ?? []}
             isDisabled={isReadOnly}
+            primaryIndex={primaryIndex}
           />
           {form.formState.errors.photos && (
             <p className="text-red-500 text-sm mt-2">{form.formState.errors.photos.message}</p>
