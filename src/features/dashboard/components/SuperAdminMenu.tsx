@@ -10,6 +10,7 @@ import {
   Ticket,
   Users,
   ShoppingBag,
+  Warehouse,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ const MENU_ITEMS = [
   { label: 'Vouchers', href: '/dashboard/vouchers', icon: Ticket },
   { label: 'Users', href: '/dashboard/users', icon: Users },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
+  { label: 'Inventory', href: '/dashboard/inventory', icon: Warehouse },
 ];
 
 export default function SuperAdminMenu() {
