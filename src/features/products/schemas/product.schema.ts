@@ -28,9 +28,12 @@ export const createProductSchema = z.object({
     .array(photoSchema)
     .max(5, 'Maximum 5 photos allowed')
     .optional(),
+  primaryIndex: z.number().int().min(0).optional(),
 });
 
-export const updateProductSchema = createProductSchema.partial().refine(
+export const updateProductSchema = createProductSchema.partial().extend({
+  deleteImageIds: z.array(z.number().int().positive()).optional(),
+}).refine(
   (data) => Object.values(data).some((v) => v !== undefined),
   { message: 'At least one field must be provided' },
 );

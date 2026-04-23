@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -12,20 +12,27 @@ const MAX_FILES = 5;
 
 interface ProductPhotoUploadProps {
   onFilesChange: (files: File[]) => void;
-  existingPhotos?: Array<{ id: number; image_url: string }>;
+  onPrimaryChange?: (primaryIndex: number | null) => void;
+  onDeleteExisting?: (imageId: number) => void;
+  existingPhotos?: Array<{ id: number; image_url: string; is_primary: boolean }>;
   isDisabled?: boolean;
+  primaryIndex?: number | null;
 }
 
 interface PreviewFile {
   file: File;
   preview: string;
   id: string;
+  isPrimary: boolean;
 }
 
 export function ProductPhotoUpload({
   onFilesChange,
+  onPrimaryChange,
+  onDeleteExisting,
   existingPhotos = [],
   isDisabled = false,
+  primaryIndex = null,
 }: ProductPhotoUploadProps) {
   const [selectedFiles, setSelectedFiles] = useState<PreviewFile[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -65,12 +72,19 @@ export function ProductPhotoUpload({
           file,
           preview,
           id: `${Date.now()}-${Math.random()}`,
+          isPrimary: false, // Will be set later if needed
         });
       });
 
       const updated = [...selectedFiles, ...newFiles];
       setSelectedFiles(updated);
       onFilesChange(updated.map((f) => f.file));
+
+      // Set first image as primary if no primary is set
+      if (primaryIndex === null && updated.length > 0) {
+        const firstIndex = existingPhotos.length;
+        onPrimaryChange?.(firstIndex);
+      }
 
       if (newFiles.length > 0 && errorCount === 0) {
         toast.success(`Added ${newFiles.length} photo${newFiles.length > 1 ? 's' : ''}`);
@@ -83,6 +97,14 @@ export function ProductPhotoUpload({
     const updated = selectedFiles.filter((f) => f.id !== id);
     setSelectedFiles(updated);
     onFilesChange(updated.map((f) => f.file));
+  };
+
+  const setPrimary = (index: number) => {
+    onPrimaryChange?.(index);
+  };
+
+  const removeExisting = (imageId: number) => {
+    onDeleteExisting?.(imageId);
   };
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -156,16 +178,40 @@ export function ProductPhotoUpload({
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">Current photos</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {existingPhotos.map((photo) => (
+            {existingPhotos.map((photo, index) => (
               <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border">
                 <img
                   src={photo.image_url}
                   alt="Product photo"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">Existing</span>
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={primaryIndex === index ? "default" : "secondary"}
+                    onClick={() => setPrimary(index)}
+                    className="h-8 w-8 p-0"
+                    title={primaryIndex === index ? "Primary image" : "Set as primary"}
+                  >
+                    <Star className={cn("w-4 h-4", primaryIndex === index && "fill-current")} />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => removeExisting(photo.id)}
+                    className="h-8 w-8 p-0"
+                    title="Delete image"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
+                {primaryIndex === index && (
+                  <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                    Primary
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -177,26 +223,48 @@ export function ProductPhotoUpload({
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">New photos</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {selectedFiles.map((item) => (
-              <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border">
-                <img
-                  src={item.preview}
-                  alt={item.file.name}
-                  className="w-full h-full object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeFile(item.id)}
-                  className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors"
-                  title={`Remove ${item.file.name}`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                <div className="absolute bottom-1 left-1 right-1 text-xs text-white bg-black/60 px-2 py-1 rounded truncate">
-                  {item.file.name}
+            {selectedFiles.map((item, index) => {
+              const globalIndex = existingPhotos.length + index;
+              return (
+                <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border">
+                  <img
+                    src={item.preview}
+                    alt={item.file.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={primaryIndex === globalIndex ? "default" : "secondary"}
+                      onClick={() => setPrimary(globalIndex)}
+                      className="h-8 w-8 p-0"
+                      title={primaryIndex === globalIndex ? "Primary image" : "Set as primary"}
+                    >
+                      <Star className={cn("w-4 h-4", primaryIndex === globalIndex && "fill-current")} />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => removeFile(item.id)}
+                      className="h-8 w-8 p-0"
+                      title={`Remove ${item.file.name}`}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {primaryIndex === globalIndex && (
+                    <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                      Primary
+                    </div>
+                  )}
+                  <div className="absolute bottom-1 left-1 right-1 text-xs text-white bg-black/60 px-2 py-1 rounded truncate">
+                    {item.file.name}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
