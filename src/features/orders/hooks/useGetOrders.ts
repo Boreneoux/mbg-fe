@@ -8,7 +8,9 @@ import { getOrdersApi } from '../api/orders.api';
 export function useGetOrders(
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  status?: string,
+  warehouse_id?: number | string
 ) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +30,7 @@ export function useGetOrders(
       setError(null);
 
       try {
-        const data = await getOrdersApi(page, limit, search);
+        const data = await getOrdersApi(page, limit, search, status, warehouse_id);
         if (!cancelled) {
           setOrders(data.data);
           setPagination(data.meta);
@@ -52,7 +54,7 @@ export function useGetOrders(
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search]);
+  }, [page, limit, search, status, warehouse_id]);
 
   return { orders, isLoading, error, pagination };
 }
