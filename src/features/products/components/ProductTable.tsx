@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Product } from '@/features/products/types';
 import { DeleteProductDialog } from './DeleteProductDialog';
 import { useState } from 'react';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 interface ProductTableProps {
   products: Product[];
@@ -81,7 +82,7 @@ export function ProductTable({ products, isLoading = false, onRefetch }: Product
               <TableRow key={product.id}>
                 <TableCell className="font-medium max-w-xs truncate">{product.name}</TableCell>
                 <TableCell>{product.category.name}</TableCell>
-                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>{formatCurrencyIDR(product.price)}</TableCell>
                 <TableCell>{product.weight} kg</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
