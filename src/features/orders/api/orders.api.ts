@@ -13,7 +13,9 @@ export interface CreateOrderData {
 export const getOrdersApi = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  status?: string,
+  warehouse_id?: number | string
 ) => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -22,6 +24,14 @@ export const getOrdersApi = async (
   
   if (search) {
     params.append('search', search);
+  }
+
+  if (status && status !== 'all') {
+    params.append('status', status);
+  }
+
+  if (warehouse_id && warehouse_id !== 'all') {
+    params.append('warehouse_id', warehouse_id.toString());
   }
 
   const response = await axiosInstance.get<{ data: Order[], meta: OrderPaginationMeta }>(
