@@ -164,7 +164,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div>
                   <p className="text-sm text-gray-600">Price</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${product.price.toFixed(2)}
+                    ${Number(product.price).toFixed(2)}
                   </p>
                 </div>
 

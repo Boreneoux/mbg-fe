@@ -97,6 +97,28 @@ export const useCart = () => {
     }
   }, [cart, setError, clearStore]);
 
+  // 6. Add to Cart
+  const addToCart = useCallback(
+    async (productId: number, quantity: number, storeId: number = 1) => { // default storeId if none provided, though usually should be resolved by BE or provided
+      setError(null);
+      setLoading(true);
+      try {
+        await cartService.addItem(productId, quantity, storeId);
+        await fetchCart(); // Re-fetch to get complete cart state with the new item
+        toast.success('Added to cart');
+      } catch (err) {
+        const message = axios.isAxiosError(err)
+          ? err.response?.data?.message || 'Failed to add to cart'
+          : 'Failed to add to cart';
+        setError(message);
+        toast.error(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCart, setError, setLoading]
+  );
+
   return {
     cart,
     isLoading,
@@ -105,5 +127,6 @@ export const useCart = () => {
     updateQuantity,
     removeFromCart,
     clearCart,
+    addToCart,
   };
 };

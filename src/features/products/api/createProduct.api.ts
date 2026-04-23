@@ -13,12 +13,12 @@ export async function createProductApi(payload: CreateProductFormValues) {
 
   if (payload.photos && payload.photos.length > 0) {
     payload.photos.forEach((file) => {
-      formData.append('photos', file);
+      formData.append('images', file);
     });
   }
 
-  const response = await axiosInstance.post<ApiResponse<{ product: Product }>>('/products', formData, {
+  const response = await axiosInstance.post<ApiResponse<Product>>('/products', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return response.data.data.product;
+  return response.data.data;
 }
