@@ -24,6 +24,7 @@ import { ProductPhotoUpload } from './ProductPhotoUpload';
 import { CreateProductFormValues, UpdateProductFormValues } from '@/features/products/schemas/product.schema';
 import { ProductCategory, Product } from '@/features/products/types';
 import { useCategories } from '@/features/products/hooks/useCategories';
+import { formatPriceNumber } from '@/utils/currency';
 
 interface ProductFormProps {
   form: UseFormReturn<CreateProductFormValues | UpdateProductFormValues>;
@@ -140,21 +141,18 @@ export function ProductForm({
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price</FormLabel>
+                <FormLabel>Price (IDR)</FormLabel>
                 <FormControl>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">$</span>
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                      disabled={isReadOnly}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </div>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    step="1"
+                    min="0"
+                    disabled={isReadOnly}
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

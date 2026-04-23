@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Skeleton } from '@/components/ui/skeleton';
 import { Eye } from 'lucide-react';
 import { Product } from '@/features/products/types';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 interface ProductReadOnlyViewProps {
   products: Product[];
@@ -85,7 +86,7 @@ export function ProductReadOnlyView({ products, isLoading = false }: ProductRead
             <div className="flex justify-between items-center text-sm">
               <div>
                 <span className="text-gray-500">Price: </span>
-                <span className="font-semibold text-lg">${product.price.toFixed(2)}</span>
+                <span className="font-semibold text-lg">{formatCurrencyIDR(product.price)}</span>
               </div>
               <div>
                 <span className="text-gray-500">Weight: </span>
