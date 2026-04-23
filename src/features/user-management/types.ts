@@ -12,13 +12,7 @@ export type UserListItem = {
 };
 
 export type UserWithStore = UserListItem & {
-  store_admin?: {
-    id: number;
-    store: {
-      id: number;
-      name: string;
-    };
-  } | null;
+  store_admins?: { store: { id: number; name: string } }[];
 };
 
 export type UserPaginationMeta = {
@@ -44,7 +38,6 @@ export type UpdateUserPayload = {
   phone?: string;
   is_verified?: boolean;
   role?: 'store_admin' | 'user';
-  store_id?: number;
 };
 
 export type ChangeRolePayload = {

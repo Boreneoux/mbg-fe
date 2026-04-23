@@ -18,29 +18,21 @@ export const createUserSchema = z.object({
     }),
   phone: z.string().trim().max(20).optional(),
   role: z.enum(['store_admin', 'user']),
-  store_id: z.number().int().positive('Store is required for Store Admin').optional(),
-});
+  store_id: z.number().int().positive().optional(),
+}).refine((data) => {
+  if (data.role === 'store_admin' && !data.store_id) return false;
+  return true;
+}, { message: 'Store is required for Store Admin', path: ['store_id'] });
 
 export type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
-export const updateUserSchema = z
-  .object({
-    first_name: z.string().trim().min(1, 'First name is required').max(50),
-    last_name: z.string().trim().max(50).optional(),
-    phone: z.string().trim().max(20).optional(),
-    is_verified: z.boolean().optional(),
-    role: z.enum(['store_admin', 'user']),
-    store_id: z.number().int().positive('Store is required for Store Admin').optional(),
-  })
-  .refine((data) => {
-    if (data.role === 'store_admin' && !data.store_id) {
-      return false;
-    }
-    return true;
-  }, {
-    message: 'Store is required for Store Admin',
-    path: ['store_id'],
-  });
+export const updateUserSchema = z.object({
+  first_name: z.string().trim().min(1, 'First name is required').max(50),
+  last_name: z.string().trim().max(50).optional(),
+  phone: z.string().trim().max(20).optional(),
+  is_verified: z.boolean().optional(),
+  role: z.enum(['store_admin', 'user']),
+});
 
 export type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
 

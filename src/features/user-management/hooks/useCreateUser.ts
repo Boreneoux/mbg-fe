@@ -24,7 +24,7 @@ export function useCreateUser(onSuccess?: (user: UserWithStore) => void) {
       email: '',
       password: '',
       phone: '',
-      role: 'user',
+      role: 'store_admin' as const,
     },
   });
 

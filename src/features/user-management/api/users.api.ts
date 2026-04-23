@@ -9,7 +9,10 @@ import {
   UserPaginationMeta,
 } from '../types';
 
-type ListUsersResponse = {
+// Backend returns meta at the top level, not nested inside data
+type GetUsersRawResponse = {
+  success: boolean;
+  message: string;
   data: UserWithStore[];
   meta: UserPaginationMeta;
 };
@@ -20,7 +23,7 @@ export async function listUsersApi(
   search?: string,
   role?: 'store_admin' | 'user'
 ) {
-  const response = await axiosInstance.get<ApiResponse<ListUsersResponse>>(
+  const response = await axiosInstance.get<GetUsersRawResponse>(
     '/users',
     {
       params: {
@@ -31,7 +34,7 @@ export async function listUsersApi(
       },
     }
   );
-  return response.data.data;
+  return { users: response.data.data, meta: response.data.meta };
 }
 
 export async function getUserByIdApi(id: number) {

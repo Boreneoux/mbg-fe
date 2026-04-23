@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUpdateUser } from '../hooks/useUpdateUser';
-import { useGetStores } from '../hooks/useGetStores';
 import { UserWithStore } from '../types';
 
 interface EditUserDialogProps {
@@ -44,11 +43,7 @@ export function EditUserDialog({
   onOpenChange,
   onSuccess,
 }: EditUserDialogProps) {
-  const [selectedRole, setSelectedRole] = useState<'store_admin' | 'user'>(
-    'user'
-  );
   const { form, onSubmit, isLoading } = useUpdateUser(user?.id || 0, onSuccess);
-  const { stores } = useGetStores();
 
   useEffect(() => {
     if (open && user) {
@@ -58,9 +53,7 @@ export function EditUserDialog({
         phone: user.phone || '',
         is_verified: user.is_verified,
         role: user.role as 'store_admin' | 'user',
-        store_id: user.store_admin?.store.id,
       });
-      setSelectedRole(user.role as 'store_admin' | 'user');
     }
   }, [open, user, form]);
 
@@ -184,10 +177,7 @@ export function EditUserDialog({
                   <FormLabel>Role</FormLabel>
                   <Select
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedRole(value as 'store_admin' | 'user');
-                    }}
+                    onValueChange={field.onChange}
                     disabled={isLoading}
                   >
                     <FormControl>
@@ -204,42 +194,6 @@ export function EditUserDialog({
                 </FormItem>
               )}
             />
-
-            {selectedRole === 'store_admin' && (
-              <FormField
-                control={form.control}
-                name="store_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Store</FormLabel>
-                    <Select
-                      value={field.value?.toString() || ''}
-                      onValueChange={(value) =>
-                        field.onChange(parseInt(value, 10))
-                      }
-                      disabled={isLoading}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a store" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {stores.map((store) => (
-                          <SelectItem
-                            key={store.id}
-                            value={store.id.toString()}
-                          >
-                            {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <DialogFooter>
               <Button
