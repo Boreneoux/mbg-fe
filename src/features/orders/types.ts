@@ -45,6 +45,10 @@ export type Order = {
   created_at: string;
   order_items: OrderItem[];
   address: UserAddress;
+  store?: {
+    id: number;
+    name: string;
+  };
 };
 
 export type OrderPaginationMeta = {
