@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Package, Clock, CheckCircle, XCircle, Search, Loader2 } from 'lucide-react';
+import {
+  Package,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Search,
+  Loader2
+} from 'lucide-react';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +22,7 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from '@/components/ui/pagination';
 
 import { useGetOrders } from '@/features/orders/hooks/useGetOrders';
@@ -60,9 +67,16 @@ export default function OrderListPage() {
   }, [debouncedSearch, pathname, router, searchParams]);
 
   // Handle data fetching via hook
-  const { orders, isLoading, error, pagination } = useGetOrders(page, limit, searchParams.get('search') || undefined);
+  const { orders, isLoading, error, pagination } = useGetOrders(
+    page,
+    limit,
+    searchParams.get('search') || undefined
+  );
 
-  const handlePageChange = (e: React.MouseEvent<HTMLAnchorElement>, newPage: number) => {
+  const handlePageChange = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    newPage: number
+  ) => {
     e.preventDefault();
     if (newPage < 1 || newPage > pagination.totalPages) return;
 
@@ -114,7 +128,7 @@ export default function OrderListPage() {
             placeholder="Search by order number..."
             className="pl-10"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -133,18 +147,25 @@ export default function OrderListPage() {
             <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h2 className="text-2xl font-bold mb-2">No Orders Found</h2>
             <p className="text-muted-foreground mb-6">
-              {debouncedSearch ? 'Try a different search term' : 'Start shopping to see your orders here'}
+              {debouncedSearch
+                ? 'Try a different search term'
+                : 'Start shopping to see your orders here'}
             </p>
             {!debouncedSearch && (
-              <Link href="/products" className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+              <Link
+                href="/products"
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                 Shop Now
               </Link>
             )}
           </Card>
         ) : (
           <>
-            {orders.map((order) => (
-              <Link href={`/account/orders/${order.id}`} key={order.id} className="block group">
+            {orders.map(order => (
+              <Link
+                href={`/account/orders/${order.id}`}
+                key={order.id}
+                className="block group">
                 <Card className="p-6 group-hover:shadow-lg transition-shadow">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex items-start gap-4">
@@ -152,17 +173,22 @@ export default function OrderListPage() {
                       <div>
                         <h3 className="font-bold mb-1">{order.order_number}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          {new Date(order.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
+                          {new Date(order.created_at).toLocaleDateString(
+                            'en-US',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            }
+                          )}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {order.order_items.slice(0, 3).map((item, idx) => (
                             <span key={item.id} className="text-sm">
                               {item.product.name}
-                              {idx < Math.min(order.order_items.length - 1, 2) && ','}
+                              {idx <
+                                Math.min(order.order_items.length - 1, 2) &&
+                                ','}
                             </span>
                           ))}
                           {order.order_items.length > 3 && (
@@ -174,23 +200,25 @@ export default function OrderListPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 hidden md:flex">
+                    <div className="flex items-center gap-4 md:flex">
                       <div className="text-right">
                         <p className="text-2xl font-bold text-foreground">
-                          ${order.total_price.toFixed(2)}
+                          ${order.total_price}
                         </p>
-                        <Badge className={`${getStatusColor(order.status)} text-white`}>
+                        <Badge
+                          className={`${getStatusColor(order.status)} text-white`}>
                           {order.status.replace(/_/g, ' ').toUpperCase()}
                         </Badge>
                       </div>
                     </div>
 
                     <div className="flex md:hidden items-center justify-between mt-4 border-t pt-4">
-                      <Badge className={`${getStatusColor(order.status)} text-white`}>
+                      <Badge
+                        className={`${getStatusColor(order.status)} text-white`}>
                         {order.status.replace(/_/g, ' ').toUpperCase()}
                       </Badge>
                       <p className="text-xl font-bold text-foreground">
-                        ${order.total_price.toFixed(2)}
+                        ${order.total_price}
                       </p>
                     </div>
                   </div>
@@ -203,33 +231,37 @@ export default function OrderListPage() {
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious 
-                        href="#" 
-                        onClick={(e) => handlePageChange(e, page - 1)}
-                        className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
+                      <PaginationPrevious
+                        href="#"
+                        onClick={e => handlePageChange(e, page - 1)}
+                        className={
+                          page <= 1 ? 'pointer-events-none opacity-50' : ''
+                        }
                       />
                     </PaginationItem>
-                    
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
+
+                    {Array.from(
+                      { length: pagination.totalPages },
+                      (_, i) => i + 1
+                    ).map(p => {
                       // Only show a few pages around current page
                       if (
-                        p === 1 || 
-                        p === pagination.totalPages || 
+                        p === 1 ||
+                        p === pagination.totalPages ||
                         (p >= page - 1 && p <= page + 1)
                       ) {
                         return (
                           <PaginationItem key={p}>
-                            <PaginationLink 
-                              href="#" 
+                            <PaginationLink
+                              href="#"
                               isActive={page === p}
-                              onClick={(e) => handlePageChange(e, p)}
-                            >
+                              onClick={e => handlePageChange(e, p)}>
                               {p}
                             </PaginationLink>
                           </PaginationItem>
                         );
                       }
-                      
+
                       if (p === page - 2 || p === page + 2) {
                         return (
                           <PaginationItem key={p}>
@@ -237,15 +269,19 @@ export default function OrderListPage() {
                           </PaginationItem>
                         );
                       }
-                      
+
                       return null;
                     })}
-                    
+
                     <PaginationItem>
-                      <PaginationNext 
-                        href="#" 
-                        onClick={(e) => handlePageChange(e, page + 1)}
-                        className={page >= pagination.totalPages ? 'pointer-events-none opacity-50' : ''}
+                      <PaginationNext
+                        href="#"
+                        onClick={e => handlePageChange(e, page + 1)}
+                        className={
+                          page >= pagination.totalPages
+                            ? 'pointer-events-none opacity-50'
+                            : ''
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>

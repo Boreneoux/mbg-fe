@@ -11,7 +11,7 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Category } from '@/features/categories/types';
@@ -31,7 +31,7 @@ export function CategoryList({
   error,
   onDelete,
   canEdit = true,
-  canDelete = true,
+  canDelete = true
 }: CategoryListProps) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -65,7 +65,7 @@ export function CategoryList({
   if (error) {
     return (
       <div className="border border-red-200 bg-red-50 rounded-lg p-4 flex gap-3">
-        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
         <div>
           <h3 className="font-medium text-red-900">Error loading categories</h3>
           <p className="text-sm text-red-700">{error}</p>
@@ -89,11 +89,10 @@ export function CategoryList({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {categories.map((category) => (
+      {categories.map(category => (
         <div
           key={category.id}
-          className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-        >
+          className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
           {/* Photo */}
           {category.image_url && (
             <div className="aspect-video bg-gray-100 overflow-hidden">
@@ -115,7 +114,9 @@ export function CategoryList({
             {(canEdit || canDelete) && (
               <div className="flex gap-2 pt-2">
                 {canEdit && (
-                  <Link href={`/dashboard/categories/${category.id}`} className="flex-1">
+                  <Link
+                    href={`/dashboard/categories/${category.id}`}
+                    className="flex-1">
                     <Button variant="outline" size="sm" className="w-full">
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
@@ -129,22 +130,21 @@ export function CategoryList({
                       variant="outline"
                       size="sm"
                       onClick={() => setDeletingId(category.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
+                      className="text-red-600 hover:text-red-700">
                       <Trash2 className="w-4 h-4" />
                     </Button>
 
                     {/* Delete Confirmation Dialog */}
                     <AlertDialog
                       open={deletingId === category.id}
-                      onOpenChange={() => setDeletingId(null)}
-                    >
+                      onOpenChange={() => setDeletingId(null)}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Category?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "<strong>{category.name}</strong>"?
-                            This action cannot be undone.
+                            Are you sure you want to delete "
+                            <strong>{category.name}</strong>"? This action
+                            cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="flex gap-3">
@@ -152,8 +152,7 @@ export function CategoryList({
                           <AlertDialogAction
                             onClick={() => handleDeleteConfirm(category.id)}
                             disabled={isDeleting}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
+                            className="bg-red-600 hover:bg-red-700">
                             {isDeleting ? 'Deleting...' : 'Delete'}
                           </AlertDialogAction>
                         </div>

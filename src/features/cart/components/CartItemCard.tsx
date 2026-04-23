@@ -16,15 +16,15 @@ export function CartItemCard({
   item,
   onUpdateQuantity,
   onRemove,
-  isLoading = false,
+  isLoading = false
 }: CartItemCardProps) {
   const { product } = item;
-  const primaryImage = product.product_images.find((img) => img.is_primary);
+  const primaryImage = product.product_images.find(img => img.is_primary);
 
   return (
     <Card className="p-4">
       <div className="flex gap-4">
-        <Link href={`/products/${product.id}`} className="flex-shrink-0">
+        <Link href={`/products/${product.id}`} className="shrink-0">
           <img
             src={primaryImage?.image_url || '/placeholder.png'}
             alt={product.name}
@@ -38,8 +38,10 @@ export function CartItemCard({
               {product.name}
             </h3>
           </Link>
-          <p className="text-sm text-muted-foreground mb-2">{product.weight}g</p>
-          <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
+          <p className="text-sm text-muted-foreground mb-2">
+            {product.weight}g
+          </p>
+          <p className="text-lg font-bold">${product.price}</p>
         </div>
 
         <div className="flex flex-col items-end justify-between">
@@ -48,14 +50,15 @@ export function CartItemCard({
             size="icon"
             onClick={() => onRemove(item.id)}
             disabled={isLoading}
-            aria-label="Remove item"
-          >
+            aria-label="Remove item">
             <Trash2 className="w-4 h-4 text-destructive" />
           </Button>
 
           <QuantityControl
             quantity={item.quantity}
-            onQuantityChange={(newQuantity) => onUpdateQuantity(item.id, newQuantity)}
+            onQuantityChange={newQuantity =>
+              onUpdateQuantity(item.id, newQuantity)
+            }
             isLoading={isLoading}
             minQuantity={1}
           />

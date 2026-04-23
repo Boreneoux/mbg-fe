@@ -1,13 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, ImageOff, MapPin, AlertTriangle, Info } from 'lucide-react';
+import Image from 'next/image';
+import {
+  ShoppingCart,
+  ImageOff,
+  MapPin,
+  AlertTriangle,
+  Info
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import useLocationStore from '@/stores/useLocationStore';
 import { useStoreProducts } from '@/features/geolocation/hooks/useStoreProducts';
+import { useCart } from '@/features/cart/hooks/useCart';
 import { FALLBACK_STORE_ID } from '@/mocks/handlers/stores.handlers';
 import { Product } from '@/features/products/types';
 
@@ -15,7 +23,7 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(price);
 }
 
@@ -33,13 +41,51 @@ function ProductCardSkeleton() {
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({
+  product,
+  storeId
+}: {
+  product: Product;
+  storeId: number;
+}) {
+  const { addToCart, isLoading } = useCart();
+
+  const primaryImage =
+    product.product_images.find(img => img.is_primary)?.image_url ??
+    product.product_images[0]?.image_url ??
+    null;
+
+  const storeStock =
+    product.store_inventories?.find(inv => inv.store_id === storeId)?.stock ??
+    0;
+  const isOutOfStock = storeStock === 0;
+
   return (
     <Card className="overflow-hidden group hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 border-border">
       <Link href={`/products/${product.id}`}>
-        <div className="relative aspect-square bg-secondary flex flex-col items-center justify-center gap-2">
-          <ImageOff className="w-8 h-8 text-muted-foreground/40" />
-          <span className="text-xs text-muted-foreground/50">Belum ada gambar</span>
+        <div className="relative aspect-square bg-secondary overflow-hidden">
+          {primaryImage ? (
+            <Image
+              src={primaryImage}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full h-full gap-2">
+              <ImageOff className="w-8 h-8 text-muted-foreground/40" />
+              <span className="text-xs text-muted-foreground/50">
+                Belum ada gambar
+              </span>
+            </div>
+          )}
+          {isOutOfStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <span className="bg-black/80 text-white px-3 py-1 rounded-full text-xs font-medium">
+                Out of Stock
+              </span>
+            </div>
+          )}
         </div>
       </Link>
 
@@ -57,9 +103,17 @@ function ProductCard({ product }: { product: Product }) {
           {formatPrice(product.price)}
         </p>
 
-        <Button size="sm" className="w-full gap-1.5 text-xs md:text-sm" disabled>
+        <Button
+          size="sm"
+          className="w-full gap-1.5 text-xs md:text-sm"
+          disabled={isOutOfStock || isLoading}
+          onClick={() => addToCart(product.id, 1, storeId)}>
           <ShoppingCart className="w-3.5 h-3.5" />
-          Add to Cart
+          {isOutOfStock
+            ? 'Out of Stock'
+            : isLoading
+              ? 'Adding...'
+              : 'Add to Cart'}
         </Button>
       </CardContent>
     </Card>
@@ -67,9 +121,9 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 function StoreBanner() {
-  const status = useLocationStore((s) => s.status);
-  const selectedStoreName = useLocationStore((s) => s.selectedStoreName);
-  const outOfRangeMessage = useLocationStore((s) => s.outOfRangeMessage);
+  const status = useLocationStore(s => s.status);
+  const selectedStoreName = useLocationStore(s => s.selectedStoreName);
+  const outOfRangeMessage = useLocationStore(s => s.outOfRangeMessage);
 
   if (status === 'out_of_range') {
     return (
@@ -93,7 +147,9 @@ function StoreBanner() {
         <Info className="w-4 h-4 text-muted-foreground shrink-0" />
         <p className="text-muted-foreground">
           Showing produk dari main store:{' '}
-          <span className="font-medium text-foreground">{selectedStoreName}</span>
+          <span className="font-medium text-foreground">
+            {selectedStoreName}
+          </span>
         </p>
       </div>
     );
@@ -104,8 +160,10 @@ function StoreBanner() {
       <div className="flex items-center gap-2 mb-6">
         <MapPin className="w-4 h-4 text-primary shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Products dari nearest store:{' '}
-          <span className="font-medium text-foreground">{selectedStoreName}</span>
+          Products dari store terdekat:{' '}
+          <span className="font-medium text-foreground">
+            {selectedStoreName}
+          </span>
         </p>
       </div>
     );
@@ -115,12 +173,9 @@ function StoreBanner() {
 }
 
 export default function NearestStoreProducts() {
-  const selectedStoreId = useLocationStore((s) => s.selectedStoreId);
-  // Always fetch from at least the fallback store so the section is never blank
+  const selectedStoreId = useLocationStore(s => s.selectedStoreId);
   const effectiveStoreId = selectedStoreId ?? FALLBACK_STORE_ID;
   const { products, isLoading, error } = useStoreProducts(effectiveStoreId);
-
-  const showSkeletons = isLoading;
 
   return (
     <section className="py-14 bg-white">
@@ -130,7 +185,9 @@ export default function NearestStoreProducts() {
             <p className="text-sm font-medium text-primary mb-1">
               Best picks untukmu
             </p>
-            <h2 className="text-2xl md:text-3xl font-bold">Featured Products</h2>
+            <h2 className="text-2xl md:text-3xl font-bold">
+              Featured Products
+            </h2>
           </div>
           <Button variant="outline" size="sm" asChild className="shrink-0">
             <Link href="/products">See All</Link>
@@ -147,12 +204,16 @@ export default function NearestStoreProducts() {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {showSkeletons
+          {isLoading
             ? Array.from({ length: 8 }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))
-            : products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            : products.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  storeId={effectiveStoreId}
+                />
               ))}
         </div>
       </div>

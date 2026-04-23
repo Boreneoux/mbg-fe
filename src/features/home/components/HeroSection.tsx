@@ -6,7 +6,7 @@ import HeroIllustration from './HeroIllustration';
 const STATS = [
   { value: '1.000+', label: 'Produk Segar' },
   { value: 'Same Day', label: 'Pengiriman' },
-  { value: 'Multi-Kurir', label: 'JNE, TIKI & POS' },
+  { value: 'Multi-Kurir', label: 'JNE, TIKI & POS' }
 ];
 
 export default function HeroSection() {
@@ -52,14 +52,14 @@ export default function HeroSection() {
 
             {/* Tagline — moved from badge into content */}
             <p className="text-sm md:text-base italic text-muted-foreground border-l-2 border-primary/40 pl-3 mb-6 leading-relaxed">
-              Shop from home — semua kebutuhan dapur diantar langsung ke depan
-              pintu.
+              Shop from home — Satuan Pengirim Paket Grocery (SPPG) akan
+              langsung ke depan pintu.
             </p>
 
             {/* Body */}
             <p className="text-lg text-muted-foreground mb-8 max-w-md leading-relaxed">
-              Browse ribuan produk segar — dari sayuran renyah sampai bahan
-              dapur pilihan — dan enjoy same-day delivery ke rumahmu.
+              Cari ribuan produk segar — dari sayuran renyah sampai bahan dapur
+              pilihan — dan enjoy same-day delivery ke rumahmu.
             </p>
 
             {/* CTA buttons */}
