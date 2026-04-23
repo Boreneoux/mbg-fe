@@ -5,87 +5,102 @@ import { cartService } from '../services/cart.service';
 import { useCartStore } from '@/stores/useCartStore';
 
 export const useCart = () => {
-  const cartStore = useCartStore();
+  // 1. Destructure state and actions separately using selectors
+  // This is the "Zustand way" to ensure stable references
+  const cart = useCartStore((state) => state.cart);
+  const isLoading = useCartStore((state) => state.isLoading);
+  const error = useCartStore((state) => state.error);
+  
+  const setCart = useCartStore((state) => state.setCart);
+  const setLoading = useCartStore((state) => state.setLoading);
+  const setError = useCartStore((state) => state.setError);
+  const updateStoreItem = useCartStore((state) => state.updateItem);
+  const removeStoreItem = useCartStore((state) => state.removeItem);
+  const clearStore = useCartStore((state) => state.clear);
 
+  // 2. Fetch Cart - Stable because setters don't change
   const fetchCart = useCallback(async () => {
-    cartStore.setLoading(true);
-    cartStore.setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      const cart = await cartService.getCart();
-      cartStore.setCart(cart);
-    } catch (error) {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || 'Failed to fetch cart'
+      const data = await cartService.getCart();
+      setCart(data);
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message || 'Failed to fetch cart'
         : 'Failed to fetch cart';
-      cartStore.setError(message);
+      setError(message);
       toast.error(message);
     } finally {
-      cartStore.setLoading(false);
+      setLoading(false);
     }
-  }, [cartStore]);
+  }, [setCart, setLoading, setError]);
 
+  // 3. Remove Item - Stable dependency on removeStoreItem
+  const removeFromCart = useCallback(
+    async (cartItemId: number) => {
+      setError(null);
+      try {
+        await cartService.deleteItem(cartItemId);
+        removeStoreItem(cartItemId);
+        toast.success('Item removed from cart');
+      } catch (err) {
+        const message = axios.isAxiosError(err)
+          ? err.response?.data?.message || 'Failed to remove item'
+          : 'Failed to remove item';
+        setError(message);
+        toast.error(message);
+      }
+    },
+    [removeStoreItem, setError]
+  );
+
+  // 4. Update Quantity - Depends on removeFromCart (which is now stable)
   const updateQuantity = useCallback(
     async (cartItemId: number, quantity: number) => {
-      cartStore.setError(null);
+      setError(null);
       try {
         if (quantity < 1) {
           await removeFromCart(cartItemId);
           return;
         }
         await cartService.updateItem(cartItemId, quantity);
-        cartStore.updateItem(cartItemId, quantity);
+        updateStoreItem(cartItemId, quantity);
         toast.success('Cart updated');
-      } catch (error) {
-        const message = axios.isAxiosError(error)
-          ? error.response?.data?.message || 'Failed to update cart'
+      } catch (err) {
+        const message = axios.isAxiosError(err)
+          ? err.response?.data?.message || 'Failed to update cart'
           : 'Failed to update cart';
-        cartStore.setError(message);
+        setError(message);
         toast.error(message);
       }
     },
-    [cartStore]
+    [updateStoreItem, setError, removeFromCart]
   );
 
-  const removeFromCart = useCallback(
-    async (cartItemId: number) => {
-      cartStore.setError(null);
-      try {
-        await cartService.deleteItem(cartItemId);
-        cartStore.removeItem(cartItemId);
-        toast.success('Item removed from cart');
-      } catch (error) {
-        const message = axios.isAxiosError(error)
-          ? error.response?.data?.message || 'Failed to remove item'
-          : 'Failed to remove item';
-        cartStore.setError(message);
-        toast.error(message);
-      }
-    },
-    [cartStore]
-  );
-
+  // 5. Clear Cart
   const clearCart = useCallback(async () => {
-    if (!cartStore.cart?.cart_items.length) return;
-    cartStore.setError(null);
+    if (!cart?.cart_items.length) return;
+    setError(null);
     try {
       await Promise.all(
-        cartStore.cart.cart_items.map((item) => cartService.deleteItem(item.id))
+        cart.cart_items.map((item) => cartService.deleteItem(item.id))
       );
-      cartStore.clear();
+      clearStore();
       toast.success('Cart cleared');
-    } catch (error) {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || 'Failed to clear cart'
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message || 'Failed to clear cart'
         : 'Failed to clear cart';
-      cartStore.setError(message);
+      setError(message);
       toast.error(message);
     }
-  }, [cartStore]);
+  }, [cart, setError, clearStore]);
 
   return {
-    cart: cartStore.cart,
-    isLoading: cartStore.isLoading,
-    error: cartStore.error,
+    cart,
+    isLoading,
+    error,
     fetchCart,
     updateQuantity,
     removeFromCart,
