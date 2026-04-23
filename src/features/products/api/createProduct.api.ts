@@ -11,6 +11,10 @@ export async function createProductApi(payload: CreateProductFormValues) {
   formData.append('weight', payload.weight.toString());
   formData.append('category_id', payload.category_id.toString());
 
+  if (payload.primaryIndex !== undefined) {
+    formData.append('primaryIndex', payload.primaryIndex.toString());
+  }
+
   if (payload.photos && payload.photos.length > 0) {
     payload.photos.forEach((file) => {
       formData.append('images', file);

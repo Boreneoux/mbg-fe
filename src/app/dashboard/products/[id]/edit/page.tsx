@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/stores/useAuthStore';
 import { useProduct } from '@/features/products/hooks/useProduct';
@@ -24,6 +24,17 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const { product, isLoading, error } = useProduct(productId);
   const { form, onSubmit, isSubmitting } = useUpdateProduct(product || null);
 
+  const [primaryIndex, setPrimaryIndex] = useState<number | null>(null);
+  const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
+
+  // Set initial primary index when product loads
+  useEffect(() => {
+    if (product?.product_images) {
+      const primaryIdx = product.product_images.findIndex(img => img.is_primary);
+      setPrimaryIndex(primaryIdx >= 0 ? primaryIdx : null);
+    }
+  }, [product]);
+
   // Protect: only super_admin can edit products
   if (user?.role !== 'super_admin') {
     return (
@@ -32,6 +43,27 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       </div>
     );
   }
+
+  const handlePrimaryChange = (index: number | null) => {
+    setPrimaryIndex(index);
+    form.setValue('primaryIndex', index ?? undefined);
+  };
+
+  const handleDeleteExisting = (imageId: number) => {
+    const imageIndex = product?.product_images.findIndex(img => img.id === imageId) ?? -1;
+    setDeleteImageIds(prev => [...prev, imageId]);
+    form.setValue('deleteImageIds', [...deleteImageIds, imageId]);
+    
+    // Adjust primary index if necessary
+    if (primaryIndex !== null && imageIndex >= 0 && imageIndex < primaryIndex) {
+      const newPrimaryIndex = primaryIndex - 1;
+      setPrimaryIndex(newPrimaryIndex >= 0 ? newPrimaryIndex : null);
+      form.setValue('primaryIndex', newPrimaryIndex >= 0 ? newPrimaryIndex : undefined);
+    } else if (primaryIndex === imageIndex) {
+      setPrimaryIndex(null);
+      form.setValue('primaryIndex', undefined);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -99,6 +131,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             isLoading={isLoading}
             product={product}
             submitLabel="Update Product"
+            onPrimaryChange={handlePrimaryChange}
+            onDeleteExisting={handleDeleteExisting}
+            primaryIndex={primaryIndex}
+            deleteImageIds={deleteImageIds}
           />
         </CardContent>
       </Card>

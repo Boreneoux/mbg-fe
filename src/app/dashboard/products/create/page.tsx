@@ -9,11 +9,13 @@ import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
+import { useState } from 'react';
 
 export default function CreateProductPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const { form, onSubmit, isSubmitting } = useCreateProduct();
+  const [primaryIndex, setPrimaryIndex] = useState<number | null>(null);
 
   // Protect: only super_admin can create products
   if (user?.role !== 'super_admin') {
@@ -23,6 +25,11 @@ export default function CreateProductPage() {
       </div>
     );
   }
+
+  const handlePrimaryChange = (index: number | null) => {
+    setPrimaryIndex(index);
+    form.setValue('primaryIndex', index ?? undefined);
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -46,7 +53,13 @@ export default function CreateProductPage() {
           <CardDescription>Fill in the details below to create a new product</CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductForm form={form as UseFormReturn<CreateProductFormValues | UpdateProductFormValues>} onSubmit={onSubmit} isSubmitting={isSubmitting} />
+          <ProductForm 
+            form={form as UseFormReturn<CreateProductFormValues | UpdateProductFormValues>} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting}
+            onPrimaryChange={handlePrimaryChange}
+            primaryIndex={primaryIndex}
+          />
         </CardContent>
       </Card>
     </div>
