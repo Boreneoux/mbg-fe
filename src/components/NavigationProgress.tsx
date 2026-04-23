@@ -58,7 +58,7 @@ export default function NavigationProgress() {
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed top-0 left-0 z-[9999] h-[3px] bg-primary shadow-[0_0_8px] shadow-primary/60 transition-all ease-out ${
+      className={`pointer-events-none fixed top-0 left-0 z-9999 h-0.75 bg-primary shadow-[0_0_8px] shadow-primary/60 transition-all ease-out ${
         complete
           ? 'w-full opacity-0 duration-300'
           : 'w-3/4 opacity-100 duration-500'

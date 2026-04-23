@@ -13,14 +13,16 @@ interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function PublicProductDetailPage({ params }: ProductDetailPageProps) {
+export default function PublicProductDetailPage({
+  params
+}: ProductDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  
+
   const productId = parseInt(id);
   const { product, isLoading, error } = useProduct(productId);
   const { addToCart, isLoading: isCartLoading } = useCart();
-  
+
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -51,7 +53,10 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
-        <p className="text-gray-500">{error || "The product you're looking for doesn't exist or has been removed."}</p>
+        <p className="text-gray-500">
+          {error ||
+            "The product you're looking for doesn't exist or has been removed."}
+        </p>
         <Button onClick={() => router.push('/products')} variant="outline">
           Back to Catalog
         </Button>
@@ -59,14 +64,16 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
     );
   }
 
-  const primaryImage = product.product_images.find(img => img.is_primary)?.image_url 
-                    || product.product_images[0]?.image_url 
-                    || '/placeholder.png';
-  
+  const primaryImage =
+    product.product_images.find(img => img.is_primary)?.image_url ||
+    product.product_images[0]?.image_url ||
+    '/placeholder.png';
+
   const currentImage = selectedImage || primaryImage;
   const otherImages = product.product_images;
 
-  const totalStock = product.store_inventories?.reduce((acc, inv) => acc + inv.qty, 0) || 0;
+  const totalStock =
+    product.store_inventories?.reduce((acc, inv) => acc + inv.stock, 0) || 0;
   const isOutOfStock = totalStock === 0;
 
   const handleQuantityChange = (delta: number) => {
@@ -87,8 +94,7 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
       <Button
         variant="ghost"
         onClick={() => router.push('/products')}
-        className="-ml-2 text-gray-600 hover:text-gray-900"
-      >
+        className="-ml-2 text-gray-600 hover:text-gray-900">
         <ChevronLeft className="w-4 h-4 mr-2" />
         Back to Products
       </Button>
@@ -97,8 +103,8 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
         {/* Image Gallery */}
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-2xl border bg-white relative">
-            <img 
-              src={currentImage} 
+            <img
+              src={currentImage}
               alt={product.name}
               className={`h-full w-full object-contain p-4 ${isOutOfStock ? 'opacity-50 grayscale' : ''}`}
             />
@@ -110,22 +116,21 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
               </div>
             )}
           </div>
-          
+
           {otherImages.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2">
-              {otherImages.map((img) => (
+              {otherImages.map(img => (
                 <button
                   key={img.id}
                   onClick={() => setSelectedImage(img.image_url)}
-                  className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
-                    currentImage === img.image_url 
-                      ? 'border-green-600 shadow-sm' 
+                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                    currentImage === img.image_url
+                      ? 'border-green-600 shadow-sm'
                       : 'border-transparent hover:border-gray-300'
-                  }`}
-                >
-                  <img 
-                    src={img.image_url} 
-                    alt="Thumbnail" 
+                  }`}>
+                  <img
+                    src={img.image_url}
+                    alt="Thumbnail"
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -138,8 +143,12 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
         <div className="space-y-8 pt-4">
           <div className="space-y-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-green-600">{product.category.name}</p>
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+              <p className="text-sm font-medium text-green-600">
+                {product.category.name}
+              </p>
+              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                {product.name}
+              </h1>
             </div>
             <p className="text-3xl font-bold text-gray-900">
               {formatCurrencyIDR(product.price)}
@@ -147,46 +156,56 @@ export default function PublicProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Description</h3>
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              Description
+            </h3>
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {product.description || 'No description available for this product.'}
+              {product.description ||
+                'No description available for this product.'}
             </p>
             <p className="text-sm text-gray-500">Weight: {product.weight} kg</p>
-            <p className="text-sm text-gray-500">Stock available: {totalStock}</p>
+            <p className="text-sm text-gray-500">
+              Stock available: {totalStock}
+            </p>
           </div>
 
           <div className="space-y-6 pt-6 border-t">
             {!isOutOfStock && (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700">Quantity</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Quantity
+                </span>
                 <div className="flex items-center border rounded-lg bg-white">
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
-                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-l-lg transition-colors"
-                  >
+                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-l-lg transition-colors">
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-12 text-center font-medium">{quantity}</span>
+                  <span className="w-12 text-center font-medium">
+                    {quantity}
+                  </span>
                   <button
                     onClick={() => handleQuantityChange(1)}
                     disabled={quantity >= totalStock}
-                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-r-lg transition-colors"
-                  >
+                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-r-lg transition-colors">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="w-full text-lg h-14 rounded-xl"
               disabled={isOutOfStock || isCartLoading}
-              onClick={handleAddToCart}
-            >
+              onClick={handleAddToCart}>
               <ShoppingCart className="w-5 h-5 mr-2" />
-              {isOutOfStock ? 'Out of Stock' : (isCartLoading ? 'Adding...' : 'Add to Cart')}
+              {isOutOfStock
+                ? 'Out of Stock'
+                : isCartLoading
+                  ? 'Adding...'
+                  : 'Add to Cart'}
             </Button>
           </div>
         </div>

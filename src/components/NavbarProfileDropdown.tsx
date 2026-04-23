@@ -7,7 +7,6 @@ import {
   HoverCardContent,
   HoverCardTrigger
 } from '@/components/ui/hover-card';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import type { AuthUser } from '@/features/auth/types';
 
@@ -36,10 +35,9 @@ export function NavbarProfileDropdown({
   return (
     <HoverCard openDelay={100} closeDelay={150}>
       <HoverCardTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 text-sm font-medium px-2">
+        <Link
+          href="/account/profile"
+          className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
           {user.profile_image ? (
             <img
               src={user.profile_image}
@@ -54,7 +52,7 @@ export function NavbarProfileDropdown({
           <span className="hidden lg:inline max-w-28 truncate">
             {displayName}
           </span>
-        </Button>
+        </Link>
       </HoverCardTrigger>
 
       <HoverCardContent align="center" className="w-56 p-0 shadow-lg">

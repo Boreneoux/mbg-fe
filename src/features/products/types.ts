@@ -22,6 +22,6 @@ export type Product = {
     id: number;
     store_id: number;
     product_id: number;
-    qty: number;
+    stock: number;
   }[];
 };

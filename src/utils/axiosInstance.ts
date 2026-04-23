@@ -15,10 +15,14 @@ function flushQueue(error?: unknown) {
   queue = [];
 }
 
+const PROTECTED_PREFIXES = ['/account', '/cart', '/checkout', '/dashboard'];
+
 function redirectToLogin() {
   if (typeof window === 'undefined') return;
   const { pathname } = window.location;
-  if (pathname.startsWith('/auth') || pathname.startsWith('/admin')) return;
+  // Only redirect on routes that genuinely require authentication
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+  if (!isProtected) return;
   window.location.href = '/auth/login';
 }
 
