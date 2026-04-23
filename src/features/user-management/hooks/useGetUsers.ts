@@ -29,14 +29,10 @@ export function useGetUsers(
       setError(null);
 
       try {
-        const data = await listUsersApi(page, limit, search, roleFilter);
+        const { users, meta } = await listUsersApi(page, limit, search, roleFilter);
         if (!cancelled) {
-          // Filter out super_admin users on the frontend
-          const filteredUsers = data.data.filter(
-            (user) => user.role !== 'super_admin'
-          );
-          setUsers(filteredUsers);
-          setPagination(data.meta);
+          setUsers(users.filter((user) => user.role !== 'super_admin'));
+          setPagination(meta);
         }
       } catch (err) {
         if (cancelled) return;

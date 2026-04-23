@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
+  withCredentials: true
 });
 
 type QueueEntry = { resolve: () => void; reject: (err: unknown) => void };
@@ -15,9 +15,16 @@ function flushQueue(error?: unknown) {
   queue = [];
 }
 
+function redirectToLogin() {
+  if (typeof window === 'undefined') return;
+  const { pathname } = window.location;
+  if (pathname.startsWith('/auth') || pathname.startsWith('/admin')) return;
+  window.location.href = '/auth/login';
+}
+
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const original = error.config;
 
     if (error.response?.status !== 401 || original._retry) {
@@ -26,7 +33,7 @@ axiosInstance.interceptors.response.use(
 
     // Skip the refresh endpoint itself to avoid infinite loops
     if (original.url?.includes('/auth/refresh')) {
-      if (typeof window !== 'undefined') window.location.href = '/auth/login';
+      redirectToLogin();
       return Promise.reject(error);
     }
 
@@ -45,7 +52,7 @@ axiosInstance.interceptors.response.use(
       return axiosInstance(original);
     } catch (refreshError) {
       flushQueue(refreshError);
-      if (typeof window !== 'undefined') window.location.href = '/auth/login';
+      redirectToLogin();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

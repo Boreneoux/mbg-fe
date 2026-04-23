@@ -27,24 +27,28 @@ async function tryRefresh(
   if (!refreshToken) return null;
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
     const res = await fetch(`${apiUrl}/auth/refresh`, {
       method: 'POST',
-      headers: { Cookie: `refresh_token=${refreshToken}` },
+      headers: { Cookie: `refresh_token=${refreshToken}` }
     });
 
     if (!res.ok) return null;
 
     // Forward the new cookies (access_token + refresh_token) to the browser
     const response = NextResponse.next();
-    const setCookies = res.headers.getSetCookie?.() ?? res.headers.get('set-cookie')?.split(', ') ?? [];
+    const setCookies =
+      res.headers.getSetCookie?.() ??
+      res.headers.get('set-cookie')?.split(', ') ??
+      [];
 
     for (const cookie of setCookies) {
       response.headers.append('Set-Cookie', cookie);
     }
 
     // Decode the new access_token to get the fresh payload
-    const accessCookie = setCookies.find((c) => c.startsWith('access_token='));
+    const accessCookie = setCookies.find(c => c.startsWith('access_token='));
     if (!accessCookie) return null;
 
     const tokenValue = accessCookie.split(';')[0].replace('access_token=', '');
@@ -91,31 +95,39 @@ export async function proxy(request: NextRequest) {
   const isAdmin = role === 'store_admin' || role === 'super_admin';
 
   function redirect(dest: string) {
-    return NextResponse.redirect(new URL(dest, request.url));
+    const res = NextResponse.redirect(new URL(dest, request.url));
+
+    if (refreshedResponse) {
+      const newCookies = refreshedResponse.headers.getSetCookie?.() ?? [];
+      for (const cookie of newCookies) {
+        res.headers.append('Set-Cookie', cookie);
+      }
+    }
+    return res;
   }
 
   // Redirect logged-in users away from /auth/* pages
-  const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
-  const isAuthExempt = AUTH_ROUTES_EXEMPT.some((r) => pathname.startsWith(r));
+  const isAuthRoute = AUTH_ROUTES.some(r => pathname.startsWith(r));
+  const isAuthExempt = AUTH_ROUTES_EXEMPT.some(r => pathname.startsWith(r));
   if (isAuthRoute && !isAuthExempt && isAuthenticated) {
     return redirect(isAdmin ? '/dashboard' : '/');
   }
 
   // Redirect logged-in users away from /admin/* (e.g. /admin/login)
-  const isAdminAuthRoute = ADMIN_AUTH_ROUTES.some((r) => pathname.startsWith(r));
+  const isAdminAuthRoute = ADMIN_AUTH_ROUTES.some(r => pathname.startsWith(r));
   if (isAdminAuthRoute && isAuthenticated) {
     return redirect(isAdmin ? '/dashboard' : '/');
   }
 
   // Protect user-only routes
-  const isUserRoute = USER_ROUTES.some((r) => pathname.startsWith(r));
+  const isUserRoute = USER_ROUTES.some(r => pathname.startsWith(r));
   if (isUserRoute) {
     if (!isAuthenticated) return redirect('/auth/login');
     if (isAdmin) return redirect('/dashboard');
   }
 
   // Protect admin routes
-  const isAdminRoute = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
+  const isAdminRoute = ADMIN_ROUTES.some(r => pathname.startsWith(r));
   if (isAdminRoute) {
     if (!isAuthenticated) return redirect('/admin/login');
     if (!isAdmin) return redirect('/');
@@ -126,5 +138,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)']
 };

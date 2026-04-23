@@ -89,11 +89,9 @@ export function UserListTable({
     return 'N/A';
   };
 
-  const getStoreInfo = (user: UserWithStore) => {
-    if (user.role === 'store_admin' && user.store_admin?.store) {
-      return user.store_admin.store.name;
-    }
-    return '-';
+  const getStoreNames = (user: UserWithStore) => {
+    if (!user.store_admins?.length) return null;
+    return user.store_admins.map((sa) => sa.store.name);
   };
 
   return (
@@ -147,7 +145,6 @@ export function UserListTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
@@ -161,7 +158,6 @@ export function UserListTable({
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.id}</TableCell>
                   <TableCell>{displayName(user.first_name, user.last_name)}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
@@ -170,7 +166,21 @@ export function UserListTable({
                     </Badge>
                   </TableCell>
                   <TableCell>{user.phone || '-'}</TableCell>
-                  <TableCell>{getStoreInfo(user)}</TableCell>
+                  <TableCell>
+                    {(() => {
+                      const names = getStoreNames(user);
+                      if (!names) return '-';
+                      return (
+                        <div className="flex flex-wrap gap-1">
+                          {names.map((name) => (
+                            <Badge key={name} variant="outline" className="text-xs">
+                              {name}
+                            </Badge>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </TableCell>
                   <TableCell>{formatDate(user.created_at)}</TableCell>
                   <TableCell>
                     <Badge

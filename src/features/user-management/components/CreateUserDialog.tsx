@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -44,30 +44,22 @@ export function CreateUserDialog({
 }: CreateUserDialogProps) {
   const { form, onSubmit, isLoading } = useCreateUser(onSuccess);
   const { stores } = useGetStores();
-  const [selectedRole, setSelectedRole] = useState<'store_admin' | 'user'>(
-    'user'
-  );
 
   useEffect(() => {
-    if (!open) {
-      form.reset();
-      setSelectedRole('user');
-    }
+    if (!open) form.reset();
   }, [open, form]);
 
   const handleClose = () => {
-    if (!isLoading) {
-      onOpenChange(false);
-    }
+    if (!isLoading) onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>Create Store Admin</DialogTitle>
           <DialogDescription>
-            Add a new Store Admin or regular user to the system.
+            Add a new Store Admin account and assign them to a store.
           </DialogDescription>
         </DialogHeader>
 
@@ -86,11 +78,7 @@ export function CreateUserDialog({
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="John"
-                      {...field}
-                      disabled={isLoading}
-                    />
+                    <Input placeholder="John" {...field} disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -178,68 +166,32 @@ export function CreateUserDialog({
 
             <FormField
               control={form.control}
-              name="role"
+              name="store_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Store</FormLabel>
                   <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedRole(value as 'store_admin' | 'user');
-                    }}
+                    value={field.value?.toString() || ''}
+                    onValueChange={(value) => field.onChange(parseInt(value, 10))}
                     disabled={isLoading}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select a store" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="store_admin">Store Admin</SelectItem>
+                      {stores.map((store) => (
+                        <SelectItem key={store.id} value={store.id.toString()}>
+                          {store.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {selectedRole === 'store_admin' && (
-              <FormField
-                control={form.control}
-                name="store_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Store</FormLabel>
-                    <Select
-                      value={field.value?.toString() || ''}
-                      onValueChange={(value) =>
-                        field.onChange(parseInt(value, 10))
-                      }
-                      disabled={isLoading}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a store" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {stores.map((store) => (
-                          <SelectItem
-                            key={store.id}
-                            value={store.id.toString()}
-                          >
-                            {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <DialogFooter>
               <Button
@@ -251,7 +203,7 @@ export function CreateUserDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create User'}
+                {isLoading ? 'Creating...' : 'Create Store Admin'}
               </Button>
             </DialogFooter>
           </form>
