@@ -9,6 +9,9 @@ export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetch = () => setRefreshKey((prev) => prev + 1);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -29,7 +32,7 @@ export function useCategories() {
     };
 
     fetchCategories();
-  }, []);
+  }, [refreshKey]);
 
-  return { categories, isLoading, error };
+  return { categories, isLoading, error, refetch };
 }

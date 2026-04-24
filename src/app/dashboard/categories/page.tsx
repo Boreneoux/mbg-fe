@@ -4,12 +4,14 @@ import Link from 'next/link';
 import useAuthStore from '@/stores/useAuthStore';
 import { useCategories } from '@/features/categories/hooks/useCategories';
 import { CategoryList } from '@/features/categories/components/CategoryList';
+import { deleteCategoryApi } from '@/features/categories/api/deleteCategory.api';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function CategoriesPage() {
   const user = useAuthStore((s) => s.user);
-  const { categories, isLoading, error } = useCategories();
+  const { categories, isLoading, error, refetch } = useCategories();
 
   const isSuperAdmin = user?.role === 'super_admin';
   const isStoreAdmin = user?.role === 'store_admin';
@@ -21,6 +23,16 @@ export default function CategoriesPage() {
       </div>
     );
   }
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteCategoryApi(id);
+      toast.success('Category deleted successfully');
+      if (refetch) refetch();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete category');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -47,6 +59,7 @@ export default function CategoriesPage() {
         error={error}
         canEdit={isSuperAdmin}
         canDelete={isSuperAdmin}
+        onDelete={handleDelete}
       />
     </div>
   );

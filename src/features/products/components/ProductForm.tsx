@@ -120,7 +120,7 @@ export function ProductForm({
               <FormLabel>Category</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(Number(value))}
-                value={field.value?.toString() ?? ''}
+                value={field.value ? field.value.toString() : ''}
                 disabled={isReadOnly}
               >
                 <FormControl>
@@ -152,14 +152,16 @@ export function ProductForm({
                 <FormLabel>Price (IDR)</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
+                    type="text"
                     placeholder="0"
-                    step="1"
-                    min="0"
                     disabled={isReadOnly}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    value={field.value || ''}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/,/g, '');
+                      if (rawValue === '' || !isNaN(Number(rawValue))) {
+                        field.onChange(rawValue === '' ? 0 : Number(rawValue));
+                      }
+                    }}
+                    value={field.value ? field.value.toLocaleString('en-US') : ''}
                   />
                 </FormControl>
                 <FormMessage />
