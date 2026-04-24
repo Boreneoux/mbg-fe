@@ -9,7 +9,8 @@ export function useGetUsers(
   page: number,
   limit: number,
   search?: string,
-  roleFilter?: 'store_admin' | 'user'
+  roleFilter?: 'store_admin' | 'user',
+  refreshKey?: number
 ) {
   const [users, setUsers] = useState<UserWithStore[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +54,7 @@ export function useGetUsers(
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search, roleFilter]);
+  }, [page, limit, search, roleFilter, refreshKey]);
 
   return { users, isLoading, error, pagination };
 }

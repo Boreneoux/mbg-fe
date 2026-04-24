@@ -11,3 +11,18 @@ export async function getStoresApi() {
   );
   return response.data.data.stores;
 }
+
+export async function assignStoreAdminApi(storeId: number, userId: number) {
+  const response = await axiosInstance.post<ApiResponse<unknown>>(
+    `/stores/${storeId}/admins`,
+    { user_id: userId }
+  );
+  return response.data;
+}
+
+export async function unassignStoreAdminApi(storeId: number, userId: number) {
+  const response = await axiosInstance.delete<ApiResponse<null>>(
+    `/stores/${storeId}/admins/${userId}`
+  );
+  return response.data;
+}

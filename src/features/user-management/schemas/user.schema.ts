@@ -9,13 +9,6 @@ export const createUserSchema = z.object({
     .toLowerCase()
     .email('Invalid email address')
     .max(255),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-      message:
-        'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-    }),
   phone: z.string().trim().max(20).optional(),
   role: z.enum(['store_admin', 'user']),
   store_id: z.number().int().positive().optional(),
