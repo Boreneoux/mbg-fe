@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, Edit2, Trash2, Plus } from 'lucide-react';
 import { UserWithStore, UserPaginationMeta } from '../types';
 import {
@@ -76,12 +76,18 @@ export function UserListTable({
   onAddUser,
 }: UserListTableProps) {
   const [searchInput, setSearchInput] = useState(search);
+  const onSearchChangeRef = useRef(onSearchChange);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchInput(value);
-    onSearchChange(value);
-  };
+  useEffect(() => {
+    onSearchChangeRef.current = onSearchChange;
+  }, [onSearchChange]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearchChangeRef.current(searchInput);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const displayName = (firstName: string | null, lastName: string | null) => {
     if (firstName && lastName) return `${firstName} ${lastName}`;
@@ -102,7 +108,7 @@ export function UserListTable({
           <Input
             placeholder="Search by name or email..."
             value={searchInput}
-            onChange={handleSearch}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="flex-1"
           />
           <Select

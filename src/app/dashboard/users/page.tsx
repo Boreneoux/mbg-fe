@@ -21,9 +21,10 @@ export default function UsersPage() {
   }
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'store_admin' | 'user' | undefined>();
+  const [refreshKey, setRefreshKey] = useState(0);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -33,12 +34,15 @@ export default function UsersPage() {
     page,
     limit,
     search,
-    roleFilter
+    roleFilter,
+    refreshKey
   );
+
+  const refresh = () => setRefreshKey((k) => k + 1);
 
   const handleCreateSuccess = () => {
     setCreateDialogOpen(false);
-    setPage(1);
+    refresh();
   };
 
   const handleEditOpen = (user: UserWithStore) => {
@@ -49,6 +53,7 @@ export default function UsersPage() {
   const handleEditSuccess = () => {
     setEditDialogOpen(false);
     setSelectedUser(null);
+    refresh();
   };
 
   const handleDeleteOpen = (user: UserWithStore) => {
@@ -59,6 +64,7 @@ export default function UsersPage() {
   const handleDeleteSuccess = () => {
     setDeleteDialogOpen(false);
     setSelectedUser(null);
+    refresh();
   };
 
   return (
@@ -95,6 +101,7 @@ export default function UsersPage() {
         user={selectedUser}
         onOpenChange={setEditDialogOpen}
         onSuccess={handleEditSuccess}
+        onAssignmentChange={refresh}
       />
 
       <DeleteUserConfirmDialog
