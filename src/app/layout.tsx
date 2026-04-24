@@ -8,6 +8,7 @@ import MSWProvider from '@/components/MSWProvider';
 import { AppToaster } from '@/components/AppToaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NavigationProgress from '@/components/NavigationProgress';
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -45,6 +46,11 @@ export default function RootLayout({
             </AuthProvider>
           </MSWProvider>
         </ThemeProvider>
+        <Script
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

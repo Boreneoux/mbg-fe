@@ -85,15 +85,36 @@ export const useCheckout = () => {
       
       const orderId = createResponse.data.order.id;
       
-      // 2. Get payment URL
+      // 2. Get payment URL and Snap Token
       const paymentResponse = await getPaymentUrlApi(orderId);
-      const paymentUrl = paymentResponse.data.payment_url;
+      const snapToken = paymentResponse.data.snap_token;
       
       clear();
-      toast.success('Order created, redirecting to payment gateway...');
       
-      // 3. Redirect to midtrans
-      window.location.href = paymentUrl;
+      // 3. Trigger Midtrans Snap popup
+      if (window.snap) {
+        window.snap.pay(snapToken, {
+          onSuccess: (result) => {
+            toast.success('Payment successful!');
+            router.push(`/account/orders/${orderId}`);
+          },
+          onPending: (result) => {
+            toast.info('Payment is pending. Please complete it soon.');
+            router.push(`/account/orders/${orderId}`);
+          },
+          onError: (result) => {
+            toast.error('Payment failed. Please try again from the order details.');
+            router.push(`/account/orders/${orderId}`);
+          },
+          onClose: () => {
+            toast.warning('You closed the payment popup without finishing.');
+            router.push(`/account/orders/${orderId}`);
+          }
+        });
+      } else {
+        // Fallback to redirect if snap is not loaded
+        window.location.href = paymentResponse.data.payment_url;
+      }
       
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to place order';
