@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { isAxiosError } from 'axios';
 import { Order } from '../types';
-import { getOrderApi } from '../api/orders.api';
+import { getOrderApi, getAdminOrderApi } from '../api/orders.api';
 
-export function useGetOrder(id: string | number) {
+export function useGetOrder(id: string | number, isAdmin: boolean = false) {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function useGetOrder(id: string | number) {
       setError(null);
 
       try {
-        const data = await getOrderApi(id);
+        const data = isAdmin ? await getAdminOrderApi(id) : await getOrderApi(id);
         if (!cancelled) {
           setOrder(data);
         }
@@ -43,7 +43,7 @@ export function useGetOrder(id: string | number) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, isAdmin]);
 
   return { order, isLoading, error };
 }
