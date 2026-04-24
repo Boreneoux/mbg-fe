@@ -28,6 +28,7 @@ import {
 import { useGetOrders } from '@/features/orders/hooks/useGetOrders';
 import { useDebounce } from '@/hooks/useDebounce';
 import { OrderStatus } from '@/features/orders/types';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 export default function OrderListPage() {
   const router = useRouter();
@@ -104,17 +105,18 @@ export default function OrderListPage() {
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-500';
+        return 'bg-emerald-600 text-white hover:bg-emerald-700';
       case 'cancelled':
-        return 'bg-destructive';
+        return 'bg-rose-600 text-white hover:bg-rose-700';
       case 'processing':
       case 'waiting_for_confirmation':
-        return 'bg-blue-500';
+        return 'bg-sky-600 text-white hover:bg-sky-700';
       case 'shipped':
-        return 'bg-purple-500';
+        return 'bg-violet-600 text-white hover:bg-violet-700';
       case 'waiting_for_payment':
+        return 'bg-amber-500 text-white hover:bg-amber-600';
       default:
-        return 'bg-muted';
+        return 'bg-slate-500 text-white hover:bg-slate-600';
     }
   };
 
@@ -169,7 +171,32 @@ export default function OrderListPage() {
                 <Card className="p-6 group-hover:shadow-lg transition-shadow">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      {getStatusIcon(order.status)}
+                      <div className="mt-1">
+                        {getStatusIcon(order.status)}
+                      </div>
+                      
+                      {/* Product Preview Image */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted border">
+                        {(() => {
+                          const firstItem = order.order_items[0];
+                          const primaryImage = firstItem?.product?.product_images?.find((img: any) => img.is_primary)?.image_url 
+                                            || firstItem?.product?.product_images?.[0]?.image_url;
+                          
+                          return primaryImage ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={primaryImage}
+                              alt={firstItem?.product?.name || 'Product'}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-8 h-8 text-muted-foreground/50" />
+                            </div>
+                          );
+                        })()}
+                      </div>
+
                       <div>
                         <h3 className="font-bold mb-1">{order.order_number}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -203,10 +230,10 @@ export default function OrderListPage() {
                     <div className="flex items-center gap-4 md:flex">
                       <div className="text-right">
                         <p className="text-2xl font-bold text-foreground">
-                          ${order.total_price}
+                          {formatCurrencyIDR(order.total_price)}
                         </p>
                         <Badge
-                          className={`${getStatusColor(order.status)} text-white`}>
+                          className={`${getStatusColor(order.status)} font-bold px-3 py-1`}>
                           {order.status.replace(/_/g, ' ').toUpperCase()}
                         </Badge>
                       </div>
@@ -214,11 +241,11 @@ export default function OrderListPage() {
 
                     <div className="flex md:hidden items-center justify-between mt-4 border-t pt-4">
                       <Badge
-                        className={`${getStatusColor(order.status)} text-white`}>
+                        className={`${getStatusColor(order.status)} font-bold px-3 py-1`}>
                         {order.status.replace(/_/g, ' ').toUpperCase()}
                       </Badge>
                       <p className="text-xl font-bold text-foreground">
-                        ${order.total_price}
+                        {formatCurrencyIDR(order.total_price)}
                       </p>
                     </div>
                   </div>

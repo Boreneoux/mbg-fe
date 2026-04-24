@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -35,17 +36,18 @@ export default function OrderDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-      case 'shipped':
-        return 'bg-green-500 hover:bg-green-600 text-white';
+        return 'bg-emerald-600 text-white hover:bg-emerald-700';
       case 'cancelled':
-        return 'bg-destructive hover:bg-destructive text-destructive-foreground';
+        return 'bg-rose-600 text-white hover:bg-rose-700';
       case 'processing':
-        return 'bg-blue-500 hover:bg-blue-600 text-white';
       case 'waiting_for_confirmation':
-        return 'bg-yellow-500 hover:bg-yellow-600 text-white';
+        return 'bg-sky-600 text-white hover:bg-sky-700';
+      case 'shipped':
+        return 'bg-violet-600 text-white hover:bg-violet-700';
       case 'waiting_for_payment':
+        return 'bg-amber-500 text-white hover:bg-amber-600';
       default:
-        return 'bg-muted text-muted-foreground';
+        return 'bg-slate-500 text-white hover:bg-slate-600';
     }
   };
 
@@ -55,7 +57,7 @@ export default function OrderDetailPage() {
   };
 
   const formatCurrency = (amount: number | string) => {
-    return `Rp${Number(amount).toLocaleString('id-ID')}`;
+    return formatCurrencyIDR(Number(amount));
   };
 
   const subtotal = Number(order.total_price) + Number(order.total_discount) - Number(order.shipping_cost);
@@ -70,7 +72,7 @@ export default function OrderDetailPage() {
       <div className="mb-6 mt-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <h1 className="text-3xl font-bold">{order.order_number}</h1>
-          <Badge className={`${getStatusColor(order.status)} font-medium`} style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>
+          <Badge className={`${getStatusColor(order.status)} font-bold`} style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>
             {formatText(order.status)}
           </Badge>
         </div>
