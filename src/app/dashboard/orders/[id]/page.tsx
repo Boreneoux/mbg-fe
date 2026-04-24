@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
 
-  const { order, isLoading, error } = useGetOrder(id as string);
+  const { order, isLoading, error } = useGetOrder(id as string, true);
 
   if (isLoading) {
     return (
@@ -35,17 +36,20 @@ export default function AdminOrderDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-      case 'shipped':
-        return 'bg-green-500 hover:bg-green-600 text-white';
+        return 'bg-emerald-600 text-white hover:bg-emerald-700';
       case 'cancelled':
-        return 'bg-destructive hover:bg-destructive text-destructive-foreground';
+        return 'bg-rose-600 text-white hover:bg-rose-700';
       case 'processing':
-        return 'bg-blue-500 hover:bg-blue-600 text-white';
       case 'waiting_for_confirmation':
-        return 'bg-orange-500 hover:bg-orange-600 text-white';
+        return 'bg-sky-600 text-white hover:bg-sky-700';
+      case 'shipped':
+        return 'bg-violet-600 text-white hover:bg-violet-700';
       case 'waiting_for_payment':
+        return 'bg-amber-500 text-white hover:bg-amber-600';
+      case 'delivered':
+        return 'bg-green-600 text-white hover:bg-green-700';
       default:
-        return 'bg-yellow-500 hover:bg-yellow-600 text-white';
+        return 'bg-slate-500 text-white hover:bg-slate-600';
     }
   };
 
@@ -55,7 +59,7 @@ export default function AdminOrderDetailPage() {
   };
 
   const formatCurrency = (amount: number | string) => {
-    return `Rp${Number(amount).toLocaleString('id-ID')}`;
+    return formatCurrencyIDR(Number(amount));
   };
 
   const subtotal = Number(order.total_price) + Number(order.total_discount) - Number(order.shipping_cost);
@@ -70,7 +74,7 @@ export default function AdminOrderDetailPage() {
       <div className="mb-6 mt-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <h1 className="text-3xl font-bold">{order.order_number}</h1>
-          <Badge className={`${getStatusColor(order.status)} font-medium`} style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>
+          <Badge className={`${getStatusColor(order.status)} font-bold`} style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>
             {formatText(order.status)}
           </Badge>
         </div>
@@ -96,9 +100,9 @@ export default function AdminOrderDetailPage() {
 
             <div className="space-y-4">
               {order.order_items.map((item) => {
-                const primaryImage = item.product?.product_images?.find((img) => img.is_primary)?.image_url 
-                                  || item.product?.product_images?.[0]?.image_url;
-                
+                const primaryImage = item.product?.product_images?.find((img) => img.is_primary)?.image_url
+                  || item.product?.product_images?.[0]?.image_url;
+
                 return (
                   <div key={item.id} className="flex gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -185,7 +189,7 @@ export default function AdminOrderDetailPage() {
               <span>Paid with {formatText(order.payment_method)}</span>
             </div>
           </Card>
-          
+
           <Card className="p-6 shadow-sm mt-6">
             <h2 className="text-lg font-bold mb-4">Admin Controls</h2>
             <div className="space-y-3">
