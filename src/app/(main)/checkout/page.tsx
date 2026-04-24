@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useCheckout } from '@/features/checkout/useCheckout';
 import { UserAddress } from '@/features/addresses/types';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 function AddressOption({ address }: { address: UserAddress }) {
   return (
@@ -150,27 +151,27 @@ export default function CheckoutPage() {
                     <span>
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span>Rp {(item.product.price * item.quantity).toLocaleString('id-ID')}</span>
+                    <span>{formatCurrencyIDR(Number(item.product.price) * item.quantity)}</span>
                   </div>
                 );
               })}
 
               <Separator />
 
-              <SummaryRow title="Subtotal" value={`Rp ${subtotal.toLocaleString('id-ID')}`} />
+              <SummaryRow title="Subtotal" value={formatCurrencyIDR(subtotal)} />
 
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span>-Rp {discount.toLocaleString('id-ID')}</span>
+                  <span>-{formatCurrencyIDR(discount)}</span>
                 </div>
               )}
 
-              <SummaryRow title="Delivery Fee" value={`Rp ${deliveryFee.toLocaleString('id-ID')}`} />
+              <SummaryRow title="Delivery Fee" value={formatCurrencyIDR(deliveryFee)} />
 
               <Separator />
 
-              <SummaryRow title="Total" value={`Rp ${total.toLocaleString('id-ID')}`} highlight />
+              <SummaryRow title="Total" value={formatCurrencyIDR(total)} highlight />
             </div>
 
             <Button
