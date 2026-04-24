@@ -89,6 +89,6 @@ export const createOrderApi = async (data: CreateOrderData) => {
 };
 
 export const getPaymentUrlApi = async (id: string | number) => {
-  const response = await axiosInstance.get<{ data: { payment_url: string, order: Order }, message: string, success: boolean }>(`/orders/${id}/payment-url`);
+  const response = await axiosInstance.get<{ data: { payment_url: string, snap_token: string, order: Order }, message: string, success: boolean }>(`/orders/${id}/payment-url`);
   return response.data;
 };

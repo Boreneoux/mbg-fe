@@ -8,6 +8,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrencyIDR } from '@/utils/currency';
+import { toast } from 'sonner';
+import { getPaymentUrlApi } from '@/features/orders/api/orders.api';
+import { useState } from 'react';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -15,6 +18,7 @@ export default function OrderDetailPage() {
   const router = useRouter();
 
   const { order, isLoading, error } = useGetOrder(id as string);
+  const [isPaying, setIsPaying] = useState(false);
 
   if (isLoading) {
     return (
@@ -184,6 +188,60 @@ export default function OrderDetailPage() {
               <span>Paid with {formatText(order.payment_method)}</span>
             </div>
           </Card>
+
+          {order.status === 'waiting_for_payment' && (
+            <div className="mt-4 space-y-3">
+              <Button 
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isPaying}
+                onClick={async () => {
+                  setIsPaying(true);
+                  try {
+                    const response = await getPaymentUrlApi(order.id);
+                    const snapToken = response.data.snap_token;
+                    
+                    if (window.snap) {
+                      window.snap.pay(snapToken, {
+                        onSuccess: () => {
+                          toast.success('Payment successful!');
+                          window.location.reload();
+                        },
+                        onPending: () => {
+                          toast.info('Payment is pending.');
+                          window.location.reload();
+                        },
+                        onError: () => {
+                          toast.error('Payment failed.');
+                          setIsPaying(false);
+                        },
+                        onClose: () => {
+                          toast.warning('Payment popup closed.');
+                          setIsPaying(false);
+                        }
+                      });
+                    } else {
+                      window.location.href = response.data.payment_url;
+                    }
+                  } catch (error) {
+                    toast.error('Failed to initiate payment.');
+                    setIsPaying(false);
+                  }
+                }}
+              >
+                {isPaying ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Initializing...
+                  </>
+                ) : (
+                  'Pay Now'
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Please complete your payment to process the order.
+              </p>
+            </div>
+          )}
 
           {order.status === 'confirmed' && (
             <Button className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90">
