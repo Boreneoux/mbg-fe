@@ -21,6 +21,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useGetOrders } from '@/features/orders/hooks/useGetOrders';
 import useAuthStore from '@/stores/useAuthStore';
 import { useStores } from '@/features/stores/hooks/useStores';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 export default function OrderManagementPage() {
   const { user } = useAuthStore();
@@ -39,35 +40,32 @@ export default function OrderManagementPage() {
     limit,
     debouncedSearch,
     statusFilter,
-    warehouseFilter
+    warehouseFilter,
+    true
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'delivered':
-        return 'bg-green-500';
-      case 'cancelled':
-        return 'bg-destructive';
-      case 'processing':
-        return 'bg-blue-500';
-      case 'shipped':
-        return 'bg-purple-500';
       case 'confirmed':
-        return 'bg-teal-500';
-      case 'waiting_for_payment':
-        return 'bg-yellow-500';
+        return 'bg-emerald-600 text-white hover:bg-emerald-700';
+      case 'cancelled':
+        return 'bg-rose-600 text-white hover:bg-rose-700';
+      case 'processing':
       case 'waiting_for_confirmation':
-        return 'bg-orange-500';
+        return 'bg-sky-600 text-white hover:bg-sky-700';
+      case 'shipped':
+        return 'bg-violet-600 text-white hover:bg-violet-700';
+      case 'waiting_for_payment':
+        return 'bg-amber-500 text-white hover:bg-amber-600';
+      case 'delivered':
+        return 'bg-green-600 text-white hover:bg-green-700';
       default:
-        return 'bg-muted';
+        return 'bg-slate-500 text-white hover:bg-slate-600';
     }
   };
 
   const formatStatus = (status: string) => {
-    return status
-      .split('_')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return status.replace(/_/g, ' ').toUpperCase();
   };
 
   const handlePageChange = (newPage: number) => {
@@ -96,10 +94,10 @@ export default function OrderManagementPage() {
             className="pl-10"
           />
         </div>
-        
+
         {user?.role === 'super_admin' && (
-          <Select 
-            value={warehouseFilter} 
+          <Select
+            value={warehouseFilter}
             onValueChange={(val) => {
               setWarehouseFilter(val);
               setPage(1);
@@ -119,8 +117,8 @@ export default function OrderManagementPage() {
           </Select>
         )}
 
-        <Select 
-          value={statusFilter} 
+        <Select
+          value={statusFilter}
           onValueChange={(val) => {
             setStatusFilter(val);
             setPage(1);
@@ -183,15 +181,11 @@ export default function OrderManagementPage() {
                   <TableCell className="font-mono font-medium">{order.order_number}</TableCell>
                   <TableCell>{order.order_items?.length || 0} items</TableCell>
                   <TableCell className="font-medium">
-                    {new Intl.NumberFormat('id-ID', {
-                      style: 'currency',
-                      currency: 'IDR',
-                      minimumFractionDigits: 0
-                    }).format(order.total_price)}
+                    {formatCurrencyIDR(order.total_price)}
                   </TableCell>
                   <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(order.status)} variant="secondary">
+                    <Badge className={`${getStatusColor(order.status)} font-bold px-3 py-1`}>
                       {formatStatus(order.status)}
                     </Badge>
                   </TableCell>

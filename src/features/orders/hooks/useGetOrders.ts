@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import { isAxiosError } from 'axios';
 import { Order, OrderPaginationMeta } from '../types';
-import { getOrdersApi } from '../api/orders.api';
+import { getOrdersApi, getAdminOrdersApi } from '../api/orders.api';
 
 export function useGetOrders(
   page: number,
   limit: number,
   search?: string,
   status?: string,
-  warehouse_id?: number | string
+  warehouse_id?: number | string,
+  isAdmin: boolean = false
 ) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,9 @@ export function useGetOrders(
       setError(null);
 
       try {
-        const data = await getOrdersApi(page, limit, search, status, warehouse_id);
+        const data = isAdmin 
+          ? await getAdminOrdersApi(page, limit, search, status, warehouse_id)
+          : await getOrdersApi(page, limit, search, status, warehouse_id);
         if (!cancelled) {
           setOrders(data.data);
           setPagination(data.meta);
@@ -50,11 +53,10 @@ export function useGetOrders(
     };
 
     fetchOrders();
-
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search, status, warehouse_id]);
+  }, [page, limit, search, status, warehouse_id, isAdmin]);
 
   return { orders, isLoading, error, pagination };
 }
