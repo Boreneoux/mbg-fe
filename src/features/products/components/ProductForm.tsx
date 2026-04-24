@@ -59,8 +59,8 @@ export function ProductForm({
       form.reset({
         name: product.name,
         description: product.description ?? '',
-        price: product.price,
-        weight: product.weight,
+        price: Number(product.price),
+        weight: Number(product.weight),
         category_id: product.category_id,
         photos: [],
       });

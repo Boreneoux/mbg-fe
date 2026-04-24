@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteProductDialog } from '@/features/products/components/DeleteProductDialog';
-import { ChevronLeft, Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, ChevronLeft } from 'lucide-react';
+import { formatCurrencyIDR } from '@/utils/currency';
 import { useState } from 'react';
 
 interface ProductDetailPageProps {
@@ -164,7 +165,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div>
                   <p className="text-sm text-gray-600">Price</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${Number(product.price).toFixed(2)}
+                    {formatCurrencyIDR(Number(product.price))}
                   </p>
                 </div>
 
