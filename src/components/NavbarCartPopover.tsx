@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { formatRupiah } from '@/lib/utils';
+import { formatCurrencyIDR } from '@/utils/currency';
 import type { Cart } from '@/features/cart/types';
 
 const MAX_PREVIEW_ITEMS = 4;
@@ -25,12 +25,12 @@ function getPrimaryImage(images: { image_url: string; is_primary: boolean }[]): 
 
 export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
   const items = cart?.cart_items ?? [];
-  const cartCount = items.length;
+  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const previewItems = items.slice(0, MAX_PREVIEW_ITEMS);
   const overflowCount = items.length - MAX_PREVIEW_ITEMS;
 
   const total = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + Number(item.product.price) * item.quantity,
     0,
   );
 
@@ -82,11 +82,11 @@ export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.product.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.quantity} x {formatRupiah(item.product.price)}
+                        {item.quantity} x {formatCurrencyIDR(Number(item.product.price))}
                       </p>
                     </div>
                     <p className="text-sm font-semibold shrink-0 text-primary">
-                      {formatRupiah(item.product.price * item.quantity)}
+                      {formatCurrencyIDR(Number(item.product.price) * item.quantity)}
                     </p>
                   </li>
                 );
@@ -104,7 +104,7 @@ export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
             <div className="px-4 py-3 flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Total</p>
-                <p className="text-sm font-bold text-primary">{formatRupiah(total)}</p>
+                <p className="text-sm font-bold text-primary">{formatCurrencyIDR(total)}</p>
               </div>
               <Button asChild size="sm" className="shadow-sm shadow-primary/20">
                 <Link href="/cart">Lihat Keranjang</Link>

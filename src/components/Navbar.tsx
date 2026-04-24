@@ -286,11 +286,14 @@ export default function Navbar() {
             <Link href="/cart" className="relative md:hidden">
               <Button variant="ghost" size="icon">
                 <ShoppingCart className="w-5 h-5" />
-                {(cart?.cart_items.length ?? 0) > 0 && (
-                  <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-primary text-white text-xs">
-                    {(cart?.cart_items.length ?? 0) > 99 ? '99+' : cart?.cart_items.length}
-                  </Badge>
-                )}
+                {(() => {
+                  const totalItems = cart?.cart_items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+                  return totalItems > 0 ? (
+                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-primary text-white text-xs">
+                      {totalItems > 99 ? '99+' : totalItems}
+                    </Badge>
+                  ) : null;
+                })()}
               </Button>
             </Link>
           </div>
