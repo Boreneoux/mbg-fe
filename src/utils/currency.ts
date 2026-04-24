@@ -4,8 +4,8 @@
  */
 export function formatCurrencyIDR(value: number): string {
   return `Rp${value.toLocaleString('id-ID', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })}`;
 }
 

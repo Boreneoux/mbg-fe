@@ -388,10 +388,6 @@ function JournalTab({
                     <SelectContent>
                       <SelectItem value="addition">Addition</SelectItem>
                       <SelectItem value="reduction">Reduction</SelectItem>
-                      <SelectItem value="mutation_in">Mutation In</SelectItem>
-                      <SelectItem value="mutation_out">Mutation Out</SelectItem>
-                      <SelectItem value="order_deduction">Order Deduction</SelectItem>
-                      <SelectItem value="order_cancellation_return">Order Cancellation Return</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
