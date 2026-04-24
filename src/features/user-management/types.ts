@@ -26,7 +26,6 @@ export type CreateUserPayload = {
   first_name: string;
   last_name?: string;
   email: string;
-  password: string;
   phone?: string;
   role: 'store_admin' | 'user';
   store_id?: number;

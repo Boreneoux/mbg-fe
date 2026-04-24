@@ -12,7 +12,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -59,7 +58,8 @@ export function CreateUserDialog({
         <DialogHeader>
           <DialogTitle>Create Store Admin</DialogTitle>
           <DialogDescription>
-            Add a new Store Admin account and assign them to a store.
+            An invitation email will be sent so the admin can set up their own
+            password.
           </DialogDescription>
         </DialogHeader>
 
@@ -125,28 +125,6 @@ export function CreateUserDialog({
 
             <FormField
               control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Must contain uppercase, lowercase, and numbers
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
@@ -203,7 +181,7 @@ export function CreateUserDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Store Admin'}
+                {isLoading ? 'Creating...' : 'Create & Send Invite'}
               </Button>
             </DialogFooter>
           </form>
