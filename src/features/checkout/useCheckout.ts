@@ -12,7 +12,7 @@ import { discountSchema, type DiscountFormData } from './schema';
 export const useCheckout = () => {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { cart, appliedDiscount, setAppliedDiscount, clear } = useCartStore();
+  const { cart, selectedItems, appliedDiscount, setAppliedDiscount, clear } = useCartStore();
   const { addresses } = useAddresses();
   
   // Set default address to ID of primary address or first address
@@ -33,7 +33,7 @@ export const useCheckout = () => {
     defaultValues: { code: '' },
   });
 
-  const cartItems = cart?.cart_items || [];
+  const cartItems = cart?.cart_items.filter(item => selectedItems.includes(item.id)) || [];
 
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -42,7 +42,7 @@ export const useCheckout = () => {
   }, [cartItems.length, router]);
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + (item.product?.price || 0) * item.quantity,
+    (sum, item) => sum + (Number(item.product?.price) || 0) * item.quantity,
     0
   );
   
@@ -79,6 +79,7 @@ export const useCheckout = () => {
         payment_method: 'payment_gateway',
         shipping_method: 'Standard',
         shipping_cost: deliveryFee,
+        cart_item_ids: selectedItems,
         ...(appliedDiscount ? { voucher_code: appliedDiscount } : {})
       });
       

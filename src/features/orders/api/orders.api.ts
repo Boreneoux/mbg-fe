@@ -8,6 +8,7 @@ export interface CreateOrderData {
   voucher_code?: string;
   shipping_method?: string;
   shipping_cost?: number;
+  cart_item_ids?: number[];
 }
 
 export const getOrdersApi = async (

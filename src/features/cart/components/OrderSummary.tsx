@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 type OrderSummaryProps = {
   subtotal: number;
@@ -27,18 +28,18 @@ export function OrderSummary({
         <div className="space-y-3 mb-4">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-semibold">${subtotal.toFixed(2)}</span>
+            <span className="font-semibold">{formatCurrencyIDR(subtotal)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Delivery Fee</span>
-            <span className="font-semibold">${deliveryFee.toFixed(2)}</span>
+            <span className="font-semibold">{formatCurrencyIDR(deliveryFee)}</span>
           </div>
 
           <Separator />
 
           <div className="flex justify-between text-lg">
             <span className="font-bold">Total</span>
-            <span className="font-bold">${total.toFixed(2)}</span>
+            <span className="font-bold">{formatCurrencyIDR(total)}</span>
           </div>
         </div>
 
@@ -46,7 +47,7 @@ export function OrderSummary({
           className="w-full"
           size="lg"
           onClick={onCheckout}
-          disabled={isLoading}
+          disabled={isLoading || subtotal === 0}
         >
           Proceed to Checkout
         </Button>
