@@ -35,9 +35,12 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Skip the refresh endpoint itself to avoid infinite loops
+    // Skip auth endpoints that shouldn't trigger a token refresh
     if (original.url?.includes('/auth/refresh')) {
       redirectToLogin();
+      return Promise.reject(error);
+    }
+    if (original.url?.includes('/auth/login')) {
       return Promise.reject(error);
     }
 
