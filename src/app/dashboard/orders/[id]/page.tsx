@@ -2,7 +2,8 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useGetOrder } from '@/features/orders/hooks/useGetOrder';
-import { ArrowLeft, Package, MapPin, CreditCard, Loader2 } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, CreditCard, Loader2, Store, RefreshCw, XCircle, CheckCircle, Truck } from 'lucide-react';
+import { useAdminOrderActions } from '@/features/orders/hooks/useAdminOrderActions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,8 @@ export default function AdminOrderDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
 
-  const { order, isLoading, error } = useGetOrder(id as string, true);
+  const { order, isLoading, error, refetch } = useGetOrder(id as string, true);
+  const { confirmPayment, rejectPayment, shipOrder, cancelOrder, isUpdating } = useAdminOrderActions(id as string, refetch);
 
   if (isLoading) {
     return (
@@ -87,6 +89,12 @@ export default function AdminOrderDetailPage() {
             minute: '2-digit',
           })}
         </p>
+        {order.store && (
+          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
+            <Store className="w-5 h-5 text-primary" />
+            <span className="font-medium">Store: {order.store.name}</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -193,13 +201,55 @@ export default function AdminOrderDetailPage() {
           <Card className="p-6 shadow-sm mt-6">
             <h2 className="text-lg font-bold mb-4">Admin Controls</h2>
             <div className="space-y-3">
-              <Button className="w-full" variant="outline">
-                Update Status
-              </Button>
-              {order.status !== 'cancelled' && order.status !== 'shipped' && (
-                <Button className="w-full" variant="destructive">
+              {order.status === 'waiting_for_confirmation' && (
+                <>
+                  <Button 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" 
+                    onClick={confirmPayment} 
+                    disabled={isUpdating}
+                  >
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Approve Payment
+                  </Button>
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    onClick={rejectPayment} 
+                    disabled={isUpdating}
+                  >
+                    <RefreshCw className="w-5 h-5 mr-2" />
+                    Reject Payment
+                  </Button>
+                </>
+              )}
+
+              {order.status === 'processing' && (
+                <Button 
+                  className="w-full bg-sky-600 hover:bg-sky-700 text-white" 
+                  onClick={shipOrder} 
+                  disabled={isUpdating}
+                >
+                  <Truck className="w-5 h-5 mr-2" />
+                  Mark as Shipped
+                </Button>
+              )}
+
+              {['waiting_for_payment', 'waiting_for_confirmation', 'processing'].includes(order.status) && (
+                <Button 
+                  className="w-full" 
+                  variant="destructive" 
+                  onClick={cancelOrder} 
+                  disabled={isUpdating}
+                >
+                  <XCircle className="w-5 h-5 mr-2" />
                   Cancel Order
                 </Button>
+              )}
+
+              {!['waiting_for_confirmation', 'processing', 'waiting_for_payment'].includes(order.status) && (
+                <p className="text-sm text-muted-foreground text-center py-2 italic">
+                  No further actions available for this status.
+                </p>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-3 text-center">
