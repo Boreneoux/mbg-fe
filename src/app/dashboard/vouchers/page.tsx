@@ -1,114 +1,110 @@
 'use client';
 
-import { useMemo } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import useAuthStore from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus } from 'lucide-react';
 import { useVouchers } from '@/features/vouchers/hooks/useVouchers';
+import { useDeleteVoucher } from '@/features/vouchers/hooks/useDeleteVoucher';
+import { VoucherList } from '@/features/vouchers/components/VoucherList';
+import { CreateVoucherDialog } from '@/features/vouchers/components/CreateVoucherDialog';
+import { EditVoucherDialog } from '@/features/vouchers/components/EditVoucherDialog';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Voucher } from '@/features/vouchers/types';
+import { ConfirmDeleteDialog } from '@/components/ui/ConfirmDeleteDialog';
 
 export default function VouchersPage() {
-  const { vouchers, isLoading, error, refetch } = useVouchers({ limit: 50 });
+  const user = useAuthStore((s) => s.user);
+  const [page, setPage] = useState(1);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
-  const formatVoucherKind = useMemo(() => {
-    return (type: string) => {
-      switch (type) {
-        case 'product_specific':
-          return 'Product voucher';
-        case 'total_purchase':
-          return 'Total purchase';
-        case 'shipping':
-          return 'Shipping';
-        default:
-          return type;
-      }
-    };
-  }, []);
-
-  const formatDiscountType = useMemo(() => {
-    return (type: string) => {
-      return type === 'percentage' ? 'Percentage' : 'Nominal';
-    };
-  }, []);
-
-  const formatCurrency = (value?: number | null) =>
-    value == null
-      ? '-'
-      : new Intl.NumberFormat('id-ID', {
-          style: 'currency',
-          currency: 'IDR',
-          maximumFractionDigits: 0,
-        }).format(value);
+  const { vouchers, meta, isLoading, refetch } = useVouchers({ page, limit: 10 });
+  const { deleteVoucher, isDeleting } = useDeleteVoucher(refetch);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Vouchers</h1>
-          <p className="text-gray-600 mt-1">Browse voucher codes, usage rules, and expiry information.</p>
+          <p className="text-gray-600 mt-1">Manage promotional codes and their constraints</p>
         </div>
-        <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
-          Refresh
-        </Button>
+        {(user?.role === 'super_admin' || user?.role === 'store_admin') && (
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Voucher
+          </Button>
+        )}
       </div>
 
-      {error ? (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
+      <VoucherList
+        vouchers={vouchers}
+        isLoading={isLoading}
+        onDelete={(id) => setConfirmDeleteId(id)}
+        onEdit={setEditingVoucher}
+      />
 
-      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {isLoading
-          ? [...Array(6)].map((_, index) => (
-              <Card key={index} className="animate-pulse">
-                <CardContent>
-                  <div className="h-24 rounded-lg bg-muted" />
-                </CardContent>
-              </Card>
-            ))
-          : vouchers.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              No vouchers are available right now.
-            </div>
-          ) : (
-            vouchers.map((voucher) => (
-              <Card key={voucher.id}>
-                <CardHeader>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <CardTitle>{voucher.code}</CardTitle>
-                      <CardDescription>{formatVoucherKind(voucher.usage_type)}</CardDescription>
-                    </div>
-                    <Badge variant="secondary">{formatDiscountType(voucher.discount_type)}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge>{voucher.discount_value}%</Badge>
-                    {voucher.max_discount_amount != null ? (
-                      <Badge variant="outline">Max {formatCurrency(voucher.max_discount_amount)}</Badge>
-                    ) : null}
-                    {voucher.min_purchase_amount != null ? (
-                      <Badge variant="outline">Min {formatCurrency(voucher.min_purchase_amount)}</Badge>
-                    ) : null}
-                  </div>
-                  <div className="grid gap-3 text-sm text-muted-foreground">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em]">Expiry</p>
-                      <p>{new Date(voucher.expired_at).toLocaleDateString()}</p>
-                    </div>
-                    {voucher.product ? (
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.2em]">Product</p>
-                        <p>{voucher.product.name}</p>
-                      </div>
-                    ) : null}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-      </div>
+      {meta && meta.totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                className={meta.page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            {[...Array(meta.totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink 
+                  onClick={() => setPage(i + 1)}
+                  isActive={meta.page === i + 1}
+                  className="cursor-pointer"
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                className={meta.page >= meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+
+      {showCreateDialog && (
+        <CreateVoucherDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onSuccess={refetch}
+        />
+      )}
+
+      {editingVoucher && (
+        <EditVoucherDialog
+          voucher={editingVoucher}
+          open={!!editingVoucher}
+          onOpenChange={(open) => !open && setEditingVoucher(null)}
+          onSuccess={refetch}
+        />
+      )}
+
+      <ConfirmDeleteDialog
+        open={confirmDeleteId !== null}
+        onOpenChange={(open) => !open && setConfirmDeleteId(null)}
+        onConfirm={() => {
+          if (confirmDeleteId !== null) {
+            deleteVoucher(confirmDeleteId);
+            setConfirmDeleteId(null);
+          }
+        }}
+        isDeleting={isDeleting}
+        title="Delete Voucher"
+        description="Are you sure you want to delete this voucher? This action cannot be undone."
+      />
     </div>
   );
 }
