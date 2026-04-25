@@ -12,6 +12,7 @@ import {
   Warehouse,
   ArrowLeftRight,
   ShoppingBag,
+  Percent,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ const MENU_ITEMS = [
   { label: 'Products', href: '/dashboard/products', icon: Package },
   { label: 'Categories', href: '/dashboard/categories', icon: Tag },
   { label: 'Vouchers', href: '/dashboard/vouchers', icon: Ticket },
+  { label: 'Discounts', href: '/dashboard/discounts', icon: Percent },
   { label: 'Users', href: '/dashboard/users', icon: Users },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
   { label: 'Inventory', href: '/dashboard/inventory', icon: Warehouse },
