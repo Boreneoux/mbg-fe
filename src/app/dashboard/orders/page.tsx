@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Eye } from 'lucide-react';
+import { Search, Eye, MapPin, Store, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -139,6 +139,15 @@ export default function OrderManagementPage() {
         </Select>
       </div>
 
+      {!isLoading && user?.role === 'store_admin' && orders.length > 0 && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg border border-dashed animate-in fade-in slide-in-from-top-1">
+          <Store className="w-5 h-5 text-primary" />
+          <span>
+            Store Name: <span className="font-semibold text-foreground">{orders[0].store?.name}</span>
+          </span>
+        </div>
+      )}
+
       {error && (
         <div className="p-4 bg-destructive/10 text-destructive rounded-md">
           {error}
@@ -150,6 +159,7 @@ export default function OrderManagementPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Order Number</TableHead>
+              <TableHead>Store Name</TableHead>
               <TableHead>Total Items</TableHead>
               <TableHead>Total Price</TableHead>
               <TableHead>Date</TableHead>
@@ -162,6 +172,7 @@ export default function OrderManagementPage() {
               Array.from({ length: 5 }).map((_, idx) => (
                 <TableRow key={idx}>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
@@ -171,7 +182,7 @@ export default function OrderManagementPage() {
               ))
             ) : orders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -179,6 +190,9 @@ export default function OrderManagementPage() {
               orders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono font-medium">{order.order_number}</TableCell>
+                  <TableCell>
+                    <span className="font-medium">{order.store?.name}</span>
+                  </TableCell>
                   <TableCell>{order.order_items?.length || 0} items</TableCell>
                   <TableCell className="font-medium">
                     {formatCurrencyIDR(order.total_price)}
@@ -192,7 +206,7 @@ export default function OrderManagementPage() {
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" asChild>
                       <Link href={`/dashboard/orders/${order.id}`}>
-                        <Eye className="w-4 h-4" />
+                        <ChevronRight className="w-5 h-5" />
                       </Link>
                     </Button>
                   </TableCell>

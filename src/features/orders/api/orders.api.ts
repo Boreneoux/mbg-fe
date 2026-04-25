@@ -92,3 +92,23 @@ export const getPaymentUrlApi = async (id: string | number) => {
   const response = await axiosInstance.get<{ data: { payment_url: string, snap_token: string, order: Order }, message: string, success: boolean }>(`/orders/${id}/payment-url`);
   return response.data;
 };
+
+export const adminConfirmPaymentApi = async (id: string | number) => {
+  const response = await axiosInstance.post(`/admin/orders/${id}/confirm-payment-proof`);
+  return response.data;
+};
+
+export const adminRejectPaymentApi = async (id: string | number) => {
+  const response = await axiosInstance.post(`/admin/orders/${id}/reject-payment-proof`);
+  return response.data;
+};
+
+export const adminShipOrderApi = async (id: string | number) => {
+  const response = await axiosInstance.post(`/admin/orders/${id}/ship`);
+  return response.data;
+};
+
+export const adminCancelOrderApi = async (id: string | number) => {
+  const response = await axiosInstance.post(`/admin/orders/${id}/cancel`);
+  return response.data;
+};

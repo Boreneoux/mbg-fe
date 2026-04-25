@@ -48,6 +48,7 @@ export type Order = {
   store?: {
     id: number;
     name: string;
+    city: { name: string };
   };
 };
 

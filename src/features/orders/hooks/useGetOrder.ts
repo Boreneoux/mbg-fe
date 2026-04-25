@@ -10,40 +10,30 @@ export function useGetOrder(id: string | number, isAdmin: boolean = false) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchOrder = async () => {
     if (!id) return;
-    
-    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
 
-    const fetchOrder = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const data = isAdmin ? await getAdminOrderApi(id) : await getOrderApi(id);
-        if (!cancelled) {
-          setOrder(data);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        if (isAxiosError(err)) {
-          setError(
-            err.response?.data?.message ?? 'Failed to load order details.'
-          );
-        } else {
-          setError('Failed to load order details.');
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
+    try {
+      const data = isAdmin ? await getAdminOrderApi(id) : await getOrderApi(id);
+      setOrder(data);
+    } catch (err) {
+      if (isAxiosError(err)) {
+        setError(
+          err.response?.data?.message ?? 'Failed to load order details.'
+        );
+      } else {
+        setError('Failed to load order details.');
       }
-    };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchOrder();
-
-    return () => {
-      cancelled = true;
-    };
   }, [id, isAdmin]);
 
-  return { order, isLoading, error };
+  return { order, isLoading, error, refetch: fetchOrder };
 }
