@@ -4,6 +4,7 @@ import { ApiResponse } from '@/types/api';
 type ResetPasswordPayload = {
   token: string;
   new_password: string;
+  confirm_password: string;
 };
 
 export async function resetPasswordApi(payload: ResetPasswordPayload) {

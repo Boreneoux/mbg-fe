@@ -17,7 +17,7 @@ export function useFormResetPassword(token: string) {
 
   const onSubmit = async (values: ResetPasswordFormValues) => {
     try {
-      await resetPasswordApi({ token, new_password: values.new_password });
+      await resetPasswordApi({ token, new_password: values.new_password, confirm_password: values.confirm_password });
       router.push('/auth/login');
     } catch (error: any) {
       form.setError('root', {
