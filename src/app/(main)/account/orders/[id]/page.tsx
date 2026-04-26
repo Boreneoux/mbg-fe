@@ -11,6 +11,7 @@ import { formatCurrencyIDR } from '@/utils/currency';
 import { toast } from 'sonner';
 import { getPaymentUrlApi } from '@/features/orders/api/orders.api';
 import { useState } from 'react';
+import { translateOrderStatus, translatePaymentMethod } from '@/features/orders/utils';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -32,7 +33,7 @@ export default function OrderDetailPage() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">{error || 'Order Not Found'}</h1>
-        <Button onClick={() => router.push('/account/orders')}>Back to Orders</Button>
+        <Button onClick={() => router.push('/account/orders')}>Kembali ke Pesanan Saya</Button>
       </div>
     );
   }
@@ -55,10 +56,8 @@ export default function OrderDetailPage() {
     }
   };
 
-  const formatText = (text: string) => {
-    if (!text) return '';
-    return text.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
+  const formatStatus = (status: string) => translateOrderStatus(status);
+  const formatPaymentMethod = (method: string) => translatePaymentMethod(method);
 
   const formatCurrency = (amount: number | string) => {
     return formatCurrencyIDR(Number(amount));
@@ -70,18 +69,18 @@ export default function OrderDetailPage() {
     <div className="container mx-auto px-4 py-8">
       <Button variant="ghost" className="mb-6" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Orders
+        Kembali ke Pesanan Saya
       </Button>
 
       <div className="mb-6 mt-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <h1 className="text-3xl font-bold">{order.order_number}</h1>
           <Badge className={`${getStatusColor(order.status)} font-bold`} style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>
-            {formatText(order.status)}
+            {formatStatus(order.status)}
           </Badge>
         </div>
         <p className="text-muted-foreground">
-          Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
+          Dibuat pada {new Date(order.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -97,7 +96,7 @@ export default function OrderDetailPage() {
           <Card className="p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <Package className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Order Items</h2>
+              <h2 className="text-xl font-bold">Produk</h2>
             </div>
 
             <div className="space-y-4">
@@ -115,7 +114,7 @@ export default function OrderDetailPage() {
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold">{item.product?.name}</h3>
-                      <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                      <p className="text-sm text-muted-foreground">Jumlah: {item.quantity}</p>
                       <p className="text-sm">{formatCurrency(item.price)}</p>
                     </div>
                     <div className="text-right font-semibold">
@@ -132,7 +131,7 @@ export default function OrderDetailPage() {
             <Card className="p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-bold">Shipping Address</h2>
+                <h2 className="text-xl font-bold">Alamat Pengiriman</h2>
               </div>
               <div className="text-muted-foreground text-sm">
                 <p className="font-semibold text-foreground mb-1">{order.address.label || 'Address'}</p>
@@ -151,9 +150,9 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Order Summary */}
-        <div>
+        <div className="space-y-6">
           <Card className="p-6 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <h2 className="text-xl font-bold mb-4">Rincian Pesanan</h2>
 
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
@@ -163,13 +162,13 @@ export default function OrderDetailPage() {
 
               {Number(order.total_discount) > 0 && (
                 <div className="flex justify-between text-sm text-green-600">
-                  <span>Discount</span>
+                  <span>Diskon</span>
                   <span>-{formatCurrency(order.total_discount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Delivery Fee</span>
+                <span className="text-muted-foreground">Ongkos Kirim</span>
                 <span className="font-semibold">{formatCurrency(order.shipping_cost)}</span>
               </div>
 
@@ -185,12 +184,12 @@ export default function OrderDetailPage() {
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CreditCard className="w-4 h-4" />
-              <span>Paid with {formatText(order.payment_method)}</span>
+              <span>Dibayar dengan {formatPaymentMethod(order.payment_method)}</span>
             </div>
           </Card>
 
           {order.status === 'waiting_for_payment' && (
-            <div className="mt-4 space-y-3">
+            <div className="space-y-3">
               <Button 
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isPaying}
@@ -203,19 +202,19 @@ export default function OrderDetailPage() {
                     if (window.snap) {
                       window.snap.pay(snapToken, {
                         onSuccess: () => {
-                          toast.success('Payment successful!');
+                          toast.success('Pembayaran berhasil!');
                           window.location.reload();
                         },
                         onPending: () => {
-                          toast.info('Payment is pending.');
+                          toast.info('Pembayaran sedang diproses.');
                           window.location.reload();
                         },
                         onError: () => {
-                          toast.error('Payment failed.');
+                          toast.error('Pembayaran gagal.');
                           setIsPaying(false);
                         },
                         onClose: () => {
-                          toast.warning('Payment popup closed.');
+                          toast.warning('Popup pembayaran ditutup.');
                           setIsPaying(false);
                         }
                       });
@@ -223,7 +222,7 @@ export default function OrderDetailPage() {
                       window.location.href = response.data.payment_url;
                     }
                   } catch (error) {
-                    toast.error('Failed to initiate payment.');
+                    toast.error('Gagal memulai pembayaran.');
                     setIsPaying(false);
                   }
                 }}
@@ -231,21 +230,21 @@ export default function OrderDetailPage() {
                 {isPaying ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Initializing...
+                    Memproses...
                   </>
                 ) : (
-                  'Pay Now'
+                  'Bayar Sekarang'
                 )}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Please complete your payment to process the order.
+                Silakan selesaikan pembayaran untuk memproses pesanan Anda.
               </p>
             </div>
           )}
 
           {order.status === 'confirmed' && (
-            <Button className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90">
-              Reorder
+            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              Pesan Lagi
             </Button>
           )}
         </div>

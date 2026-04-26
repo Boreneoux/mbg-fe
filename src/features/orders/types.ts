@@ -6,7 +6,7 @@ export type OrderStatus =
   | 'confirmed'
   | 'cancelled';
 
-export type PaymentMethod = 'manual_transfer' | 'payment_gateway';
+export type PaymentMethod = 'payment_gateway';
 
 export type UserAddress = {
   id: number;
