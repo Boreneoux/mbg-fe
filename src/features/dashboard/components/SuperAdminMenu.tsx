@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const MENU_ITEMS = [
-  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Reports', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Stores', href: '/dashboard/stores', icon: Store },
   { label: 'Products', href: '/dashboard/products', icon: Package },
   { label: 'Categories', href: '/dashboard/categories', icon: Tag },
