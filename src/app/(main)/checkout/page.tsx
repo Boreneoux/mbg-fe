@@ -1,6 +1,7 @@
 "use client";
 
-import { MapPin, CreditCard, ShoppingBag, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { MapPin, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,12 +14,12 @@ import { formatCurrencyIDR } from '@/utils/currency';
 
 function AddressOption({ address }: { address: UserAddress }) {
   return (
-    <div className="flex items-start space-x-3 p-4 border border-border rounded-lg">
+    <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
       <RadioGroupItem value={address.id.toString()} id={`addr-${address.id}`} />
       <Label htmlFor={`addr-${address.id}`} className="flex-1 cursor-pointer">
         <div className="font-semibold mb-1">
           {address.label || 'Address'}
-          {address.is_primary && <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">Primary</span>}
+          {address.is_primary && <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">Utama</span>}
         </div>
         <div className="text-sm text-muted-foreground">
           {address.address}<br />
@@ -29,16 +30,7 @@ function AddressOption({ address }: { address: UserAddress }) {
   );
 }
 
-function PaymentOption({ value, id, label }: { value: string; id: string; label: string }) {
-  return (
-    <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
-      <RadioGroupItem value={value} id={id} />
-      <Label htmlFor={id} className="flex-1 cursor-pointer">
-        {label}
-      </Label>
-    </div>
-  );
-}
+
 
 function SummaryRow({ title, value, highlight }: { title: string; value: string; highlight?: boolean }) {
   return (
@@ -58,8 +50,7 @@ export default function CheckoutPage() {
     total,
     selectedAddress,
     setSelectedAddress,
-    paymentMethod,
-    setPaymentMethod,
+
     form,
     handleApplyDiscount,
     handlePlaceOrder,
@@ -81,13 +72,13 @@ export default function CheckoutPage() {
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <MapPin className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Delivery Address</h2>
+              <h2 className="text-xl font-bold">Alamat Pengiriman</h2>
             </div>
 
             {!isAuthenticated ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">Please sign in to continue</p>
-                <Button onClick={signIn}>Sign In</Button>
+                <p className="text-muted-foreground mb-4">Silahkan masuk untuk belanja</p>
+                <Button onClick={signIn}>Masuk</Button>
               </div>
             ) : (
               <RadioGroup 
@@ -95,7 +86,12 @@ export default function CheckoutPage() {
                 onValueChange={(val) => setSelectedAddress(Number(val))}
               >
                 {addresses.length === 0 && (
-                  <p className="text-sm text-muted-foreground py-2">No addresses found. Please add one in your profile.</p>
+                  <div className="flex flex-col items-center justify-center py-4 space-y-4">
+                    <p className="text-sm text-muted-foreground">Tidak ada alamat ditemukan. Silahkan tambahkan alamat di profile.</p>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/account/addresses">Tambah Alamat</Link>
+                    </Button>
+                  </div>
                 )}
                 {addresses.map((address) => (
                   <AddressOption key={address.id} address={address} />
@@ -104,33 +100,17 @@ export default function CheckoutPage() {
             )}
           </Card>
 
-          {/* Payment Method */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Payment Method</h2>
-            </div>
 
-            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-              <PaymentOption value="payment_gateway" id="payment_gateway" label="Midtrans Payment Gateway (Card / Bank Transfer / E-Wallet)" />
-            </RadioGroup>
-            
-            {paymentMethod === 'payment_gateway' && (
-              <div className="mt-4 p-4 bg-muted/30 rounded-lg text-sm text-muted-foreground">
-                You will be redirected to the secure Midtrans payment gateway after placing your order.
-              </div>
-            )}
-          </Card>
 
           {/* Discount Code */}
           <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4">Discount Code</h2>
+            <h2 className="text-xl font-bold mb-4">Diskon</h2>
             <form onSubmit={form.handleSubmit(handleApplyDiscount)} className="flex gap-2">
-              <Input {...form.register('code')} placeholder="Enter code" />
-              <Button type="submit" variant="outline">Apply</Button>
+              <Input {...form.register('code')} placeholder="Masukkan kode" />
+              <Button type="submit" variant="outline">Terapkan</Button>
             </form>
             {appliedDiscount && (
-              <p className="text-sm text-green-600 mt-2">✓ Code "{appliedDiscount}" applied</p>
+              <p className="text-sm text-green-600 mt-2">✓ Code "{appliedDiscount}" diterapkan</p>
             )}
           </Card>
         </div>
@@ -140,7 +120,7 @@ export default function CheckoutPage() {
           <Card className="p-6 sticky top-24">
             <div className="flex items-center gap-2 mb-4">
               <ShoppingBag className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Order Summary</h2>
+              <h2 className="text-xl font-bold">Rincian Pesanan</h2>
             </div>
 
             <div className="space-y-3 mb-4">
@@ -162,12 +142,12 @@ export default function CheckoutPage() {
 
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
+                  <span>Diskon</span>
                   <span>-{formatCurrencyIDR(discount)}</span>
                 </div>
               )}
 
-              <SummaryRow title="Delivery Fee" value={formatCurrencyIDR(deliveryFee)} />
+              <SummaryRow title="Ongkos Kirim" value={formatCurrencyIDR(deliveryFee)} />
 
               <Separator />
 
@@ -186,7 +166,7 @@ export default function CheckoutPage() {
                   Processing...
                 </>
               ) : (
-                'Place Order'
+                'Buat Pesanan'
               )}
             </Button>
           </Card>
