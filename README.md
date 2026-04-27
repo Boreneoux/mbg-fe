@@ -1,4 +1,4 @@
-# MalesBeliGrocery — Frontend
+# MagerBeliGrocery — Frontend
 
 Online grocery store built with **Next.js 16 App Router**, **TailwindCSS v4**, and **shadcn/ui**.
 
