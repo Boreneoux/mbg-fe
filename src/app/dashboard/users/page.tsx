@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import useAuthStore from '@/stores/useAuthStore';
 import { useGetUsers } from '@/features/user-management/hooks/useGetUsers';
 import { UserListTable } from '@/features/user-management/components/UserListTable';
-import { CreateUserDialog } from '@/features/user-management/components/CreateUserDialog';
-import { EditUserDialog } from '@/features/user-management/components/EditUserDialog';
 import { DeleteUserConfirmDialog } from '@/features/user-management/components/DeleteUserConfirmDialog';
 import { UserWithStore } from '@/features/user-management/types';
 
@@ -14,7 +12,6 @@ export default function UsersPage() {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
 
-  // Route protection
   if (user && user.role !== 'super_admin') {
     router.push('/dashboard');
     return null;
@@ -25,8 +22,6 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'store_admin' | 'user' | undefined>();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithStore | null>(null);
 
@@ -39,22 +34,6 @@ export default function UsersPage() {
   );
 
   const refresh = () => setRefreshKey((k) => k + 1);
-
-  const handleCreateSuccess = () => {
-    setCreateDialogOpen(false);
-    refresh();
-  };
-
-  const handleEditOpen = (user: UserWithStore) => {
-    setSelectedUser(user);
-    setEditDialogOpen(true);
-  };
-
-  const handleEditSuccess = () => {
-    setEditDialogOpen(false);
-    setSelectedUser(null);
-    refresh();
-  };
 
   const handleDeleteOpen = (user: UserWithStore) => {
     setSelectedUser(user);
@@ -85,23 +64,9 @@ export default function UsersPage() {
         onSearchChange={setSearch}
         onRoleFilterChange={setRoleFilter}
         onPageChange={setPage}
-        onEdit={handleEditOpen}
+        onEdit={(u) => router.push(`/dashboard/users/${u.id}/edit`)}
         onDelete={handleDeleteOpen}
-        onAddUser={() => setCreateDialogOpen(true)}
-      />
-
-      <CreateUserDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSuccess={handleCreateSuccess}
-      />
-
-      <EditUserDialog
-        open={editDialogOpen}
-        user={selectedUser}
-        onOpenChange={setEditDialogOpen}
-        onSuccess={handleEditSuccess}
-        onAssignmentChange={refresh}
+        onAddUser={() => router.push('/dashboard/users/create')}
       />
 
       <DeleteUserConfirmDialog

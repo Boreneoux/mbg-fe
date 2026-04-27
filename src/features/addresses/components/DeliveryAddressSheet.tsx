@@ -50,11 +50,14 @@ export function DeliveryAddressSheet({ open, onClose }: Props) {
 
   async function handleSelectAddress(addr: UserAddress) {
     setResolving(addr.id);
+    // Prisma Decimal fields serialize as strings in JSON — coerce to number explicitly
+    const lat = Number(addr.latitude);
+    const lng = Number(addr.longitude);
     try {
-      setCoordinates({ lat: addr.latitude, lng: addr.longitude });
+      setCoordinates({ lat, lng });
       setStatus('locating');
       try {
-        const result = await getNearestStoreApi(addr.latitude, addr.longitude);
+        const result = await getNearestStoreApi(lat, lng);
         setSelectedStore(result.store.id, result.store.name);
         setStatus('found');
       } catch {
