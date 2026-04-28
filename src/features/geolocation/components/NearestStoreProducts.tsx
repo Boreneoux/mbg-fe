@@ -7,7 +7,6 @@ import {
   ImageOff,
   MapPin,
   AlertTriangle,
-  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +15,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import useLocationStore from '@/stores/useLocationStore';
 import { useStoreProducts } from '@/features/geolocation/hooks/useStoreProducts';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { FALLBACK_STORE_ID } from '@/mocks/handlers/stores.handlers';
 import { Product } from '@/features/products/types';
 
 function formatPrice(price: number) {
@@ -123,47 +121,14 @@ function ProductCard({
 function StoreBanner() {
   const status = useLocationStore(s => s.status);
   const selectedStoreName = useLocationStore(s => s.selectedStoreName);
-  const outOfRangeMessage = useLocationStore(s => s.outOfRangeMessage);
-
-  if (status === 'out_of_range') {
-    return (
-      <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 mb-6 text-sm">
-        <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
-        <div>
-          <p className="font-medium text-yellow-800">Location out of range</p>
-          <p className="text-yellow-700 mt-0.5">{outOfRangeMessage}</p>
-          <p className="text-yellow-700 mt-1">
-            Menampilkan produk dari main store:{' '}
-            <span className="font-medium">{selectedStoreName}</span>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'denied' || status === 'error') {
-    return (
-      <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 px-4 py-3 mb-6 text-sm">
-        <Info className="w-4 h-4 text-muted-foreground shrink-0" />
-        <p className="text-muted-foreground">
-          Showing produk dari main store:{' '}
-          <span className="font-medium text-foreground">
-            {selectedStoreName}
-          </span>
-        </p>
-      </div>
-    );
-  }
 
   if (status === 'found' && selectedStoreName) {
     return (
       <div className="flex items-center gap-2 mb-6">
         <MapPin className="w-4 h-4 text-primary shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Products dari store terdekat:{' '}
-          <span className="font-medium text-foreground">
-            {selectedStoreName}
-          </span>
+          Produk dari toko terdekat:{' '}
+          <span className="font-medium text-foreground">{selectedStoreName}</span>
         </p>
       </div>
     );
@@ -172,10 +137,58 @@ function StoreBanner() {
   return null;
 }
 
+function NoLocationBlock() {
+  const status = useLocationStore(s => s.status);
+  const openLocationDialog = useLocationStore(s => s.openLocationDialog);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+        <MapPin className="w-8 h-8 text-primary" />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">Aktifkan Lokasi</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-6">
+        {status === 'error'
+          ? 'Gagal mendeteksi lokasi. Izinkan akses GPS atau gunakan alamat tersimpan.'
+          : 'Aktifkan lokasi agar kami bisa menampilkan produk segar dari toko terdekat.'}
+      </p>
+      <Button onClick={openLocationDialog} className="gap-2">
+        <MapPin className="w-4 h-4" />
+        Atur Lokasi
+      </Button>
+    </div>
+  );
+}
+
+function OutOfRangeBlock() {
+  const outOfRangeMessage = useLocationStore(s => s.outOfRangeMessage);
+  const openLocationDialog = useLocationStore(s => s.openLocationDialog);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="w-8 h-8 text-destructive" />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">Layanan Tidak Tersedia</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-1">
+        {outOfRangeMessage ?? 'Tidak ada toko yang dapat melayani lokasi Anda saat ini.'}
+      </p>
+      <p className="text-sm text-muted-foreground max-w-sm mb-6">
+        Coba gunakan alamat lain yang lebih dekat dengan toko kami.
+      </p>
+      <Button onClick={openLocationDialog} className="gap-2">
+        <MapPin className="w-4 h-4" />
+        Ganti Lokasi
+      </Button>
+    </div>
+  );
+}
+
 export default function NearestStoreProducts() {
+  const status = useLocationStore(s => s.status);
   const selectedStoreId = useLocationStore(s => s.selectedStoreId);
-  const effectiveStoreId = selectedStoreId ?? FALLBACK_STORE_ID;
-  const { products, isLoading, error } = useStoreProducts(effectiveStoreId);
+  const showProducts = status === 'found' && !!selectedStoreId;
+  const { products, isLoading, error } = useStoreProducts(showProducts ? selectedStoreId : null);
 
   return (
     <section className="py-14 bg-white">
@@ -189,33 +202,43 @@ export default function NearestStoreProducts() {
               Featured Products
             </h2>
           </div>
-          <Button variant="outline" size="sm" asChild className="shrink-0">
-            <Link href="/products">See All</Link>
-          </Button>
+          {showProducts && (
+            <Button variant="outline" size="sm" asChild className="shrink-0">
+              <Link href="/products">See All</Link>
+            </Button>
+          )}
         </div>
 
-        <StoreBanner />
+        {status === 'out_of_range' ? (
+          <OutOfRangeBlock />
+        ) : !showProducts ? (
+          <NoLocationBlock />
+        ) : (
+          <>
+            <StoreBanner />
 
-        {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 mb-6 text-sm text-red-700">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            {error}
-          </div>
+            {error && (
+              <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 mb-6 text-sm text-red-700">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {isLoading
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))
+                : products.map(product => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      storeId={selectedStoreId}
+                    />
+                  ))}
+            </div>
+          </>
         )}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {isLoading
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))
-            : products.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  storeId={effectiveStoreId}
-                />
-              ))}
-        </div>
       </div>
     </section>
   );

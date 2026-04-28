@@ -205,6 +205,28 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
           )}
         />
 
+        {/* Reward Duration */}
+        <FormField
+          control={form.control as any}
+          name="reward_duration_days"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Valid for (days after issued) <span className="text-muted-foreground font-normal">— Optional</span></FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 7"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                  value={field.value ?? ''}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex gap-2 justify-end pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

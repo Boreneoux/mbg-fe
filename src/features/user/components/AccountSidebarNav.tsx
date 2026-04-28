@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, MapPin, ShoppingBag } from 'lucide-react';
+import { User, MapPin, ShoppingBag, Ticket } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import useAuthStore from '@/stores/useAuthStore';
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/account/profile', label: 'Profil Saya', icon: User },
   { href: '/account/addresses', label: 'Alamat Saya', icon: MapPin },
   { href: '/account/orders', label: 'Pesanan Saya', icon: ShoppingBag },
+  { href: '/account/vouchers', label: 'Voucher Saya', icon: Ticket },
 ];
 
 function getInitials(firstName?: string | null, lastName?: string | null, email?: string) {

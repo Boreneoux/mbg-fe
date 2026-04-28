@@ -13,8 +13,20 @@ export type Voucher = {
   expired_at: string;
   created_at: string;
   updated_at: string;
+  is_referral: boolean;
+  is_referrer_reward: boolean;
+  reward_duration_days: number | null;
   product?: {
     id: number;
     name: string;
   } | null;
+};
+
+export type UserVoucher = {
+  id: string;
+  is_used: boolean;
+  used_at: string | null;
+  expired_at: string | null;
+  created_at: string;
+  voucher: Voucher;
 };
