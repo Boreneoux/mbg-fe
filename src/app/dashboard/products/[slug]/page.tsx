@@ -14,17 +14,16 @@ import { formatCurrencyIDR } from '@/utils/currency';
 import { useState } from 'react';
 
 interface ProductDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { id } = use(params);
+  const { slug } = use(params);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const productId = parseInt(id);
-  const { product, isLoading, error } = useProduct(productId);
+  const { product, isLoading, error } = useProduct(slug);
 
   if (isLoading) {
     return (
@@ -91,7 +90,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           </div>
           {isEditor && (
             <div className="flex gap-2">
-              <Link href={`/dashboard/products/${product.id}/edit`}>
+              <Link href={`/dashboard/products/${product.slug}/edit`}>
                 <Button variant="outline" size="sm">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit

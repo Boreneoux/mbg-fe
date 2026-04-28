@@ -72,7 +72,7 @@ export default function SalesReportSection({
       return true;
     }
 
-    return product.category_id === Number(selectedCategoryId);
+    return product.category_id === selectedCategoryId;
   });
 
   const totalSales = monthlyItems.reduce((total, item) => total + item.total_sales, 0);

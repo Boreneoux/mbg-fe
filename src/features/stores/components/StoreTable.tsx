@@ -189,7 +189,7 @@ export function StoreTable({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={() => router.push(`/dashboard/stores/${store.id}/edit`)}
+                              onClick={() => router.push(`/dashboard/stores/${store.slug}/edit`)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>

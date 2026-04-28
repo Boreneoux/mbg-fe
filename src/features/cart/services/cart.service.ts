@@ -14,7 +14,7 @@ export const cartService = {
     return data.data.cart;
   },
 
-  async addItem(productId: number, quantity: number, storeId: number) {
+  async addItem(productId: string, quantity: number, storeId: string) {
     const { data } = await api.post<{ success: boolean; data: { cart_item: CartItem } }>(
       '/',
       { product_id: productId, quantity, store_id: storeId }

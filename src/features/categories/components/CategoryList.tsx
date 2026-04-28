@@ -20,7 +20,7 @@ interface CategoryListProps {
   categories: Category[];
   isLoading: boolean;
   error?: string | null;
-  onDelete?: (id: number) => Promise<void>;
+  onDelete?: (slug: string) => Promise<void>;
   canEdit?: boolean;
   canDelete?: boolean;
 }
@@ -33,15 +33,15 @@ export function CategoryList({
   canEdit = true,
   canDelete = true
 }: CategoryListProps) {
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteConfirm = async (id: number) => {
+  const handleDeleteConfirm = async (slug: string) => {
     if (!onDelete) return;
 
     setIsDeleting(true);
     try {
-      await onDelete(id);
+      await onDelete(slug);
       setDeletingId(null);
     } finally {
       setIsDeleting(false);
@@ -115,7 +115,7 @@ export function CategoryList({
               <div className="flex gap-2 pt-2">
                 {canEdit && (
                   <Link
-                    href={`/dashboard/categories/${category.id}`}
+                    href={`/dashboard/categories/${category.slug}`}
                     className="flex-1">
                     <Button variant="outline" size="sm" className="w-full">
                       <Edit className="w-4 h-4 mr-2" />
@@ -129,14 +129,14 @@ export function CategoryList({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setDeletingId(category.id)}
+                      onClick={() => setDeletingId(category.slug)}
                       className="text-red-600 hover:text-red-700">
                       <Trash2 className="w-4 h-4" />
                     </Button>
 
                     {/* Delete Confirmation Dialog */}
                     <AlertDialog
-                      open={deletingId === category.id}
+                      open={deletingId === category.slug}
                       onOpenChange={() => setDeletingId(null)}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
@@ -150,7 +150,7 @@ export function CategoryList({
                         <div className="flex gap-3">
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => handleDeleteConfirm(category.id)}
+                            onClick={() => handleDeleteConfirm(category.slug)}
                             disabled={isDeleting}
                             className="bg-red-600 hover:bg-red-700">
                             {isDeleting ? 'Deleting...' : 'Delete'}

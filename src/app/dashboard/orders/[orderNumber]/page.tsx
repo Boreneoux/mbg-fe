@@ -12,11 +12,11 @@ import { formatCurrencyIDR } from '@/utils/currency';
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const orderNumber = Array.isArray(params.orderNumber) ? params.orderNumber[0] : params.orderNumber;
   const router = useRouter();
 
-  const { order, isLoading, error, refetch } = useGetOrder(id as string, true);
-  const { confirmPayment, rejectPayment, shipOrder, cancelOrder, isUpdating } = useAdminOrderActions(id as string, refetch);
+  const { order, isLoading, error, refetch } = useGetOrder(orderNumber as string, true);
+  const { confirmPayment, rejectPayment, shipOrder, cancelOrder, isUpdating } = useAdminOrderActions(orderNumber as string, refetch);
 
   if (isLoading) {
     return (
@@ -203,18 +203,18 @@ export default function AdminOrderDetailPage() {
             <div className="space-y-3">
               {order.status === 'waiting_for_confirmation' && (
                 <>
-                  <Button 
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" 
-                    onClick={confirmPayment} 
+                  <Button
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={confirmPayment}
                     disabled={isUpdating}
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Approve Payment
                   </Button>
-                  <Button 
-                    className="w-full" 
-                    variant="outline" 
-                    onClick={rejectPayment} 
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={rejectPayment}
                     disabled={isUpdating}
                   >
                     <RefreshCw className="w-5 h-5 mr-2" />
@@ -224,9 +224,9 @@ export default function AdminOrderDetailPage() {
               )}
 
               {order.status === 'processing' && (
-                <Button 
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white" 
-                  onClick={shipOrder} 
+                <Button
+                  className="w-full bg-sky-600 hover:bg-sky-700 text-white"
+                  onClick={shipOrder}
                   disabled={isUpdating}
                 >
                   <Truck className="w-5 h-5 mr-2" />
@@ -235,10 +235,10 @@ export default function AdminOrderDetailPage() {
               )}
 
               {['waiting_for_payment', 'waiting_for_confirmation', 'processing'].includes(order.status) && (
-                <Button 
-                  className="w-full" 
-                  variant="destructive" 
-                  onClick={cancelOrder} 
+                <Button
+                  className="w-full"
+                  variant="destructive"
+                  onClick={cancelOrder}
                   disabled={isUpdating}
                 >
                   <XCircle className="w-5 h-5 mr-2" />

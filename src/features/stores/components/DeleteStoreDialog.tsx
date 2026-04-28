@@ -39,7 +39,7 @@ export function DeleteStoreDialog({ store, onOpenChange, onSuccess }: Props) {
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => store && deleteStore(store.id)}
+            onClick={() => store && deleteStore(store.slug)}
             disabled={isDeleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >

@@ -22,7 +22,7 @@ export function useUpdateProduct(product: Product | null, onSuccess?: () => void
       description: product?.description ?? '',
       price: product?.price ?? 0,
       weight: product?.weight ?? 0,
-      category_id: product?.category_id ?? 0,
+      category_id: product?.category_id ?? '',
       photos: [],
     },
   });
@@ -32,13 +32,13 @@ export function useUpdateProduct(product: Product | null, onSuccess?: () => void
     
     setIsSubmitting(true);
     try {
-      await updateProductApi(product.id, values);
+      await updateProductApi(product.slug, values);
       toast.success('Product updated successfully');
       form.reset();
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(`/dashboard/products/${product.id}`);
+        router.push(`/dashboard/products/${product.slug}`);
       }
     } catch (err) {
       const message = (err as ApiErr)?.data?.message ?? 'Failed to update product';

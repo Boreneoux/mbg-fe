@@ -10,7 +10,7 @@ const FALLBACK_STORE_NAME = 'MagerBeliGrocery – Sudirman';
 
 type Actions = {
   setStatus: (s: Parameters<ReturnType<typeof useLocationStore.getState>['setStatus']>[0]) => void;
-  setSelectedStore: (id: number, name: string) => void;
+  setSelectedStore: (id: string, name: string) => void;
   setDisplayLocation: (name: string | null) => void;
   setOutOfRangeMessage: (msg: string | null) => void;
 };

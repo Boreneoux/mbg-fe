@@ -1,7 +1,6 @@
 'use client';
 
 import { use, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/stores/useAuthStore';
 import { useCategory } from '@/features/categories/hooks/useCategory';
@@ -25,18 +24,17 @@ import { isAxiosError } from 'axios';
 import { toast } from 'sonner';
 
 interface CategoryDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function CategoryDetailPage({ params }: CategoryDetailPageProps) {
-  const { id } = use(params);
+  const { slug } = use(params);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const categoryId = parseInt(id);
-  const { category, isLoading, error } = useCategory(categoryId);
+  const { category, isLoading, error } = useCategory(slug);
   const { form, onSubmit, isSubmitting } = useFormCategory('edit', category ?? undefined);
 
   const isSuperAdmin = user?.role === 'super_admin';
@@ -48,7 +46,7 @@ export default function CategoryDetailPage({ params }: CategoryDetailPageProps) 
 
     setIsDeleting(true);
     try {
-      await deleteCategoryApi(category.id);
+      await deleteCategoryApi(category.slug);
       toast.success('Category deleted successfully');
       router.push('/dashboard/categories');
     } catch (error) {
@@ -160,7 +158,7 @@ export default function CategoryDetailPage({ params }: CategoryDetailPageProps) 
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Category?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "<strong>{category.name}</strong>"?
+              Are you sure you want to delete &quot;<strong>{category.name}</strong>&quot;?
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -163,7 +163,9 @@ export default function OrderListPage() {
             ) : orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                <h2 className="text-lg font-semibold mb-1">Belum Ada Pesanan</h2>
+                <h2 className="text-lg font-semibold mb-1">
+                  Belum Ada Pesanan
+                </h2>
                 <p className="text-sm text-muted-foreground mb-6">
                   {debouncedSearch
                     ? 'Coba cari dengan kata kunci lain'
@@ -180,23 +182,25 @@ export default function OrderListPage() {
                 <div className="space-y-4">
                   {orders.map(order => (
                     <Link
-                      href={`/account/orders/${order.id}`}
+                      href={`/account/orders/${order.order_number}`}
                       key={order.id}
                       className="block group">
                       <div className="rounded-xl border bg-card p-5 group-hover:border-primary/50 group-hover:shadow-md transition-all">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex items-center gap-4">
-                            <div>
-                              {getStatusIcon(order.status)}
-                            </div>
-                            
+                            <div>{getStatusIcon(order.status)}</div>
+
                             {/* Product Preview Image */}
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted border">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden rounded-lg bg-muted border">
                               {(() => {
                                 const firstItem = order.order_items[0];
-                                const primaryImage = firstItem?.product?.product_images?.find((img: any) => img.is_primary)?.image_url 
-                                                  || firstItem?.product?.product_images?.[0]?.image_url;
-                                
+                                const primaryImage =
+                                  firstItem?.product?.product_images?.find(
+                                    (img: any) => img.is_primary
+                                  )?.image_url ||
+                                  firstItem?.product?.product_images?.[0]
+                                    ?.image_url;
+
                                 return primaryImage ? (
                                   <img
                                     src={primaryImage}
@@ -212,7 +216,9 @@ export default function OrderListPage() {
                             </div>
 
                             <div>
-                              <h3 className="font-bold text-sm md:text-base mb-1">{order.order_number}</h3>
+                              <h3 className="font-bold text-sm md:text-base mb-1">
+                                {order.order_number}
+                              </h3>
                               <p className="text-xs text-muted-foreground mb-2">
                                 {new Date(order.created_at).toLocaleDateString(
                                   'id-ID',
@@ -224,14 +230,20 @@ export default function OrderListPage() {
                                 )}
                               </p>
                               <div className="flex flex-wrap gap-2">
-                                {order.order_items.slice(0, 3).map((item, idx) => (
-                                  <span key={item.id} className="text-xs text-muted-foreground">
-                                    {item.product.name}
-                                    {idx <
-                                      Math.min(order.order_items.length - 1, 2) &&
-                                      ','}
-                                  </span>
-                                ))}
+                                {order.order_items
+                                  .slice(0, 3)
+                                  .map((item, idx) => (
+                                    <span
+                                      key={item.id}
+                                      className="text-xs text-muted-foreground">
+                                      {item.product.name}
+                                      {idx <
+                                        Math.min(
+                                          order.order_items.length - 1,
+                                          2
+                                        ) && ','}
+                                    </span>
+                                  ))}
                                 {order.order_items.length > 3 && (
                                   <span className="text-xs text-muted-foreground">
                                     +{order.order_items.length - 3} lagi

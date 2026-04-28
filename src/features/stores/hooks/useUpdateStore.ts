@@ -23,9 +23,9 @@ export function useUpdateStore(store: Store | null, onSuccess?: () => void) {
     defaultValues: {
       name: '',
       address: '',
-      province_id: 0,
-      city_id: 0,
-      district_id: 0,
+      province_id: '',
+      city_id: '',
+      district_id: '',
       postal_code: '',
       latitude: 0,
       longitude: 0,
@@ -53,7 +53,7 @@ export function useUpdateStore(store: Store | null, onSuccess?: () => void) {
     if (!store) return;
     setIsSubmitting(true);
     try {
-      await updateStoreApi(store.id, values);
+      await updateStoreApi(store.slug, values);
       toast.success('Store updated successfully');
       if (onSuccess) {
         onSuccess();

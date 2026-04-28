@@ -2,7 +2,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { UpdateCategoryPayload, UpdateCategoryResponse } from '../types';
 
 export const updateCategoryApi = async (
-  id: number,
+  slug: string,
   payload: UpdateCategoryPayload
 ) => {
   const formData = new FormData();
@@ -14,7 +14,7 @@ export const updateCategoryApi = async (
   }
 
   const response = await axiosInstance.put<UpdateCategoryResponse>(
-    `/categories/${id}`,
+    `/categories/${slug}`,
     formData,
     {
       headers: {

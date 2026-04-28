@@ -20,13 +20,13 @@ export default function EditAddressPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     getAddressesApi()
       .then(list => {
-        const found = list.find(a => a.id === Number(id));
+        const found = list.find(a => a.id === id);
         if (found) {
           setAddress(found);
           // Exclude this address's own label from the uniqueness check
           setExistingLabels(
             list
-              .filter(a => a.id !== Number(id))
+              .filter(a => a.id !== id)
               .map(a => a.label ?? '')
               .filter(Boolean)
           );

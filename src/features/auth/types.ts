@@ -1,7 +1,7 @@
 export type UserRole = 'user' | 'store_admin' | 'super_admin';
 
 export type AuthUser = {
-  id: number;
+  id: string;
   email: string;
   first_name: string | null;
   last_name: string | null;

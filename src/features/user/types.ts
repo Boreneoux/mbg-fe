@@ -1,5 +1,5 @@
 export type UserAddress = {
-  id: number;
+  id: string;
   label: string | null;
   recipient_name: string;
   phone: string;
@@ -13,7 +13,7 @@ export type UserAddress = {
 };
 
 export type UserProfile = {
-  id: number;
+  id: string;
   first_name: string;
   last_name: string;
   email: string;

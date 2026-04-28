@@ -24,9 +24,9 @@ export default function CategoriesPage() {
     );
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (slug: string) => {
     try {
-      await deleteCategoryApi(id);
+      await deleteCategoryApi(slug);
       toast.success('Category deleted successfully');
       if (refetch) refetch();
     } catch (err: any) {

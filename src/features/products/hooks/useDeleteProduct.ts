@@ -9,10 +9,10 @@ type ApiErr = { data?: { message?: string } };
 export function useDeleteProduct(onSuccess?: () => void) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const deleteProduct = async (id: number) => {
+  const deleteProduct = async (slug: string) => {
     setIsDeleting(true);
     try {
-      await deleteProductApi(id);
+      await deleteProductApi(slug);
       toast.success('Product deleted successfully');
       if (onSuccess) {
         onSuccess();

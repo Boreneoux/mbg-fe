@@ -99,7 +99,7 @@ export const useCart = () => {
 
   // 6. Add to Cart
   const addToCart = useCallback(
-    async (productId: number, quantity: number, storeId: number = 1) => { // default storeId if none provided, though usually should be resolved by BE or provided
+    async (productId: string, quantity: number, storeId: string = '') => {
       setError(null);
       setLoading(true);
       try {

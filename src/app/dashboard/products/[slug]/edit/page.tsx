@@ -12,20 +12,19 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 
 interface EditProductPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
-  const { id } = use(params);
+  const { slug } = use(params);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
-  const productId = parseInt(id);
-  const { product, isLoading, error } = useProduct(productId);
+  const { product, isLoading, error } = useProduct(slug);
   const { form, onSubmit, isSubmitting } = useUpdateProduct(product || null);
 
   const [primaryIndex, setPrimaryIndex] = useState<number | null>(null);
-  const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<string[]>([]);
 
   // Set initial primary index when product loads
   useEffect(() => {
@@ -49,11 +48,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     form.setValue('primaryIndex', index ?? undefined);
   };
 
-  const handleDeleteExisting = (imageId: number) => {
+  const handleDeleteExisting = (imageId: string) => {
     const imageIndex = product?.product_images.findIndex(img => img.id === imageId) ?? -1;
     setDeleteImageIds(prev => [...prev, imageId]);
     form.setValue('deleteImageIds', [...deleteImageIds, imageId]);
-    
+
     // Adjust primary index if necessary
     if (primaryIndex !== null && imageIndex >= 0 && imageIndex < primaryIndex) {
       const newPrimaryIndex = primaryIndex - 1;
