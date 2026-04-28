@@ -7,14 +7,14 @@ export async function getProvincesApi(): Promise<Province[]> {
   return res.data.data;
 }
 
-export async function getCitiesApi(provinceId: number): Promise<City[]> {
+export async function getCitiesApi(provinceId: string): Promise<City[]> {
   const res = await axiosInstance.get<ApiResponse<City[]>>('/regions/cities', {
     params: { province_id: provinceId },
   });
   return res.data.data;
 }
 
-export async function getDistrictsApi(cityId: number): Promise<District[]> {
+export async function getDistrictsApi(cityId: string): Promise<District[]> {
   const res = await axiosInstance.get<ApiResponse<District[]>>('/regions/districts', {
     params: { city_id: cityId },
   });

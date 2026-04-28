@@ -111,7 +111,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
               <Select
                 disabled={loadingProvinces}
                 value={field.value ? String(field.value) : ''}
-                onValueChange={val => onProvinceChange(Number(val))}
+                onValueChange={onProvinceChange}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -138,7 +138,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
               <Select
                 disabled={!watchedProvinceId || loadingCities}
                 value={field.value ? String(field.value) : ''}
-                onValueChange={val => onCityChange(Number(val))}
+                onValueChange={onCityChange}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -171,7 +171,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
               <Select
                 disabled={!watchedCityId || loadingDistricts}
                 value={field.value ? String(field.value) : ''}
-                onValueChange={val => onDistrictChange(Number(val), districts, cities, provinces)}
+                onValueChange={val => onDistrictChange(val, districts, cities, provinces)}
               >
                 <FormControl>
                   <SelectTrigger>

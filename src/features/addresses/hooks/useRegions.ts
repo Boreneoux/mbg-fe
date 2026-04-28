@@ -8,7 +8,7 @@ import { getProvincesApi, getCitiesApi, getDistrictsApi } from '../api/region.ap
 // Province list never changes — fetch once and cache in module scope
 let cachedProvinces: Province[] | null = null;
 
-export function useRegions(provinceId: number | null, cityId: number | null) {
+export function useRegions(provinceId: string | null, cityId: string | null) {
   const [provinces, setProvinces] = useState<Province[]>(cachedProvinces ?? []);
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
