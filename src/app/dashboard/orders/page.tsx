@@ -4,16 +4,29 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Eye, MapPin, Store, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -78,7 +91,9 @@ export default function OrderManagementPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Order Management</h1>
-        <p className="text-muted-foreground">Track and manage customer orders</p>
+        <p className="text-muted-foreground">
+          Track and manage customer orders
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -87,7 +102,7 @@ export default function OrderManagementPage() {
           <Input
             placeholder="Search orders..."
             value={searchTerm}
-            onChange={(e) => {
+            onChange={e => {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
@@ -98,18 +113,17 @@ export default function OrderManagementPage() {
         {user?.role === 'super_admin' && (
           <Select
             value={warehouseFilter}
-            onValueChange={(val) => {
+            onValueChange={val => {
               setWarehouseFilter(val);
               setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
+            }}>
+            <SelectTrigger className="w-full sm:w-50">
               <SelectValue placeholder="Filter by store" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Stores</SelectItem>
-              {stores.map((store) => (
-                <SelectItem key={store.id} value={store.id.toString()}>
+              {stores.map(store => (
+                <SelectItem key={store.id} value={store.id}>
                   {store.name}
                 </SelectItem>
               ))}
@@ -119,18 +133,21 @@ export default function OrderManagementPage() {
 
         <Select
           value={statusFilter}
-          onValueChange={(val) => {
+          onValueChange={val => {
             setStatusFilter(val);
             setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-full sm:w-[200px]">
+          }}>
+          <SelectTrigger className="w-full sm:w-50">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="waiting_for_payment">Waiting for Payment</SelectItem>
-            <SelectItem value="waiting_for_confirmation">Waiting for Confirmation</SelectItem>
+            <SelectItem value="waiting_for_payment">
+              Waiting for Payment
+            </SelectItem>
+            <SelectItem value="waiting_for_confirmation">
+              Waiting for Confirmation
+            </SelectItem>
             <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="shipped">Shipped</SelectItem>
             <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -143,7 +160,10 @@ export default function OrderManagementPage() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg border border-dashed animate-in fade-in slide-in-from-top-1">
           <Store className="w-5 h-5 text-primary" />
           <span>
-            Store Name: <span className="font-semibold text-foreground">{orders[0].store?.name}</span>
+            Store Name:{' '}
+            <span className="font-semibold text-foreground">
+              {orders[0].store?.name}
+            </span>
           </span>
         </div>
       )}
@@ -171,25 +191,43 @@ export default function OrderManagementPage() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, idx) => (
                 <TableRow key={idx}>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="h-8 w-8 ml-auto" />
+                  </TableCell>
                 </TableRow>
               ))
             ) : orders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-muted-foreground">
                   No orders found.
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              orders.map(order => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-mono font-medium">{order.order_number}</TableCell>
+                  <TableCell className="font-mono font-medium">
+                    {order.order_number}
+                  </TableCell>
                   <TableCell>
                     <span className="font-medium">{order.store?.name}</span>
                   </TableCell>
@@ -197,15 +235,18 @@ export default function OrderManagementPage() {
                   <TableCell className="font-medium">
                     {formatCurrencyIDR(order.total_price)}
                   </TableCell>
-                  <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge className={`${getStatusColor(order.status)} font-bold px-3 py-1`}>
+                    {new Date(order.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`${getStatusColor(order.status)} font-bold px-3 py-1`}>
                       {formatStatus(order.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/orders/${order.id}`}>
+                      <Link href={`/dashboard/orders/${order.order_number}`}>
                         <ChevronRight className="w-5 h-5" />
                       </Link>
                     </Button>
@@ -223,11 +264,13 @@ export default function OrderManagementPage() {
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   handlePageChange(pagination.page - 1);
                 }}
-                className={pagination.page <= 1 ? "pointer-events-none opacity-50" : ""}
+                className={
+                  pagination.page <= 1 ? 'pointer-events-none opacity-50' : ''
+                }
               />
             </PaginationItem>
             <span className="text-sm text-muted-foreground mx-4">
@@ -236,11 +279,15 @@ export default function OrderManagementPage() {
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   handlePageChange(pagination.page + 1);
                 }}
-                className={pagination.page >= pagination.totalPages ? "pointer-events-none opacity-50" : ""}
+                className={
+                  pagination.page >= pagination.totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : ''
+                }
               />
             </PaginationItem>
           </PaginationContent>

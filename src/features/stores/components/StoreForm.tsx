@@ -60,7 +60,7 @@ export function StoreForm({ store }: Props) {
   const lng = form.watch('longitude');
 
   const { provinces, cities, districts, loadingProvinces, loadingCities, loadingDistricts } =
-    useRegions(provinceId || null, cityId || null);
+    useRegions(provinceId ? Number(provinceId) : null, cityId ? Number(cityId) : null);
 
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const geocodingRef = useRef(false);
@@ -69,9 +69,9 @@ export function StoreForm({ store }: Props) {
   useEffect(() => {
     if (!districtId || !cityId || !provinceId) return;
 
-    const district = districts.find((d) => d.id === districtId);
-    const city = cities.find((c) => c.id === cityId);
-    const province = provinces.find((p) => p.id === provinceId);
+    const district = districts.find((d) => String(d.id) === districtId);
+    const city = cities.find((c) => String(c.id) === cityId);
+    const province = provinces.find((p) => String(p.id) === provinceId);
     if (!district || !city || !province) return;
 
     if (geocodingRef.current) return;
@@ -93,14 +93,14 @@ export function StoreForm({ store }: Props) {
   }, [districtId]);
 
   function onProvinceChange(value: string) {
-    form.setValue('province_id', Number(value));
-    form.setValue('city_id', 0);
-    form.setValue('district_id', 0);
+    form.setValue('province_id', value);
+    form.setValue('city_id', '');
+    form.setValue('district_id', '');
   }
 
   function onCityChange(value: string) {
-    form.setValue('city_id', Number(value));
-    form.setValue('district_id', 0);
+    form.setValue('city_id', value);
+    form.setValue('district_id', '');
   }
 
   function onMapPositionChange(newLat: number, newLng: number) {
@@ -284,7 +284,7 @@ export function StoreForm({ store }: Props) {
                       <FormLabel>Kecamatan</FormLabel>
                       <Select
                         value={field.value ? String(field.value) : ''}
-                        onValueChange={(v) => form.setValue('district_id', Number(v))}
+                        onValueChange={(v) => form.setValue('district_id', v)}
                         disabled={!cityId || loadingDistricts}
                       >
                         <FormControl>

@@ -28,7 +28,7 @@ type Props = {
 export function DeliveryAddressSheet({ open, onClose }: Props) {
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [loading, setLoading] = useState(false);
-  const [resolving, setResolving] = useState<number | null>(null);
+  const [resolving, setResolving] = useState<string | null>(null);
 
   const selectedAddressId = useLocationStore((s) => s.selectedAddressId);
   const setSelectedAddressId = useLocationStore((s) => s.setSelectedAddressId);

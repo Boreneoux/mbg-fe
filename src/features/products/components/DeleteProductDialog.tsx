@@ -14,7 +14,7 @@ import { useDeleteProduct } from '@/features/products/hooks/useDeleteProduct';
 interface DeleteProductDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  productId: number;
+  productId: string;
   productName?: string;
   onSuccess?: () => void;
 }

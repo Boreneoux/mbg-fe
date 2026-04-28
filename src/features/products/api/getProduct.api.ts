@@ -2,7 +2,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { ApiResponse } from '@/types/api';
 import { Product } from '@/features/products/types';
 
-export async function getProductByIdApi(id: number) {
-  const response = await axiosInstance.get<ApiResponse<Product>>(`/products/${id}`);
+export async function getProductBySlugApi(slug: string) {
+  const response = await axiosInstance.get<ApiResponse<Product>>(`/products/${slug}`);
   return response.data.data;
 }

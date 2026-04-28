@@ -34,9 +34,9 @@ interface ProductFormProps {
   product?: Product | null;
   submitLabel?: string;
   onPrimaryChange?: (primaryIndex: number | null) => void;
-  onDeleteExisting?: (imageId: number) => void;
+  onDeleteExisting?: (imageId: string) => void;
   primaryIndex?: number | null;
-  deleteImageIds?: number[];
+  deleteImageIds?: string[];
 }
 
 export function ProductForm({
@@ -119,8 +119,8 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Category</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(Number(value))}
-                value={field.value ? field.value.toString() : ''}
+                onValueChange={(value) => field.onChange(value)}
+                value={field.value || ''}
                 disabled={isReadOnly}
               >
                 <FormControl>
@@ -130,7 +130,7 @@ export function ProductForm({
                 </FormControl>
                 <SelectContent>
                   {categories.map((category: ProductCategory) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
+                    <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
                   ))}

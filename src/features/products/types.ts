@@ -1,27 +1,29 @@
 export type ProductCategory = {
-  id: number;
+  id: string;
+  slug: string;
   name: string;
 };
 
 export type ProductImage = {
-  id: number;
+  id: string;
   image_url: string;
   is_primary: boolean;
 };
 
 export type Product = {
-  id: number;
+  id: string;
+  slug: string;
   name: string;
   description: string | null;
   price: number;
   weight: number;
-  category_id: number;
+  category_id: string;
   category: ProductCategory;
   product_images: ProductImage[];
   store_inventories?: {
-    id: number;
-    store_id: number;
-    product_id: number;
+    id: string;
+    store_id: string;
+    product_id: string;
     stock: number;
   }[];
 };

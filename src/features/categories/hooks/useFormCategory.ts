@@ -63,9 +63,9 @@ export function useFormCategory(mode: 'create' | 'edit' = 'create', initialData?
           name: values.name,
           photo: (values as UpdateCategoryFormValues).photo,
         };
-        await updateCategoryApi(initialData.id, updatePayload);
+        await updateCategoryApi(initialData.slug, updatePayload);
         toast.success('Category updated successfully');
-        router.push(`/dashboard/categories/${initialData.id}`);
+        router.push(`/dashboard/categories/${initialData.slug}`);
       }
     } catch (error) {
       const message = isAxiosError(error)

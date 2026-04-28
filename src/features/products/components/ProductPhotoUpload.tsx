@@ -13,8 +13,8 @@ const MAX_FILES = 5;
 interface ProductPhotoUploadProps {
   onFilesChange: (files: File[]) => void;
   onPrimaryChange?: (primaryIndex: number | null) => void;
-  onDeleteExisting?: (imageId: number) => void;
-  existingPhotos?: Array<{ id: number; image_url: string; is_primary: boolean }>;
+  onDeleteExisting?: (imageId: string) => void;
+  existingPhotos?: Array<{ id: string; image_url: string; is_primary: boolean }>;
   isDisabled?: boolean;
   primaryIndex?: number | null;
 }
@@ -103,7 +103,7 @@ export function ProductPhotoUpload({
     onPrimaryChange?.(index);
   };
 
-  const removeExisting = (imageId: number) => {
+  const removeExisting = (imageId: string) => {
     onDeleteExisting?.(imageId);
   };
 

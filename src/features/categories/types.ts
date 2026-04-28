@@ -1,5 +1,6 @@
 export type Category = {
-  id: number;
+  id: string;
+  slug: string;
   name: string;
   image_url?: string | null;
   created_at: string;

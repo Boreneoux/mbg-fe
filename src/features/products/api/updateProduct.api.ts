@@ -3,7 +3,7 @@ import { ApiResponse } from '@/types/api';
 import { Product } from '@/features/products/types';
 import { UpdateProductFormValues } from '@/features/products/schemas/product.schema';
 
-export async function updateProductApi(id: number, payload: UpdateProductFormValues) {
+export async function updateProductApi(slug: string, payload: UpdateProductFormValues) {
   const formData = new FormData();
   
   if (payload.name !== undefined) formData.append('name', payload.name);
@@ -26,7 +26,7 @@ export async function updateProductApi(id: number, payload: UpdateProductFormVal
   }
 
   const response = await axiosInstance.put<ApiResponse<{ product: Product }>>(
-    `/products/${id}`,
+    `/products/${slug}`,
     formData,
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );

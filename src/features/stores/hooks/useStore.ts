@@ -2,21 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { getStoreByIdApi } from '@/features/stores/api/getStoreById.api';
+import { getStoreBySlugApi } from '@/features/stores/api/getStoreById.api';
 import { Store } from '@/features/stores/types';
 
 type ApiErr = { data?: { message?: string } };
 
-export function useStore(id: number) {
+export function useStore(slug: string) {
   const [store, setStore] = useState<Store | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
     setIsLoading(true);
     setError(null);
-    getStoreByIdApi(id)
+    getStoreBySlugApi(slug)
       .then(setStore)
       .catch((err: ApiErr) => {
         const message = err?.data?.message ?? 'Failed to load store';
@@ -24,7 +24,7 @@ export function useStore(id: number) {
         toast.error(message);
       })
       .finally(() => setIsLoading(false));
-  }, [id]);
+  }, [slug]);
 
   return { store, isLoading, error };
 }

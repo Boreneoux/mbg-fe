@@ -1,12 +1,12 @@
 export type Province = {
-  id: number;
+  id: string;
   name: string;
   rajaongkir_province_id: string;
 };
 
 export type City = {
-  id: number;
-  province_id: number;
+  id: string;
+  province_id: string;
   name: string;
   type: string;
   postal_code: string;
@@ -14,36 +14,37 @@ export type City = {
 };
 
 export type District = {
-  id: number;
-  city_id: number;
+  id: string;
+  city_id: string;
   name: string;
   rajaongkir_district_id: string;
 };
 
 export type StoreAdminUser = {
-  id: number;
+  id: string;
   first_name: string | null;
   last_name: string | null;
   email: string;
 };
 
 export type StoreAdmin = {
-  id: number;
-  store_id: number;
-  user_id: number;
+  id: string;
+  store_id: string;
+  user_id: string;
   created_at: string;
   deleted_at: string | null;
   user: StoreAdminUser;
-  store: { id: number; name: string };
+  store: { id: string; name: string; slug: string };
 };
 
 export type Store = {
-  id: number;
+  id: string;
+  slug: string;
   name: string;
   address: string;
-  district_id: number;
-  city_id: number;
-  province_id: number;
+  district_id: string;
+  city_id: string;
+  province_id: string;
   postal_code: string | null;
   latitude: number;
   longitude: number;
@@ -65,7 +66,7 @@ export type StorePaginationMeta = {
 };
 
 export type EligibleStoreAdminUser = {
-  id: number;
+  id: string;
   first_name: string | null;
   last_name: string | null;
   email: string;

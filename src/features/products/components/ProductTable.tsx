@@ -24,7 +24,7 @@ interface ProductTableProps {
 }
 
 export function ProductTable({ products, isLoading = false, onRefetch }: ProductTableProps) {
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   if (isLoading) {
@@ -86,12 +86,12 @@ export function ProductTable({ products, isLoading = false, onRefetch }: Product
                 <TableCell>{product.weight} kg</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
-                    <Link href={`/dashboard/products/${product.id}`}>
+                    <Link href={`/dashboard/products/${product.slug}`}>
                       <Button variant="ghost" size="sm" title="View details">
                         <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
-                    <Link href={`/dashboard/products/${product.id}/edit`}>
+                    <Link href={`/dashboard/products/${product.slug}/edit`}>
                       <Button variant="ghost" size="sm" title="Edit">
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -100,7 +100,7 @@ export function ProductTable({ products, isLoading = false, onRefetch }: Product
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setDeleteId(product.id);
+                        setDeleteId(product.slug);
                         setShowDeleteDialog(true);
                       }}
                       title="Delete"

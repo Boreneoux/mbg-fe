@@ -36,7 +36,7 @@ export function useAddresses() {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  async function deleteAddress(id: number) {
+  async function deleteAddress(id: string) {
     try {
       await deleteAddressApi(id);
       setAddresses(prev => prev.filter(a => a.id !== id));
@@ -49,7 +49,7 @@ export function useAddresses() {
     }
   }
 
-  async function setPrimary(id: number) {
+  async function setPrimary(id: string) {
     try {
       await setPrimaryAddressApi(id);
       setAddresses(prev =>

@@ -96,7 +96,7 @@ export function ProductReadOnlyView({ products, isLoading = false }: ProductRead
           </CardContent>
 
           <CardFooter>
-            <Link href={`/dashboard/products/${product.id}`} className="w-full">
+            <Link href={`/dashboard/products/${product.slug}`} className="w-full">
               <Button variant="outline" className="w-full" size="sm">
                 <Eye className="w-4 h-4 mr-2" />
                 View Details

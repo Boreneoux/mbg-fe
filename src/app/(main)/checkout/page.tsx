@@ -82,8 +82,8 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <RadioGroup 
-                value={selectedAddress ? selectedAddress.toString() : ''} 
-                onValueChange={(val) => setSelectedAddress(Number(val))}
+                value={selectedAddress || ''}
+                onValueChange={(val) => setSelectedAddress(val)}
               >
                 {addresses.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-4 space-y-4">

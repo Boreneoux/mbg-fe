@@ -20,10 +20,7 @@ export const createProductSchema = z.object({
   weight: z
     .number({ error: 'Weight is required' })
     .positive('Weight must be greater than 0'),
-  category_id: z
-    .number({ error: 'Category is required' })
-    .int()
-    .positive('Category is required'),
+  category_id: z.string().min(1, 'Category is required'),
   photos: z
     .array(photoSchema)
     .max(5, 'Maximum 5 photos allowed')
@@ -32,7 +29,7 @@ export const createProductSchema = z.object({
 });
 
 export const updateProductSchema = createProductSchema.partial().extend({
-  deleteImageIds: z.array(z.number().int().positive()).optional(),
+  deleteImageIds: z.array(z.string().min(1)).optional(),
 }).refine(
   (data) => Object.values(data).some((v) => v !== undefined),
   { message: 'At least one field must be provided' },
