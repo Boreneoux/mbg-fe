@@ -38,7 +38,7 @@ export function CartItemCard({
           />
         </div>
 
-        <Link href={`/products/${product.id}`} className="shrink-0">
+        <Link href={`/products/${product.slug}`} className="shrink-0">
           <img
             src={primaryImage?.image_url || '/placeholder.png'}
             alt={product.name}
@@ -47,7 +47,7 @@ export function CartItemCard({
         </Link>
 
         <div className="flex-1 min-w-0">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug}`}>
             <h3 className="font-semibold mb-1 hover:text-primary transition-colors">
               {product.name}
             </h3>

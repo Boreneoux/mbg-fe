@@ -15,10 +15,10 @@ import { translateOrderStatus, translatePaymentMethod } from '@/features/orders/
 
 export default function OrderDetailPage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const orderNumber = Array.isArray(params.orderNumber) ? params.orderNumber[0] : params.orderNumber;
   const router = useRouter();
 
-  const { order, isLoading, error } = useGetOrder(id as string);
+  const { order, isLoading, error } = useGetOrder(orderNumber as string);
   const [isPaying, setIsPaying] = useState(false);
 
   if (isLoading) {
@@ -101,9 +101,9 @@ export default function OrderDetailPage() {
 
             <div className="space-y-4">
               {order.order_items.map((item) => {
-                const primaryImage = item.product?.product_images?.find((img) => img.is_primary)?.image_url 
+                const primaryImage = item.product?.product_images?.find((img) => img.is_primary)?.image_url
                                   || item.product?.product_images?.[0]?.image_url;
-                
+
                 return (
                   <div key={item.id} className="flex gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -190,15 +190,15 @@ export default function OrderDetailPage() {
 
           {order.status === 'waiting_for_payment' && (
             <div className="space-y-3">
-              <Button 
+              <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isPaying}
                 onClick={async () => {
                   setIsPaying(true);
                   try {
-                    const response = await getPaymentUrlApi(order.id);
+                    const response = await getPaymentUrlApi(order.order_number);
                     const snapToken = response.data.snap_token;
-                    
+
                     if (window.snap) {
                       window.snap.pay(snapToken, {
                         onSuccess: () => {

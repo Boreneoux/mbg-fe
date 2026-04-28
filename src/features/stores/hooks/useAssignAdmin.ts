@@ -14,7 +14,7 @@ import { EligibleStoreAdminUser } from '@/features/stores/types';
 
 type ApiErr = { data?: { message?: string } };
 
-export function useAssignAdmin(storeId: number | null, onSuccess?: () => void) {
+export function useAssignAdmin(storeSlug: string | null, onSuccess?: () => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [users, setUsers] = useState<EligibleStoreAdminUser[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
@@ -40,16 +40,16 @@ export function useAssignAdmin(storeId: number | null, onSuccess?: () => void) {
   }, []);
 
   useEffect(() => {
-    if (storeId !== null) {
+    if (storeSlug !== null) {
       fetchUsers(search);
     }
-  }, [storeId, search, fetchUsers]);
+  }, [storeSlug, search, fetchUsers]);
 
   const onSubmit = form.handleSubmit(async values => {
-    if (!storeId) return;
+    if (!storeSlug) return;
     setIsSubmitting(true);
     try {
-      await assignAdminApi(storeId, values.user_id);
+      await assignAdminApi(storeSlug, values.user_id);
       toast.success('Admin assigned to store');
       form.reset();
       onSuccess?.();

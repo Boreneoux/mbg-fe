@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function AssignAdminDialog({ store, onOpenChange, onSuccess }: Props) {
-  const storeId = store?.id ?? null;
+  const storeSlug = store?.slug ?? null;
   const assignedUserIds = new Set(
     store?.store_admins.map(sa => sa.user_id) ?? []
   );
@@ -36,7 +36,7 @@ export function AssignAdminDialog({ store, onOpenChange, onSuccess }: Props) {
     isLoadingUsers,
     search,
     setSearch
-  } = useAssignAdmin(storeId, () => {
+  } = useAssignAdmin(storeSlug, () => {
     onSuccess();
     onOpenChange(false);
   });

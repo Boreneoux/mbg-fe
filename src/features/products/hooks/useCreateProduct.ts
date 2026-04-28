@@ -21,7 +21,7 @@ export function useCreateProduct(onSuccess?: () => void) {
       description: '',
       price: 0,
       weight: 0,
-      category_id: 0,
+      category_id: '',
       photos: [],
     },
   });
@@ -35,7 +35,7 @@ export function useCreateProduct(onSuccess?: () => void) {
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(`/dashboard/products/${product.id}`);
+        router.push(`/dashboard/products/${product.slug}`);
       }
     } catch (err) {
       const message = (err as ApiErr)?.data?.message ?? 'Failed to create product';

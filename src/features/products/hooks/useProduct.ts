@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { Product } from '@/features/products/types';
-import { getProductByIdApi } from '@/features/products/api/getProduct.api';
+import { getProductBySlugApi } from '@/features/products/api/getProduct.api';
 
 type ApiErr = { data?: { message?: string } };
 
-export function useProduct(id: number | null) {
+export function useProduct(slug: string | null) {
   const [product, setProduct] = useState<Product | null>(null);
-  const [isLoading, setIsLoading] = useState(!!id);
+  const [isLoading, setIsLoading] = useState(!!slug);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       setIsLoading(false);
       return;
     }
@@ -21,7 +21,7 @@ export function useProduct(id: number | null) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await getProductByIdApi(id);
+        const data = await getProductBySlugApi(slug);
         setProduct(data);
       } catch (err) {
         const message = (err as ApiErr)?.data?.message ?? 'Failed to fetch product';
@@ -32,7 +32,7 @@ export function useProduct(id: number | null) {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [slug]);
 
   return { product, isLoading, error };
 }

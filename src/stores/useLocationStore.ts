@@ -4,21 +4,21 @@ import { LocationStatus, Coordinates } from '@/features/geolocation/types';
 
 type LocationStore = {
   status: LocationStatus;
-  selectedStoreId: number | null;
+  selectedStoreId: string | null;
   selectedStoreName: string | null;
   displayLocation: string | null;
   coordinates: Coordinates | null;
   outOfRangeMessage: string | null;
   hasPrompted: boolean;
-  selectedAddressId: number | null;
+  selectedAddressId: string | null;
 
   setStatus: (status: LocationStatus) => void;
-  setSelectedStore: (id: number, name: string) => void;
+  setSelectedStore: (id: string, name: string) => void;
   setDisplayLocation: (name: string | null) => void;
   setCoordinates: (coords: Coordinates | null) => void;
   setOutOfRangeMessage: (msg: string | null) => void;
   setHasPrompted: (prompted: boolean) => void;
-  setSelectedAddressId: (id: number | null) => void;
+  setSelectedAddressId: (id: string | null) => void;
   openLocationDialog: () => void;
 };
 

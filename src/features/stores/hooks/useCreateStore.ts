@@ -19,9 +19,9 @@ export function useCreateStore(onSuccess?: () => void) {
     defaultValues: {
       name: '',
       address: '',
-      province_id: 0,
-      city_id: 0,
-      district_id: 0,
+      province_id: '',
+      city_id: '',
+      district_id: '',
       postal_code: '',
       latitude: 0,
       longitude: 0,

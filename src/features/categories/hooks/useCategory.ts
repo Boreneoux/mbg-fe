@@ -5,13 +5,13 @@ import { Category } from '../types';
 import { getCategoryDetailApi } from '../api/getCategoryDetail.api';
 import { isAxiosError } from 'axios';
 
-export function useCategory(id: number) {
+export function useCategory(slug: string) {
   const [category, setCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       setIsLoading(false);
       return;
     }
@@ -20,7 +20,7 @@ export function useCategory(id: number) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await getCategoryDetailApi(id);
+        const data = await getCategoryDetailApi(slug);
         setCategory(data);
       } catch (err) {
         const message = isAxiosError(err)
@@ -34,7 +34,7 @@ export function useCategory(id: number) {
     };
 
     fetchCategory();
-  }, [id]);
+  }, [slug]);
 
   return { category, isLoading, error };
 }

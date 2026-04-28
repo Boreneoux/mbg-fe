@@ -3,13 +3,13 @@ import { isAxiosError } from 'axios';
 import { Product } from '@/features/products/types';
 import { getStoreProductsApi } from '@/features/geolocation/api/store-products.api';
 
-export function useStoreProducts(storeId: number | null) {
+export function useStoreProducts(storeSlug: string | null) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!storeId) return;
+    if (!storeSlug) return;
 
     let cancelled = false;
 
@@ -18,7 +18,7 @@ export function useStoreProducts(storeId: number | null) {
       setError(null);
 
       try {
-        const data = await getStoreProductsApi(storeId);
+        const data = await getStoreProductsApi(storeSlug);
         if (!cancelled) setProducts(data);
       } catch (err) {
         if (cancelled) return;
@@ -37,7 +37,7 @@ export function useStoreProducts(storeId: number | null) {
     return () => {
       cancelled = true;
     };
-  }, [storeId]);
+  }, [storeSlug]);
 
   return { products, isLoading, error };
 }

@@ -17,7 +17,7 @@ export const useCheckout = () => {
   
   // Set default address to ID of primary address or first address
   const defaultAddressId = addresses.find(a => a.is_primary)?.id || addresses[0]?.id;
-  const [selectedAddress, setSelectedAddress] = useState<number | ''>('');
+  const [selectedAddress, setSelectedAddress] = useState<string | ''>('');
 
   useEffect(() => {
     if (defaultAddressId && selectedAddress === '') {
@@ -75,7 +75,7 @@ export const useCheckout = () => {
     try {
       // 1. Create order
       const createResponse = await createOrderApi({
-        address_id: selectedAddress as number,
+        address_id: selectedAddress as string,
         payment_method: 'payment_gateway',
         shipping_method: 'Standard',
         shipping_cost: deliveryFee,
@@ -83,32 +83,32 @@ export const useCheckout = () => {
         ...(appliedDiscount ? { voucher_code: appliedDiscount } : {})
       });
       
-      const orderId = createResponse.data.order.id;
-      
+      const orderNumber = createResponse.data.order.order_number;
+
       // 2. Get payment URL and Snap Token
-      const paymentResponse = await getPaymentUrlApi(orderId);
+      const paymentResponse = await getPaymentUrlApi(orderNumber);
       const snapToken = paymentResponse.data.snap_token;
-      
+
       clear();
-      
+
       // 3. Trigger Midtrans Snap popup
       if (window.snap) {
         window.snap.pay(snapToken, {
-          onSuccess: (result) => {
+          onSuccess: () => {
             toast.success('Payment successful!');
-            router.push(`/account/orders/${orderId}`);
+            router.push(`/account/orders/${orderNumber}`);
           },
-          onPending: (result) => {
+          onPending: () => {
             toast.info('Payment is pending. Please complete it soon.');
-            router.push(`/account/orders/${orderId}`);
+            router.push(`/account/orders/${orderNumber}`);
           },
-          onError: (result) => {
+          onError: () => {
             toast.error('Payment failed. Please try again from the order details.');
-            router.push(`/account/orders/${orderId}`);
+            router.push(`/account/orders/${orderNumber}`);
           },
           onClose: () => {
             toast.warning('You closed the payment popup without finishing.');
-            router.push(`/account/orders/${orderId}`);
+            router.push(`/account/orders/${orderNumber}`);
           }
         });
       } else {

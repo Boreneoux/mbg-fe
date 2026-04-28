@@ -19,7 +19,7 @@ export type District = {
 };
 
 export type UserAddress = {
-  id: number;
+  id: string;
   label: string | null;
   recipient_name: string;
   phone: string;

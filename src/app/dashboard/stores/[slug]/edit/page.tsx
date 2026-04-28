@@ -7,13 +7,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export default function EditStorePage({ params }: Props) {
-  const { id } = use(params);
-  const storeId = Number(id);
-  const { store, isLoading, error } = useStore(storeId);
+  const { slug } = use(params);
+  const { store, isLoading, error } = useStore(slug);
 
   if (isLoading) {
     return (

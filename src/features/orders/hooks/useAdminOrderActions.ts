@@ -10,7 +10,7 @@ import {
   adminCancelOrderApi 
 } from '../api/orders.api';
 
-export function useAdminOrderActions(orderId: string | number, onUpdate?: () => void) {
+export function useAdminOrderActions(orderNumber: string, onUpdate?: () => void) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleAction = async (action: () => Promise<any>, successMessage: string) => {
@@ -30,22 +30,22 @@ export function useAdminOrderActions(orderId: string | number, onUpdate?: () => 
   };
 
   const confirmPayment = () => handleAction(
-    () => adminConfirmPaymentApi(orderId),
+    () => adminConfirmPaymentApi(orderNumber),
     'Payment confirmed successfully'
   );
 
   const rejectPayment = () => handleAction(
-    () => adminRejectPaymentApi(orderId),
+    () => adminRejectPaymentApi(orderNumber),
     'Payment proof rejected'
   );
 
   const shipOrder = () => handleAction(
-    () => adminShipOrderApi(orderId),
+    () => adminShipOrderApi(orderNumber),
     'Order marked as shipped'
   );
 
   const cancelOrder = () => handleAction(
-    () => adminCancelOrderApi(orderId),
+    () => adminCancelOrderApi(orderNumber),
     'Order cancelled successfully'
   );
 

@@ -46,7 +46,7 @@ function ProductCard({
   storeId
 }: {
   product: Product;
-  storeId: number;
+  storeId: string;
 }) {
   const { addToCart, isLoading } = useCart();
 
@@ -62,7 +62,7 @@ function ProductCard({
 
   return (
     <Card className="overflow-hidden group hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 border-border">
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-square bg-secondary overflow-hidden">
           {primaryImage ? (
             <Image
@@ -93,7 +93,7 @@ function ProductCard({
         <Badge variant="secondary" className="text-xs mb-1.5">
           {product.category.name}
         </Badge>
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <h3 className="font-semibold text-sm md:text-base mb-2 hover:text-primary transition-colors line-clamp-2 leading-snug">
             {product.name}
           </h3>

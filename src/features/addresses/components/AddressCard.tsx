@@ -17,8 +17,8 @@ import { UserAddress } from '../types';
 type Props = {
   address: UserAddress;
   onEdit: (address: UserAddress) => void;
-  onDelete: (id: number) => void;
-  onSetPrimary: (id: number) => void;
+  onDelete: (id: string) => void;
+  onSetPrimary: (id: string) => void;
 };
 
 export function AddressCard({ address, onEdit, onDelete, onSetPrimary }: Props) {

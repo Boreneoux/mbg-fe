@@ -77,7 +77,7 @@ export default function StockReportSection({
       return true;
     }
 
-    return product.category_id === Number(selectedCategoryId);
+    return product.category_id === selectedCategoryId;
   });
 
   const totalIn = monthlyItems.reduce((total, item) => total + item.total_in, 0);

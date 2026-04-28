@@ -28,16 +28,16 @@ export async function createAddressApi(data: CreateAddressPayload): Promise<User
   return res.data.data;
 }
 
-export async function updateAddressApi(id: number, data: UpdateAddressPayload): Promise<UserAddress> {
+export async function updateAddressApi(id: string, data: UpdateAddressPayload): Promise<UserAddress> {
   const res = await axiosInstance.put<ApiResponse<UserAddress>>(`/users/me/addresses/${id}`, data);
   return res.data.data;
 }
 
-export async function deleteAddressApi(id: number): Promise<void> {
+export async function deleteAddressApi(id: string): Promise<void> {
   await axiosInstance.delete(`/users/me/addresses/${id}`);
 }
 
-export async function setPrimaryAddressApi(id: number): Promise<UserAddress> {
+export async function setPrimaryAddressApi(id: string): Promise<UserAddress> {
   const res = await axiosInstance.patch<ApiResponse<UserAddress>>(`/users/me/addresses/${id}/primary`);
   return res.data.data;
 }

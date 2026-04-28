@@ -10,17 +10,16 @@ import { ChevronLeft, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { formatCurrencyIDR } from '@/utils/currency';
 
 interface ProductDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function PublicProductDetailPage({
   params
 }: ProductDetailPageProps) {
-  const { id } = use(params);
+  const { slug } = use(params);
   const router = useRouter();
 
-  const productId = parseInt(id);
-  const { product, isLoading, error } = useProduct(productId);
+  const { product, isLoading, error } = useProduct(slug);
   const { addToCart, isLoading: isCartLoading } = useCart();
 
   const [quantity, setQuantity] = useState(1);
@@ -84,8 +83,7 @@ export default function PublicProductDetailPage({
   };
 
   const handleAddToCart = () => {
-    // We assume default storeId = 1 or it will be handled by BE automatically if not strictly required
-    const defaultStoreId = product.store_inventories?.[0]?.store_id || 1;
+    const defaultStoreId = product.store_inventories?.[0]?.store_id || '';
     addToCart(product.id, quantity, defaultStoreId);
   };
 

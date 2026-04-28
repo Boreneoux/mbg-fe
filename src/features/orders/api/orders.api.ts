@@ -3,7 +3,7 @@ import { ApiResponse } from '@/types/api';
 import { Order, OrderPaginationMeta } from '../types';
 
 export interface CreateOrderData {
-  address_id: number;
+  address_id: string;
   payment_method: 'payment_gateway';
   voucher_code?: string;
   shipping_method?: string;
@@ -42,8 +42,8 @@ export const getOrdersApi = async (
   return response.data;
 };
 
-export const getOrderApi = async (id: string | number) => {
-  const response = await axiosInstance.get<{ data: Order }>(`/orders/${id}`);
+export const getOrderApi = async (orderNumber: string) => {
+  const response = await axiosInstance.get<{ data: Order }>(`/orders/${orderNumber}`);
   return response.data.data;
 };
 
@@ -78,8 +78,8 @@ export const getAdminOrdersApi = async (
   return response.data;
 };
 
-export const getAdminOrderApi = async (id: string | number) => {
-  const response = await axiosInstance.get<{ data: Order }>(`/admin/orders/${id}`);
+export const getAdminOrderApi = async (orderNumber: string) => {
+  const response = await axiosInstance.get<{ data: Order }>(`/admin/orders/${orderNumber}`);
   return response.data.data;
 };
 
@@ -88,27 +88,42 @@ export const createOrderApi = async (data: CreateOrderData) => {
   return response.data;
 };
 
-export const getPaymentUrlApi = async (id: string | number) => {
-  const response = await axiosInstance.get<{ data: { payment_url: string, snap_token: string, order: Order }, message: string, success: boolean }>(`/orders/${id}/payment-url`);
+export const getPaymentUrlApi = async (orderNumber: string) => {
+  const response = await axiosInstance.get<{ data: { payment_url: string, snap_token: string, order: Order }, message: string, success: boolean }>(`/orders/${orderNumber}/payment-url`);
   return response.data;
 };
 
-export const adminConfirmPaymentApi = async (id: string | number) => {
-  const response = await axiosInstance.post(`/admin/orders/${id}/confirm-payment-proof`);
+export const adminConfirmPaymentApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/admin/orders/${orderNumber}/confirm-payment-proof`);
   return response.data;
 };
 
-export const adminRejectPaymentApi = async (id: string | number) => {
-  const response = await axiosInstance.post(`/admin/orders/${id}/reject-payment-proof`);
+export const adminRejectPaymentApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/admin/orders/${orderNumber}/reject-payment-proof`);
   return response.data;
 };
 
-export const adminShipOrderApi = async (id: string | number) => {
-  const response = await axiosInstance.post(`/admin/orders/${id}/ship`);
+export const adminShipOrderApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/admin/orders/${orderNumber}/ship`);
   return response.data;
 };
 
-export const adminCancelOrderApi = async (id: string | number) => {
-  const response = await axiosInstance.post(`/admin/orders/${id}/cancel`);
+export const adminCancelOrderApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/admin/orders/${orderNumber}/cancel`);
+  return response.data;
+};
+
+export const cancelOrderApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/orders/${orderNumber}/cancel`);
+  return response.data;
+};
+
+export const confirmReceiptApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/orders/${orderNumber}/confirm-receipt`);
+  return response.data;
+};
+
+export const getPaymentStatusApi = async (orderNumber: string) => {
+  const response = await axiosInstance.get(`/orders/${orderNumber}/payment-status`);
   return response.data;
 };

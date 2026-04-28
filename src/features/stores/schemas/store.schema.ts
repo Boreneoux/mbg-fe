@@ -3,9 +3,9 @@ import { z } from 'zod';
 export const createStoreSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Max 100 characters'),
   address: z.string().trim().min(1, 'Address is required'),
-  province_id: z.number({ error: 'Province is required' }).int().positive('Province is required'),
-  city_id: z.number({ error: 'City is required' }).int().positive('City is required'),
-  district_id: z.number({ error: 'District is required' }).int().positive('District is required'),
+  province_id: z.string().min(1, 'Province is required'),
+  city_id: z.string().min(1, 'City is required'),
+  district_id: z.string().min(1, 'District is required'),
   postal_code: z.string().trim().optional(),
   latitude: z
     .number({ error: 'Latitude is required' })
@@ -26,7 +26,7 @@ export const updateStoreSchema = createStoreSchema.partial().refine(
 );
 
 export const assignAdminSchema = z.object({
-  user_id: z.number({ error: 'Please select a store admin' }).int().positive(),
+  user_id: z.string().min(1, 'Please select a store admin'),
 });
 
 export type CreateStoreFormValues = z.infer<typeof createStoreSchema>;
