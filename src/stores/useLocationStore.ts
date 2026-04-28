@@ -14,6 +14,7 @@ type LocationStore = {
 
   setStatus: (status: LocationStatus) => void;
   setSelectedStore: (id: string, name: string) => void;
+  clearStore: () => void;
   setDisplayLocation: (name: string | null) => void;
   setCoordinates: (coords: Coordinates | null) => void;
   setOutOfRangeMessage: (msg: string | null) => void;
@@ -37,6 +38,7 @@ const useLocationStore = create<LocationStore>()(
       setStatus: status => set({ status }),
       setSelectedStore: (id, name) =>
         set({ selectedStoreId: id, selectedStoreName: name }),
+      clearStore: () => set({ selectedStoreId: null, selectedStoreName: null }),
       setDisplayLocation: displayLocation => set({ displayLocation }),
       setCoordinates: coordinates => set({ coordinates }),
       setOutOfRangeMessage: outOfRangeMessage => set({ outOfRangeMessage }),

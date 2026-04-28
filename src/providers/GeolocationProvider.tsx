@@ -18,6 +18,7 @@ export default function GeolocationProvider({
 
   const hasPrompted = useLocationStore((s) => s.hasPrompted);
   const setStatus = useLocationStore((s) => s.setStatus);
+  const clearStore = useLocationStore((s) => s.clearStore);
   const coordinates = useLocationStore((s) => s.coordinates);
   const { resolveNearestStoreSilently } = useNearestStore();
 
@@ -29,6 +30,10 @@ export default function GeolocationProvider({
     } else if (coordinates) {
       // Re-resolve in background on every load — no dialog, no spinner
       resolveNearestStoreSilently(coordinates.lat, coordinates.lng);
+    } else {
+      // User previously skipped/denied with no coordinates — clear any stale store from localStorage
+      clearStore();
+      setStatus('denied');
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

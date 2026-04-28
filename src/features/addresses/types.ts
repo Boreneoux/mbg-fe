@@ -1,11 +1,11 @@
 export type Province = {
-  id: number;
+  id: string;
   rajaongkir_province_id: number;
   name: string;
 };
 
 export type City = {
-  id: number;
+  id: string;
   rajaongkir_city_id: number;
   name: string;
   type: string | null;
@@ -13,7 +13,7 @@ export type City = {
 };
 
 export type District = {
-  id: number;
+  id: string;
   rajaongkir_district_id: number;
   name: string;
 };
@@ -24,9 +24,9 @@ export type UserAddress = {
   recipient_name: string;
   phone: string;
   address: string;
-  district_id: number;
-  city_id: number;
-  province_id: number;
+  district_id: string;
+  city_id: string;
+  province_id: string;
   postal_code: string | null;
   latitude: number;
   longitude: number;

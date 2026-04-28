@@ -60,7 +60,7 @@ export function StoreForm({ store }: Props) {
   const lng = form.watch('longitude');
 
   const { provinces, cities, districts, loadingProvinces, loadingCities, loadingDistricts } =
-    useRegions(provinceId ? Number(provinceId) : null, cityId ? Number(cityId) : null);
+    useRegions(provinceId || null, cityId || null);
 
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const geocodingRef = useRef(false);

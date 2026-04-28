@@ -45,9 +45,9 @@ export function useAddressForm({ address, onSuccess, existingLabels = [] }: UseA
       recipient_name: address?.recipient_name ?? '',
       phone:          address?.phone ?? '',
       address:        address?.address ?? '',
-      province_id:    address?.province_id ?? 0,
-      city_id:        address?.city_id ?? 0,
-      district_id:    address?.district_id ?? 0,
+      province_id:    address?.province_id ?? '',
+      city_id:        address?.city_id ?? '',
+      district_id:    address?.district_id ?? '',
       postal_code:    address?.postal_code ?? '',
       latitude:       address?.latitude,
       longitude:      address?.longitude,
@@ -88,10 +88,10 @@ export function useAddressForm({ address, onSuccess, existingLabels = [] }: UseA
   }, [isEdit, address?.city_id]);
 
   // Called only from the Province Select's onValueChange (user interaction only)
-  function onProvinceChange(provinceId: number) {
+  function onProvinceChange(provinceId: string) {
     form.setValue('province_id', provinceId);
-    form.setValue('city_id', 0);
-    form.setValue('district_id', 0);
+    form.setValue('city_id', '');
+    form.setValue('district_id', '');
     setCities([]);
     setDistricts([]);
     setLoadingCities(true);
@@ -102,9 +102,9 @@ export function useAddressForm({ address, onSuccess, existingLabels = [] }: UseA
   }
 
   // Called only from the City Select's onValueChange (user interaction only)
-  function onCityChange(cityId: number) {
+  function onCityChange(cityId: string) {
     form.setValue('city_id', cityId);
-    form.setValue('district_id', 0);
+    form.setValue('district_id', '');
     setDistricts([]);
     setLoadingDistricts(true);
     getDistrictsApi(cityId)
@@ -113,7 +113,7 @@ export function useAddressForm({ address, onSuccess, existingLabels = [] }: UseA
       .finally(() => setLoadingDistricts(false));
   }
 
-  function onDistrictChange(districtId: number, currentDistricts: District[], currentCities: City[], currentProvinces: Province[]) {
+  function onDistrictChange(districtId: string, currentDistricts: District[], currentCities: City[], currentProvinces: Province[]) {
     form.setValue('district_id', districtId);
 
     if (!districtId || geocodingRef.current) return;

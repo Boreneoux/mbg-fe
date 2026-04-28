@@ -4,13 +4,11 @@ import { toast } from 'sonner';
 import useLocationStore from '@/stores/useLocationStore';
 import { getNearestStoreApi } from '@/features/geolocation/api/nearest-store.api';
 import { reverseGeocodeApi } from '@/features/geolocation/api/geocoding.api';
-import { FALLBACK_STORE_ID } from '@/mocks/handlers/stores.handlers';
-
-const FALLBACK_STORE_NAME = 'MagerBeliGrocery – Sudirman';
 
 type Actions = {
   setStatus: (s: Parameters<ReturnType<typeof useLocationStore.getState>['setStatus']>[0]) => void;
   setSelectedStore: (id: string, name: string) => void;
+  clearStore: () => void;
   setDisplayLocation: (name: string | null) => void;
   setOutOfRangeMessage: (msg: string | null) => void;
 };
@@ -18,21 +16,21 @@ type Actions = {
 async function resolveStore(lat: number, lng: number, actions: Actions) {
   try {
     const result = await getNearestStoreApi(lat, lng);
+    actions.setOutOfRangeMessage(null);
     actions.setSelectedStore(result.store.id, result.store.name);
     actions.setStatus('found');
-    // Resolve display name after store is confirmed — avoids showing geocoded label when fallback is used
     reverseGeocodeApi(lat, lng)
       .then((name) => actions.setDisplayLocation(name))
       .catch(() => null);
   } catch (err) {
     if (isAxiosError(err) && err.response?.status === 404) {
       const message: string =
-        err.response.data?.message ?? 'No store delivers to your location.';
+        err.response.data?.message ?? 'Layanan tidak tersedia di lokasi ini.';
       actions.setOutOfRangeMessage(message);
-      actions.setSelectedStore(FALLBACK_STORE_ID, FALLBACK_STORE_NAME);
+      actions.clearStore();
       actions.setStatus('out_of_range');
     } else {
-      actions.setSelectedStore(FALLBACK_STORE_ID, FALLBACK_STORE_NAME);
+      actions.clearStore();
       actions.setStatus('error');
     }
   }
@@ -42,37 +40,36 @@ export function useNearestStore() {
   const {
     setStatus,
     setSelectedStore,
+    clearStore,
     setDisplayLocation,
     setCoordinates,
     setOutOfRangeMessage,
     setHasPrompted,
   } = useLocationStore();
 
-  const actions: Actions = { setStatus, setSelectedStore, setDisplayLocation, setOutOfRangeMessage };
+  const actions: Actions = { setStatus, setSelectedStore, clearStore, setDisplayLocation, setOutOfRangeMessage };
 
-  // Used when user explicitly clicks "Izinkan Lokasi" — shows loading spinner in dialog
   const resolveNearestStore = useCallback(
     async (lat: number, lng: number) => {
       setCoordinates({ lat, lng });
       setStatus('locating');
       await resolveStore(lat, lng, actions);
     },
-    [setCoordinates, setStatus, setSelectedStore, setDisplayLocation, setOutOfRangeMessage],
+    [setCoordinates, setStatus, setSelectedStore, clearStore, setDisplayLocation, setOutOfRangeMessage],
   );
 
-  // Used on page load when coordinates are cached — no dialog, no spinner
   const resolveNearestStoreSilently = useCallback(
     async (lat: number, lng: number) => {
       await resolveStore(lat, lng, actions);
     },
-    [setStatus, setSelectedStore, setDisplayLocation, setOutOfRangeMessage],
+    [setStatus, setSelectedStore, clearStore, setDisplayLocation, setOutOfRangeMessage],
   );
 
   const promptLocation = useCallback(() => {
     setHasPrompted(true);
 
     if (!navigator.geolocation) {
-      setSelectedStore(FALLBACK_STORE_ID, FALLBACK_STORE_NAME);
+      clearStore();
       setStatus('error');
       toast.error('Perangkat tidak mendukung GPS');
       return;
@@ -82,13 +79,10 @@ export function useNearestStore() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        resolveNearestStore(
-          position.coords.latitude,
-          position.coords.longitude,
-        );
+        resolveNearestStore(position.coords.latitude, position.coords.longitude);
       },
       (err) => {
-        setSelectedStore(FALLBACK_STORE_ID, FALLBACK_STORE_NAME);
+        clearStore();
         setStatus('denied');
 
         if (err.code === err.PERMISSION_DENIED) {
@@ -101,13 +95,13 @@ export function useNearestStore() {
       },
       { enableHighAccuracy: true, timeout: 10_000, maximumAge: 0 },
     );
-  }, [setHasPrompted, setStatus, setSelectedStore, resolveNearestStore]);
+  }, [setHasPrompted, setStatus, clearStore, resolveNearestStore]);
 
   const skipLocation = useCallback(() => {
     setHasPrompted(true);
-    setSelectedStore(FALLBACK_STORE_ID, FALLBACK_STORE_NAME);
+    clearStore();
     setStatus('denied');
-  }, [setHasPrompted, setSelectedStore, setStatus]);
+  }, [setHasPrompted, clearStore, setStatus]);
 
   return { promptLocation, skipLocation, resolveNearestStore, resolveNearestStoreSilently };
 }
