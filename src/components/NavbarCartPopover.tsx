@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, LogIn } from 'lucide-react';
 import {
   HoverCard,
   HoverCardContent,
@@ -17,13 +17,14 @@ const MAX_PREVIEW_ITEMS = 4;
 
 interface NavbarCartPopoverProps {
   cart: Cart | null;
+  isLoggedIn: boolean;
 }
 
 function getPrimaryImage(images: { image_url: string; is_primary: boolean }[]): string | null {
   return (images.find(i => i.is_primary) ?? images[0])?.image_url ?? null;
 }
 
-export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
+export function NavbarCartPopover({ cart, isLoggedIn }: NavbarCartPopoverProps) {
   const items = cart?.cart_items ?? [];
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const previewItems = items.slice(0, MAX_PREVIEW_ITEMS);
@@ -37,7 +38,7 @@ export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
   return (
     <HoverCard openDelay={100} closeDelay={150}>
       <HoverCardTrigger asChild>
-        <Link href="/cart" className="relative">
+        <Link href={isLoggedIn ? '/cart' : '/auth/login'} className="relative">
           <Button variant="ghost" size="icon">
             <ShoppingCart className="w-5 h-5" />
             {cartCount > 0 && (
@@ -54,12 +55,41 @@ export function NavbarCartPopover({ cart }: NavbarCartPopoverProps) {
           Keranjang Belanja
         </div>
 
-        {cartCount === 0 ? (
+        {/* Not logged in → prompt to login */}
+        {!isLoggedIn ? (
+          <div className="flex flex-col items-center gap-3 py-8 px-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <LogIn className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-0.5">
+                Login dulu, yuk!
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Masuk ke akunmu untuk mulai belanja dan lihat isi cart-mu.
+              </p>
+            </div>
+            <Button asChild size="sm" className="w-full gap-2 mt-1">
+              <Link href="/auth/login">
+                <LogIn className="w-4 h-4" />
+                Masuk Sekarang
+              </Link>
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Belum punya akun?{' '}
+              <Link href="/auth/register" className="text-primary font-medium hover:underline">
+                Daftar gratis
+              </Link>
+            </p>
+          </div>
+        ) : cartCount === 0 ? (
+          /* Logged in but cart is empty */
           <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
             <ShoppingBag className="w-10 h-10 opacity-30" />
             <p className="text-sm">Keranjangmu masih kosong</p>
           </div>
         ) : (
+          /* Logged in with items */
           <>
             <ul className="divide-y divide-border">
               {previewItems.map(item => {

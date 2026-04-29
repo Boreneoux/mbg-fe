@@ -37,7 +37,7 @@ export async function listUsersApi(
   return { users: response.data.data, meta: response.data.meta };
 }
 
-export async function getUserByIdApi(id: number) {
+export async function getUserByIdApi(id: string) {
   const response = await axiosInstance.get<ApiResponse<UserWithStore>>(
     `/users/${id}`
   );
@@ -53,7 +53,7 @@ export async function createUserApi(payload: CreateUserPayload) {
 }
 
 export async function updateUserApi(
-  id: number,
+  id: string,
   payload: UpdateUserPayload
 ) {
   const response = await axiosInstance.patch<ApiResponse<UserWithStore>>(
@@ -64,7 +64,7 @@ export async function updateUserApi(
 }
 
 export async function changeRoleApi(
-  id: number,
+  id: string,
   payload: ChangeRolePayload
 ) {
   const response = await axiosInstance.patch<ApiResponse<UserWithStore>>(
@@ -74,7 +74,7 @@ export async function changeRoleApi(
   return response.data.data;
 }
 
-export async function deleteUserApi(id: number) {
+export async function deleteUserApi(id: string) {
   const response = await axiosInstance.delete<ApiResponse<null>>(
     `/users/${id}`
   );

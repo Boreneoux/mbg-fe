@@ -2,8 +2,8 @@ import axiosInstance from '@/utils/axiosInstance';
 import { StoreInventory } from '../types';
 
 export interface GetInventoriesParams {
-  store_id?: number;
-  product_id?: number;
+  store_id?: string;
+  product_id?: string;
 }
 
 export async function getInventoriesApi(params?: GetInventoriesParams) {

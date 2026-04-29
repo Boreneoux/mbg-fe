@@ -9,7 +9,7 @@ export function useDeleteUser(onSuccess?: () => void) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const execute = async (userId: number) => {
+  const execute = async (userId: string) => {
     setIsLoading(true);
     setError(null);
 

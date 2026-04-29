@@ -12,7 +12,7 @@ export async function getStoresApi() {
   return response.data.data.stores;
 }
 
-export async function assignStoreAdminApi(storeId: number, userId: number) {
+export async function assignStoreAdminApi(storeId: string, userId: string) {
   const response = await axiosInstance.post<ApiResponse<unknown>>(
     `/stores/${storeId}/admins`,
     { user_id: userId }
@@ -20,7 +20,7 @@ export async function assignStoreAdminApi(storeId: number, userId: number) {
   return response.data;
 }
 
-export async function unassignStoreAdminApi(storeId: number, userId: number) {
+export async function unassignStoreAdminApi(storeId: string, userId: string) {
   const response = await axiosInstance.delete<ApiResponse<null>>(
     `/stores/${storeId}/admins/${userId}`
   );

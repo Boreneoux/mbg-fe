@@ -1,7 +1,7 @@
 import { UserRole } from '@/features/auth/types';
 
 export type UserListItem = {
-  id: number;
+  id: string;
   first_name: string | null;
   last_name: string | null;
   email: string;
@@ -12,7 +12,7 @@ export type UserListItem = {
 };
 
 export type UserWithStore = UserListItem & {
-  store_admins?: { store: { id: number; name: string } }[];
+  store_admins?: { store: { id: string; name: string } }[];
 };
 
 export type UserPaginationMeta = {
@@ -28,7 +28,7 @@ export type CreateUserPayload = {
   email: string;
   phone?: string;
   role: 'store_admin' | 'user';
-  store_id?: number;
+  store_id?: string;
 };
 
 export type UpdateUserPayload = {
@@ -44,6 +44,6 @@ export type ChangeRolePayload = {
 };
 
 export type StoreOption = {
-  id: number;
+  id: string;
   name: string;
 };

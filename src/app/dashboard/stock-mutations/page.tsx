@@ -44,9 +44,9 @@ export default function StockMutationsPage() {
     if (!sourceStore || !destStore || !product || !quantity) return;
 
     await createMutation({
-      source_store_id: parseInt(sourceStore),
-      destination_store_id: parseInt(destStore),
-      product_id: parseInt(product),
+      source_store_id: sourceStore,
+      destination_store_id: destStore,
+      product_id: product,
       quantity: parseInt(quantity)
     }, () => {
       setOpenDialog(false);
@@ -83,7 +83,7 @@ export default function StockMutationsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {stores.map((s) => (
-                      <SelectItem key={s.id} value={s.id.toString()}>
+                      <SelectItem key={s.id} value={s.id}>
                         {s.name}
                       </SelectItem>
                     ))}
@@ -98,8 +98,8 @@ export default function StockMutationsPage() {
                     <SelectValue placeholder="Select Destination Store" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stores.filter(s => s.id.toString() !== sourceStore).map((s) => (
-                      <SelectItem key={s.id} value={s.id.toString()}>
+                    {stores.filter(s => s.id !== sourceStore).map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
                         {s.name}
                       </SelectItem>
                     ))}
@@ -115,7 +115,7 @@ export default function StockMutationsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
-                      <SelectItem key={p.id} value={p.id.toString()}>
+                      <SelectItem key={p.id} value={p.id}>
                         {p.name}
                       </SelectItem>
                     ))}

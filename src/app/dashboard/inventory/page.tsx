@@ -28,14 +28,14 @@ export default function InventoryPage() {
   
   // Overview state
   const { inventories, isLoading: isLoadingInventories, refetch: refetchInventories } = useInventories({
-    store_id: selectedStore === 'all' ? undefined : parseInt(selectedStore),
+    store_id: selectedStore === 'all' ? undefined : selectedStore,
   });
 
   // Journal state
   const [journalPage, setJournalPage] = useState(1);
   const [journalType, setJournalType] = useState<string>('all');
   const { journals, meta: journalMeta, isLoading: isLoadingJournals, refetch: refetchJournals } = useJournals({
-    store_id: selectedStore === 'all' ? undefined : parseInt(selectedStore),
+    store_id: selectedStore === 'all' ? undefined : selectedStore,
     type: journalType === 'all' ? undefined : (journalType as StockJournalType),
     page: journalPage,
     limit: 10,
@@ -95,18 +95,18 @@ export default function InventoryPage() {
       </div>
 
       {activeTab === 'overview' && (
-        <OverviewTab 
-          inventories={inventories} 
-          isLoading={isLoadingInventories} 
-          onSuccess={refreshAll} 
-          selectedStoreId={selectedStore === 'all' ? undefined : parseInt(selectedStore)}
+        <OverviewTab
+          inventories={inventories}
+          isLoading={isLoadingInventories}
+          onSuccess={refreshAll}
+          selectedStoreId={selectedStore === 'all' ? undefined : selectedStore}
         />
       )}
 
       {activeTab === 'journal' && (
-        <JournalTab 
-          journals={journals} 
-          meta={journalMeta} 
+        <JournalTab
+          journals={journals}
+          meta={journalMeta}
           isLoading={isLoadingJournals}
           journalType={journalType}
           setJournalType={setJournalType}
@@ -114,7 +114,7 @@ export default function InventoryPage() {
           setPage={setJournalPage}
           stores={stores}
           products={products}
-          selectedStoreId={selectedStore === 'all' ? undefined : parseInt(selectedStore)}
+          selectedStoreId={selectedStore === 'all' ? undefined : selectedStore}
           isSuperAdmin={isSuperAdmin}
           onSuccess={refreshAll}
         />
@@ -123,19 +123,19 @@ export default function InventoryPage() {
   );
 }
 
-function OverviewTab({ 
-  inventories, 
-  isLoading, 
+function OverviewTab({
+  inventories,
+  isLoading,
   onSuccess,
   selectedStoreId
-}: { 
-  inventories: StoreInventory[], 
+}: {
+  inventories: StoreInventory[],
   isLoading: boolean,
   onSuccess: () => void,
-  selectedStoreId?: number
+  selectedStoreId?: string
 }) {
   const { adjustStock, isLoading: isAdjusting } = useAdjustStock();
-  const [openDialog, setOpenDialog] = useState<number | null>(null);
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
   
   // Adjust stock form state
   const [qty, setQty] = useState('');
@@ -282,7 +282,7 @@ function JournalTab({
   setPage: (p: number) => void,
   stores: any[],
   products: any[],
-  selectedStoreId?: number,
+  selectedStoreId?: string,
   isSuperAdmin: boolean,
   onSuccess: () => void
 }) {
@@ -301,8 +301,8 @@ function JournalTab({
     if (!productId || !qty || isNaN(parseInt(qty)) || parseInt(qty) <= 0) return;
 
     const payload = {
-      store_id: isSuperAdmin ? (storeId ? parseInt(storeId) : undefined) : selectedStoreId,
-      product_id: parseInt(productId),
+      store_id: isSuperAdmin ? (storeId || undefined) : selectedStoreId,
+      product_id: productId,
       quantity: parseInt(qty),
       type,
       description: desc || undefined

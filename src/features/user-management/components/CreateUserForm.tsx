@@ -118,8 +118,8 @@ export function CreateUserForm() {
               <FormItem>
                 <FormLabel>Store</FormLabel>
                 <Select
-                  value={field.value?.toString() || ''}
-                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                  value={field.value || ''}
+                  onValueChange={(value) => field.onChange(value)}
                   disabled={isLoading}
                 >
                   <FormControl>
@@ -129,7 +129,7 @@ export function CreateUserForm() {
                   </FormControl>
                   <SelectContent>
                     {stores.map((store) => (
-                      <SelectItem key={store.id} value={store.id.toString()}>
+                      <SelectItem key={store.id} value={store.id}>
                         {store.name}
                       </SelectItem>
                     ))}

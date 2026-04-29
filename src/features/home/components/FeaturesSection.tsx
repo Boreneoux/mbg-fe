@@ -42,7 +42,7 @@ const FEATURES: Feature[] = [
 
 export default function FeaturesSection() {
   return (
-    <section className="py-14 bg-white border-b border-border">
+    <section className="py-14 bg-linear-to-b from-orange-50/40 to-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {FEATURES.map(({ icon: Icon, title, description, iconBg, iconColor }) => (

@@ -13,7 +13,7 @@ import { updateUserApi } from '../api/users.api';
 import { UserWithStore } from '../types';
 
 export function useUpdateUser(
-  userId: number,
+  userId: string,
   onSuccess?: (user: UserWithStore) => void
 ) {
   const [isLoading, setIsLoading] = useState(false);

@@ -8,7 +8,6 @@ type Props = {
 
 export default async function EditUserPage({ params }: Props) {
   const { id } = await params;
-  const userId = parseInt(id, 10);
 
   return (
     <div className="space-y-6">
@@ -26,7 +25,7 @@ export default async function EditUserPage({ params }: Props) {
         </p>
       </div>
 
-      <EditUserForm userId={userId} />
+      <EditUserForm userId={id} />
     </div>
   );
 }

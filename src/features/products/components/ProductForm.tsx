@@ -9,7 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,13 +18,15 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select';
 import { ProductPhotoUpload } from './ProductPhotoUpload';
-import { CreateProductFormValues, UpdateProductFormValues } from '@/features/products/schemas/product.schema';
+import {
+  CreateProductFormValues,
+  UpdateProductFormValues
+} from '@/features/products/schemas/product.schema';
 import { ProductCategory, Product } from '@/features/products/types';
 import { useCategories } from '@/features/products/hooks/useCategories';
-import { formatPriceNumber } from '@/utils/currency';
 
 interface ProductFormProps {
   form: UseFormReturn<CreateProductFormValues | UpdateProductFormValues>;
@@ -49,9 +51,10 @@ export function ProductForm({
   onPrimaryChange,
   onDeleteExisting,
   primaryIndex,
-  deleteImageIds = [],
+  deleteImageIds = []
 }: ProductFormProps) {
   const { categories } = useCategories();
+
 
   // Pre-populate form when product changes (for edit mode)
   useEffect(() => {
@@ -62,7 +65,7 @@ export function ProductForm({
         price: Number(product.price),
         weight: Number(product.weight),
         category_id: product.category_id,
-        photos: [],
+        photos: []
       });
     }
   }, [product, form]);
@@ -119,10 +122,9 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Category</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(value)}
+                onValueChange={value => field.onChange(value)}
                 value={field.value || ''}
-                disabled={isReadOnly}
-              >
+                disabled={isReadOnly}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
@@ -147,26 +149,39 @@ export function ProductForm({
           <FormField
             control={form.control}
             name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price (IDR)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="0"
-                    disabled={isReadOnly}
-                    onChange={(e) => {
-                      const rawValue = e.target.value.replace(/,/g, '');
-                      if (rawValue === '' || !isNaN(Number(rawValue))) {
-                        field.onChange(rawValue === '' ? 0 : Number(rawValue));
-                      }
-                    }}
-                    value={field.value ? field.value.toLocaleString('en-US') : ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const num = Number(field.value) || 0;
+              // Always show live thousands-formatting — the dots get stripped by /\D/g on next change
+              const displayValue = num > 0 ? num.toLocaleString('id-ID') : '';
+
+              return (
+                <FormItem>
+                  <FormLabel>Price (IDR)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        Rp
+                      </span>
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        disabled={isReadOnly}
+                        className="pl-9"
+                        value={displayValue}
+                        onChange={e => {
+                          // Strip the dots (Indonesian thousand separator) and any non-digit chars
+                          const digits = e.target.value.replace(/\D/g, '');
+                          field.onChange(digits === '' ? 0 : Number(digits));
+                        }}
+                        onBlur={field.onBlur}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           {/* Weight */}
@@ -184,7 +199,7 @@ export function ProductForm({
                     min="0"
                     disabled={isReadOnly}
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={e => field.onChange(Number(e.target.value))}
                     value={field.value || ''}
                   />
                 </FormControl>
@@ -198,17 +213,23 @@ export function ProductForm({
         <div>
           <FormLabel className="block mb-3">Product Photos</FormLabel>
           <ProductPhotoUpload
-            onFilesChange={(files) => {
+            onFilesChange={files => {
               form.setValue('photos', files);
             }}
             onPrimaryChange={onPrimaryChange}
             onDeleteExisting={onDeleteExisting}
-            existingPhotos={product?.product_images.filter(img => !deleteImageIds.includes(img.id)) ?? []}
+            existingPhotos={
+              product?.product_images.filter(
+                img => !deleteImageIds.includes(img.id)
+              ) ?? []
+            }
             isDisabled={isReadOnly}
             primaryIndex={primaryIndex}
           />
           {form.formState.errors.photos && (
-            <p className="text-red-500 text-sm mt-2">{form.formState.errors.photos.message}</p>
+            <p className="text-red-500 text-sm mt-2">
+              {form.formState.errors.photos.message}
+            </p>
           )}
         </div>
 
@@ -223,8 +244,7 @@ export function ProductForm({
         <Button
           type="submit"
           disabled={isSubmitting || isLoading}
-          className="w-full"
-        >
+          className="w-full">
           {isSubmitting ? 'Loading...' : submitLabel}
         </Button>
       </form>

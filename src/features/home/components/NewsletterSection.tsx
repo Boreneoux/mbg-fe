@@ -1,6 +1,19 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+
+const newsletterSchema = z.object({
+  email: z.string().email('Masukkan alamat email yang valid'),
+});
+
+type NewsletterFormValues = z.infer<typeof newsletterSchema>;
 
 const PERKS = [
   'Weekly promos & flash deals',
@@ -9,6 +22,20 @@ const PERKS = [
 ];
 
 export default function NewsletterSection() {
+  const form = useForm<NewsletterFormValues>({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: { email: '' },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: NewsletterFormValues) {
+    // No backend endpoint yet — show success feedback and reset
+    await new Promise((r) => setTimeout(r, 600));
+    toast.success(`Terima kasih! ${values.email} telah didaftarkan.`);
+    form.reset();
+  }
+
   return (
     <section className="relative overflow-hidden py-16 bg-foreground">
       {/* Decorative blobs */}
@@ -46,18 +73,50 @@ export default function NewsletterSection() {
             <p className="text-white/50 text-sm mb-6">
               No spam. Unsubscribe kapan saja.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary focus:bg-white/15 h-11"
-              />
-              <Button
-                size="lg"
-                className="shrink-0 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow">
-                Subscribe
-              </Button>
-            </div>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            id="newsletter-email"
+                            type="email"
+                            placeholder="Enter your email address"
+                            autoComplete="email"
+                            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary focus:bg-white/15 h-11"
+                            disabled={isSubmitting}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-400 text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    id="newsletter-subscribe-btn"
+                    type="submit"
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="shrink-0 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Subscribing…
+                      </>
+                    ) : (
+                      'Subscribe'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+
             <p className="text-white/30 text-xs mt-4">
               Dengan subscribe, kamu setuju dengan Privacy Policy kami.
             </p>

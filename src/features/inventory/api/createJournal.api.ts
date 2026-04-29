@@ -3,8 +3,8 @@ import { StoreInventory, StockJournal, StockJournalType } from '../types';
 import { ApiResponse } from '@/types/api';
 
 export interface CreateJournalPayload {
-  store_id?: number;
-  product_id: number;
+  store_id?: string;
+  product_id: string;
   quantity: number;
   type: StockJournalType;
   description?: string;

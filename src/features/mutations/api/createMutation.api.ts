@@ -3,9 +3,9 @@ import { StockMutation } from '../types';
 import { ApiResponse } from '@/types/api';
 
 export interface CreateMutationPayload {
-  source_store_id: number;
-  destination_store_id: number;
-  product_id: number;
+  source_store_id: string;
+  destination_store_id: string;
+  product_id: string;
   quantity: number;
 }
 

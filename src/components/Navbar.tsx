@@ -23,22 +23,14 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
 import { DeliveryAddressSheet } from '@/features/addresses/components/DeliveryAddressSheet';
 import { NavbarProfileDropdown } from '@/components/NavbarProfileDropdown';
 import { NavbarCartPopover } from '@/components/NavbarCartPopover';
+import { useCategories } from '@/features/categories/hooks/useCategories';
 
 type ActiveOverlay = 'search' | 'nav' | null;
-
-const NAV_LINKS = [
-  { label: 'Semua Produk', href: '/products' },
-  { label: 'Buah & Sayur', href: '/products?category=1' },
-  { label: 'Susu & Telur', href: '/products?category=2' },
-  { label: 'Daging & Seafood', href: '/products?category=3' },
-  { label: 'Roti & Kue', href: '/products?category=4' },
-  { label: 'Dapur & Bumbu', href: '/products?category=5' },
-  { label: 'Minuman', href: '/products?category=6' }
-];
 
 export default function Navbar() {
   const { user } = useAuthStore();
   const { logout, isLoading } = useLogout();
+  const { categories } = useCategories();
   const displayLocation = useLocationStore(s => s.displayLocation);
   const openLocationDialog = useLocationStore(s => s.openLocationDialog);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
@@ -84,10 +76,11 @@ export default function Navbar() {
 
   const cart = useCartStore(s => s.cart);
   const { fetchCart } = useCart();
+  const userId = user?.id;
 
   useEffect(() => {
-    if (user) fetchCart();
-  }, [user?.id, fetchCart]);
+    if (userId) fetchCart();
+  }, [userId, fetchCart]);
 
   return (
     <>
@@ -164,12 +157,17 @@ export default function Navbar() {
 
                 {/* Nav links */}
                 <nav className="flex flex-col gap-0.5 flex-1 px-3 py-3 overflow-y-auto">
-                  {NAV_LINKS.map(({ label, href }) => (
+                  <Link
+                    href="/products"
+                    className="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary hover:text-primary transition-colors">
+                    Semua Produk
+                  </Link>
+                  {categories.map((cat) => (
                     <Link
-                      key={href}
-                      href={href}
+                      key={cat.id}
+                      href={`/products?category=${cat.id}`}
                       className="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary hover:text-primary transition-colors">
-                      {label}
+                      {cat.name}
                     </Link>
                   ))}
                 </nav>
@@ -281,7 +279,7 @@ export default function Navbar() {
 
             {/* Cart — desktop shows popover, mobile is plain link */}
             <div className="hidden md:block">
-              <NavbarCartPopover cart={cart} />
+              <NavbarCartPopover cart={cart} isLoggedIn={!!user} />
             </div>
             <Link href="/cart" className="relative md:hidden">
               <Button variant="ghost" size="icon">
@@ -315,12 +313,17 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <nav className="hidden lg:flex items-center gap-6 mt-3 pt-3 border-t border-border overflow-x-auto scrollbar-none">
-          {NAV_LINKS.map(({ label, href }) => (
+          <Link
+            href="/products"
+            className="whitespace-nowrap text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Semua Produk
+          </Link>
+          {categories.map((cat) => (
             <Link
-              key={href}
-              href={href}
+              key={cat.id}
+              href={`/products?category=${cat.id}`}
               className="whitespace-nowrap text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              {label}
+              {cat.name}
             </Link>
           ))}
         </nav>
