@@ -3,8 +3,8 @@ import { StockJournal, StockJournalType } from '../types';
 import { ApiResponse } from '@/types/api';
 
 export interface GetJournalsParams {
-  store_id?: number;
-  product_id?: number;
+  store_id?: string;
+  product_id?: string;
   type?: StockJournalType;
   from?: string;
   to?: string;

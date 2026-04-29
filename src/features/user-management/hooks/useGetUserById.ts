@@ -5,7 +5,7 @@ import { isAxiosError } from 'axios';
 import { UserWithStore } from '../types';
 import { getUserByIdApi } from '../api/users.api';
 
-export function useGetUserById(userId: number) {
+export function useGetUserById(userId: string) {
   const [user, setUser] = useState<UserWithStore | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -33,7 +33,7 @@ import { assignStoreAdminApi, unassignStoreAdminApi } from '../api/stores.api';
 import { StoreOption } from '../types';
 
 interface EditUserFormProps {
-  userId: number;
+  userId: string;
 }
 
 export function EditUserForm({ userId }: EditUserFormProps) {
@@ -45,7 +45,7 @@ export function EditUserForm({ userId }: EditUserFormProps) {
   const { stores } = useGetStores();
 
   const [assignedStores, setAssignedStores] = useState<StoreOption[]>([]);
-  const [processingStoreIds, setProcessingStoreIds] = useState<Set<number>>(new Set());
+  const [processingStoreIds, setProcessingStoreIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) return;
@@ -61,7 +61,7 @@ export function EditUserForm({ userId }: EditUserFormProps) {
     );
   }, [user, form]);
 
-  const setProcessing = (storeId: number, processing: boolean) => {
+  const setProcessing = (storeId: string, processing: boolean) => {
     setProcessingStoreIds((prev) => {
       const next = new Set(prev);
       if (processing) next.add(storeId);

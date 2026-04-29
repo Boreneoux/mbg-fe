@@ -11,7 +11,7 @@ export function useChangeRole(onSuccess?: (user: UserWithStore) => void) {
   const [error, setError] = useState<string | null>(null);
 
   const execute = async (
-    userId: number,
+    userId: string,
     role: 'store_admin' | 'user'
   ) => {
     setIsLoading(true);

@@ -1,5 +1,3 @@
-import { Store } from '@/features/stores/types';
-
 export type LocationStatus =
   | 'idle'          // not yet prompted
   | 'prompting'     // dialog is open
@@ -14,7 +12,17 @@ export type Coordinates = {
   lng: number;
 };
 
+/** Lean store shape returned by GET /stores?lat=&lng= (nearest store routing) */
+export type NearestStore = {
+  id: string;
+  name: string;
+  slug: string;
+  latitude: number;
+  longitude: number;
+  max_delivery_distance: number;
+};
+
 export type NearestStoreResponse = {
-  store: Store;
+  store: NearestStore;
   distance_km: number;
 };

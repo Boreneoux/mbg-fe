@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import { useCategories } from '@/features/products/hooks/useCategories';
@@ -26,9 +27,12 @@ import {
 } from '@/components/ui/pagination';
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [category, setCategory] = useState<number | undefined>(undefined);
+  const [category, setCategory] = useState<string | undefined>(
+    searchParams.get('category') ?? undefined
+  );
   const [sort, setSort] = useState<string>('newest');
   const [page, setPage] = useState(1);
 
@@ -49,7 +53,7 @@ export default function ProductsPage() {
   };
 
   const handleCategoryChange = (val: string) => {
-    setCategory(val === 'all' ? undefined : parseInt(val));
+    setCategory(val === 'all' ? undefined : val);
     setPage(1);
   };
 
@@ -81,7 +85,7 @@ export default function ProductsPage() {
           </form>
 
           <Select
-            value={category?.toString() || 'all'}
+            value={category ?? 'all'}
             onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full sm:w-45">
               <SelectValue placeholder="All Categories" />
@@ -144,7 +148,7 @@ export default function ProductsPage() {
               return (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/${product.slug}`}
                   className="group relative block overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md">
                   <div className="aspect-square w-full relative">
                     <img

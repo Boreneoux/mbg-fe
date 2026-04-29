@@ -1,21 +1,15 @@
 /**
- * Format price with IDR currency symbol
- * Used specifically in product management module
+ * Formats a number as Indonesian Rupiah currency.
+ * Output example: Rp 15.000
+ *
+ * Used everywhere a price needs to be displayed.
  */
-export function formatCurrencyIDR(value: number): string {
-  return `Rp${value.toLocaleString('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+export function formatPrice(value: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0
+  }).format(value);
 }
 
-/**
- * Format price as number with decimal places
- * Used for input fields
- */
-export function formatPriceNumber(value: number): string {
-  return value.toLocaleString('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
+export const formatCurrencyIDR = formatPrice;

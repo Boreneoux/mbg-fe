@@ -59,7 +59,7 @@ export function DeliveryAddressSheet({ open, onClose }: Props) {
       setCoordinates({ lat, lng });
       setStatus('locating');
       const result = await getNearestStoreApi(lat, lng);
-      setSelectedStore(result.store.id, result.store.name);
+      setSelectedStore(result.store.id, result.store.name, result.store.slug);
       setOutOfRangeMessage(null);
       setStatus('found');
       setSelectedAddressId(addr.id);

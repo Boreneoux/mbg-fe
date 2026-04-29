@@ -11,7 +11,7 @@ export const createUserSchema = z.object({
     .max(255),
   phone: z.string().trim().max(20).optional(),
   role: z.enum(['store_admin', 'user']),
-  store_id: z.number().int().positive().optional(),
+  store_id: z.string().uuid().optional(),
 }).refine((data) => {
   if (data.role === 'store_admin' && !data.store_id) return false;
   return true;

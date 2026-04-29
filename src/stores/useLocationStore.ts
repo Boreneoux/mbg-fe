@@ -5,6 +5,7 @@ import { LocationStatus, Coordinates } from '@/features/geolocation/types';
 type LocationStore = {
   status: LocationStatus;
   selectedStoreId: string | null;
+  selectedStoreSlug: string | null;
   selectedStoreName: string | null;
   displayLocation: string | null;
   coordinates: Coordinates | null;
@@ -13,7 +14,7 @@ type LocationStore = {
   selectedAddressId: string | null;
 
   setStatus: (status: LocationStatus) => void;
-  setSelectedStore: (id: string, name: string) => void;
+  setSelectedStore: (id: string, name: string, slug: string) => void;
   clearStore: () => void;
   setDisplayLocation: (name: string | null) => void;
   setCoordinates: (coords: Coordinates | null) => void;
@@ -28,6 +29,7 @@ const useLocationStore = create<LocationStore>()(
     set => ({
       status: 'idle',
       selectedStoreId: null,
+      selectedStoreSlug: null,
       selectedStoreName: null,
       displayLocation: null,
       coordinates: null,
@@ -36,9 +38,9 @@ const useLocationStore = create<LocationStore>()(
       selectedAddressId: null,
 
       setStatus: status => set({ status }),
-      setSelectedStore: (id, name) =>
-        set({ selectedStoreId: id, selectedStoreName: name }),
-      clearStore: () => set({ selectedStoreId: null, selectedStoreName: null }),
+      setSelectedStore: (id, name, slug) =>
+        set({ selectedStoreId: id, selectedStoreName: name, selectedStoreSlug: slug }),
+      clearStore: () => set({ selectedStoreId: null, selectedStoreName: null, selectedStoreSlug: null }),
       setDisplayLocation: displayLocation => set({ displayLocation }),
       setCoordinates: coordinates => set({ coordinates }),
       setOutOfRangeMessage: outOfRangeMessage => set({ outOfRangeMessage }),
@@ -52,6 +54,7 @@ const useLocationStore = create<LocationStore>()(
       partialize: state => ({
         hasPrompted: state.hasPrompted,
         selectedStoreId: state.selectedStoreId,
+        selectedStoreSlug: state.selectedStoreSlug,
         selectedStoreName: state.selectedStoreName,
         displayLocation: state.displayLocation,
         coordinates: state.coordinates,

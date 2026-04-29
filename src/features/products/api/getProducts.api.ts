@@ -6,7 +6,7 @@ export interface GetProductsParams {
   page?: number;
   limit?: number;
   search?: string;
-  category?: number;
+  category?: string;
   sort?: string;
 }
 

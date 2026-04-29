@@ -7,7 +7,7 @@ import { reverseGeocodeApi } from '@/features/geolocation/api/geocoding.api';
 
 type Actions = {
   setStatus: (s: Parameters<ReturnType<typeof useLocationStore.getState>['setStatus']>[0]) => void;
-  setSelectedStore: (id: string, name: string) => void;
+  setSelectedStore: (id: string, name: string, slug: string) => void;
   clearStore: () => void;
   setDisplayLocation: (name: string | null) => void;
   setOutOfRangeMessage: (msg: string | null) => void;
@@ -17,7 +17,7 @@ async function resolveStore(lat: number, lng: number, actions: Actions) {
   try {
     const result = await getNearestStoreApi(lat, lng);
     actions.setOutOfRangeMessage(null);
-    actions.setSelectedStore(result.store.id, result.store.name);
+    actions.setSelectedStore(result.store.id, result.store.name, result.store.slug);
     actions.setStatus('found');
     reverseGeocodeApi(lat, lng)
       .then((name) => actions.setDisplayLocation(name))
