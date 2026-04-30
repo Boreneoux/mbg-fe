@@ -20,6 +20,22 @@ function isTokenExpired(payload: JwtPayload): boolean {
   return payload.exp * 1000 < Date.now();
 }
 
+function collectSetCookies(headers: Headers): string[] {
+  const cookies: string[] = [];
+  headers.forEach((value, key) => {
+    if (key.toLowerCase() === 'set-cookie') cookies.push(value);
+  });
+  return cookies;
+}
+
+function stripDomain(setCookieHeader: string): string {
+  return setCookieHeader
+    .split(';')
+    .map(p => p.trim())
+    .filter(p => !p.toLowerCase().startsWith('domain='))
+    .join('; ');
+}
+
 async function tryRefresh(
   request: NextRequest
 ): Promise<{ payload: JwtPayload; response: NextResponse } | null> {
@@ -27,27 +43,20 @@ async function tryRefresh(
   if (!refreshToken) return null;
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
-    const res = await fetch(`${apiUrl}/auth/refresh`, {
+    const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:8000/api';
+    const res = await fetch(`${backendUrl}/auth/refresh`, {
       method: 'POST',
       headers: { Cookie: `refresh_token=${refreshToken}` }
     });
 
     if (!res.ok) return null;
 
-    // Forward the new cookies (access_token + refresh_token) to the browser
+    const setCookies = collectSetCookies(res.headers);
     const response = NextResponse.next();
-    const setCookies =
-      res.headers.getSetCookie?.() ??
-      res.headers.get('set-cookie')?.split(', ') ??
-      [];
-
     for (const cookie of setCookies) {
-      response.headers.append('Set-Cookie', cookie);
+      response.headers.append('Set-Cookie', stripDomain(cookie));
     }
 
-    // Decode the new access_token to get the fresh payload
     const accessCookie = setCookies.find(c => c.startsWith('access_token='));
     if (!accessCookie) return null;
 
@@ -98,8 +107,7 @@ export async function proxy(request: NextRequest) {
     const res = NextResponse.redirect(new URL(dest, request.url));
 
     if (refreshedResponse) {
-      const newCookies = refreshedResponse.headers.getSetCookie?.() ?? [];
-      for (const cookie of newCookies) {
+      for (const cookie of collectSetCookies(refreshedResponse.headers)) {
         res.headers.append('Set-Cookie', cookie);
       }
     }
