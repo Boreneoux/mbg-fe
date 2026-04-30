@@ -52,13 +52,13 @@ export function EditUserDialog({
   onSuccess,
   onAssignmentChange,
 }: EditUserDialogProps) {
-  const { form, onSubmit, isLoading } = useUpdateUser(user?.id || 0, onSuccess);
+  const { form, onSubmit, isLoading } = useUpdateUser(user?.id ?? '', onSuccess);
   const { stores } = useGetStores();
 
   // Local state mirroring the user's current store assignments so UI updates
   // immediately without waiting for a list refresh.
   const [assignedStores, setAssignedStores] = useState<StoreOption[]>([]);
-  const [processingStoreIds, setProcessingStoreIds] = useState<Set<number>>(new Set());
+  const [processingStoreIds, setProcessingStoreIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (open && user) {
@@ -88,7 +88,7 @@ export function EditUserDialog({
   const assignedIds = new Set(assignedStores.map((s) => s.id));
   const availableStores = stores.filter((s) => !assignedIds.has(s.id));
 
-  const setProcessing = (storeId: number, processing: boolean) => {
+  const setProcessing = (storeId: string, processing: boolean) => {
     setProcessingStoreIds((prev) => {
       const next = new Set(prev);
       if (processing) next.add(storeId);
