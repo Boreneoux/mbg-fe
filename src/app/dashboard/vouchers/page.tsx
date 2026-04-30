@@ -11,21 +11,20 @@ import { useSetReferrerRewardVoucher } from '@/features/vouchers/hooks/useSetRef
 import { VoucherList } from '@/features/vouchers/components/VoucherList';
 import { CreateVoucherDialog } from '@/features/vouchers/components/CreateVoucherDialog';
 import { EditVoucherDialog } from '@/features/vouchers/components/EditVoucherDialog';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Voucher } from '@/features/vouchers/types';
 import { ConfirmDeleteDialog } from '@/components/ui/ConfirmDeleteDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 export default function VouchersPage() {
   const user = useAuthStore((s) => s.user);
-  const [page, setPage] = useState(1);
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [confirmSetReferralId, setConfirmSetReferralId] = useState<number | null>(null);
   const [confirmSetReferrerRewardId, setConfirmSetReferrerRewardId] = useState<number | null>(null);
 
-  const { vouchers, meta, isLoading, refetch } = useVouchers({ page, limit: 10 });
+  const { vouchers, meta, isLoading, refetch, page, setPage, search, setSearch } = useVouchers();
   const { deleteVoucher, isDeleting } = useDeleteVoucher(refetch);
   const { setReferralVoucher, isSettingReferral } = useSetReferralVoucher(refetch);
   const { setReferrerRewardVoucher, isSettingReferrerReward } = useSetReferrerRewardVoucher(refetch);
@@ -52,37 +51,12 @@ export default function VouchersPage() {
         onEdit={setEditingVoucher}
         onSetReferral={user?.role === 'super_admin' ? (id) => setConfirmSetReferralId(id) : undefined}
         onSetReferrerReward={user?.role === 'super_admin' ? (id) => setConfirmSetReferrerRewardId(id) : undefined}
+        pagination={meta || { page: 1, limit: 10, total: 0, totalPages: 0 }}
+        page={page}
+        onPageChange={setPage}
+        search={search}
+        onSearchChange={setSearch}
       />
-
-      {meta && meta.totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className={meta.page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            {[...Array(meta.totalPages)].map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink 
-                  onClick={() => setPage(i + 1)}
-                  isActive={meta.page === i + 1}
-                  className="cursor-pointer"
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                className={meta.page >= meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
 
       {showCreateDialog && (
         <CreateVoucherDialog

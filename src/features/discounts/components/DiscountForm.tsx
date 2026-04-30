@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import useAuthStore from '@/stores/useAuthStore';
@@ -186,20 +187,13 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
           name="started_at"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Start Date & Time (Optional)</FormLabel>
+              <FormLabel>Start Date <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
               <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      field.onChange(null);
-                      return;
-                    }
-                    const date = new Date(e.target.value);
-                    field.onChange(date.toISOString());
-                  }}
-                  value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                <DatePickerSingle
+                  value={field.value ?? null}
+                  onChange={(val) => field.onChange(val ?? null)}
+                  placeholder="Pick start date"
+                  optional
                 />
               </FormControl>
               <FormMessage />
@@ -213,20 +207,13 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
           name="expired_at"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expiry Date & Time (Optional)</FormLabel>
+              <FormLabel>Expiry Date <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
               <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      field.onChange(null);
-                      return;
-                    }
-                    const date = new Date(e.target.value);
-                    field.onChange(date.toISOString());
-                  }}
-                  value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                <DatePickerSingle
+                  value={field.value ?? null}
+                  onChange={(val) => field.onChange(val ?? null)}
+                  placeholder="Pick expiry date"
+                  optional
                 />
               </FormControl>
               <FormMessage />

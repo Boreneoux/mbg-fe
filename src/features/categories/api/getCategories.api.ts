@@ -1,9 +1,19 @@
 import axiosInstance from '@/utils/axiosInstance';
 import { CategoriesResponse } from '../types';
 
-export const getCategoriesApi = async () => {
+export interface GetCategoriesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export const getCategoriesApi = async (params?: GetCategoriesParams) => {
   const response = await axiosInstance.get<CategoriesResponse>(
-    '/categories'
+    '/categories',
+    { params }
   );
-  return response.data.data;
+  return {
+    data: response.data.data,
+    meta: response.data.meta,
+  };
 };
