@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useMutations } from '@/features/mutations/hooks/useMutations';
 import { useCreateMutation } from '@/features/mutations/hooks/useCreateMutation';
 import { useStores } from '@/features/stores/hooks/useStores';
@@ -12,23 +11,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Pagination, PaginationContent, PaginationEllipsis,
+  PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Loader2, ArrowRight, Search, ArrowUpDown } from 'lucide-react';
+import { useState } from 'react';
+
+function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, 'ellipsis', total];
+  if (current >= total - 3) return [1, 'ellipsis', total - 4, total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
 
 export default function StockMutationsPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === 'super_admin';
-  const router = useRouter();
 
   if (!isSuperAdmin) {
-    // Basic protection, layout middleware usually handles this but just in case
     return <div className="p-8 text-center text-red-500">Access Denied</div>;
   }
 
-  const [page, setPage] = useState(1);
-  const { mutations, meta, isLoading, refetch } = useMutations({ page, limit: 10 });
+  const { mutations, meta, isLoading, refetch, page, setPage, search, setSearch, sort, setSort } = useMutations();
   const { createMutation, isLoading: isCreating } = useCreateMutation();
   const { stores } = useStores();
   const { products } = useProducts();
@@ -39,33 +45,32 @@ export default function StockMutationsPage() {
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
 
+  const pageNumbers = buildPageNumbers(page, meta.totalPages);
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceStore || !destStore || !product || !quantity) return;
-
     await createMutation({
       source_store_id: sourceStore,
       destination_store_id: destStore,
       product_id: product,
-      quantity: parseInt(quantity)
+      quantity: parseInt(quantity),
     }, () => {
       setOpenDialog(false);
-      setSourceStore('');
-      setDestStore('');
-      setProduct('');
-      setQuantity('');
+      setSourceStore(''); setDestStore(''); setProduct(''); setQuantity('');
       refetch();
     });
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Stock Mutations</h1>
           <p className="text-gray-600">Transfer inventory between stores</p>
         </div>
-        
+
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
             <Button>New Mutation</Button>
@@ -78,14 +83,10 @@ export default function StockMutationsPage() {
               <div className="space-y-2">
                 <Label>Source Store</Label>
                 <Select value={sourceStore} onValueChange={setSourceStore}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Source Store" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Source Store" /></SelectTrigger>
                   <SelectContent>
                     {stores.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.name}
-                      </SelectItem>
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -94,14 +95,10 @@ export default function StockMutationsPage() {
               <div className="space-y-2">
                 <Label>Destination Store</Label>
                 <Select value={destStore} onValueChange={setDestStore}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Destination Store" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Destination Store" /></SelectTrigger>
                   <SelectContent>
-                    {stores.filter(s => s.id !== sourceStore).map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.name}
-                      </SelectItem>
+                    {stores.filter((s) => s.id !== sourceStore).map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -110,14 +107,10 @@ export default function StockMutationsPage() {
               <div className="space-y-2">
                 <Label>Product</Label>
                 <Select value={product} onValueChange={setProduct}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Product" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -125,13 +118,7 @@ export default function StockMutationsPage() {
 
               <div className="space-y-2">
                 <Label>Quantity</Label>
-                <Input 
-                  type="number" 
-                  min="1" 
-                  value={quantity} 
-                  onChange={(e) => setQuantity(e.target.value)}
-                  required 
-                />
+                <Input type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
               </div>
 
               <Button type="submit" className="w-full" disabled={isCreating || !sourceStore || !destStore || !product || !quantity}>
@@ -143,6 +130,33 @@ export default function StockMutationsPage() {
         </Dialog>
       </div>
 
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search by store */}
+        <div className="relative sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by store or product..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Sort by date */}
+        <Select value={sort} onValueChange={(v: 'asc' | 'desc') => setSort(v)}>
+          <SelectTrigger className="w-44">
+            <ArrowUpDown className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">Newest First</SelectItem>
+            <SelectItem value="asc">Oldest First</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Table */}
       <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
@@ -164,15 +178,13 @@ export default function StockMutationsPage() {
             ) : mutations.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                  No stock mutations found.
+                  {search ? `No stock mutations found for "${search}".` : 'No stock mutations found.'}
                 </TableCell>
               </TableRow>
             ) : (
               mutations.map((m) => (
                 <TableRow key={m.id}>
-                  <TableCell className="whitespace-nowrap">
-                    {new Date(m.created_at).toLocaleString()}
-                  </TableCell>
+                  <TableCell className="whitespace-nowrap">{new Date(m.created_at).toLocaleString()}</TableCell>
                   <TableCell className="font-medium">{m.product?.name}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm">
@@ -194,36 +206,32 @@ export default function StockMutationsPage() {
         </Table>
       </div>
 
-      {meta && meta.totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
-                className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-            {Array.from({ length: meta.totalPages }).map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink 
-                  href="#" 
-                  isActive={page === i + 1}
-                  onClick={(e) => { e.preventDefault(); setPage(i + 1); }}
-                >
-                  {i + 1}
-                </PaginationLink>
+      {/* Pagination */}
+      {meta.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * meta.limit + 1}–{Math.min(page * meta.limit, meta.total)} of {meta.total} mutations
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious onClick={() => setPage(page - 1)} className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
               </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); if (page < meta.totalPages) setPage(page + 1); }}
-                className={page >= meta.totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              {pageNumbers.map((p, i) =>
+                p === 'ellipsis' ? (
+                  <PaginationItem key={`e-${i}`}><PaginationEllipsis /></PaginationItem>
+                ) : (
+                  <PaginationItem key={p}>
+                    <PaginationLink isActive={p === page} onClick={() => setPage(p as number)} className="cursor-pointer">{p}</PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext onClick={() => setPage(page + 1)} className={page === meta.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
     </div>
   );

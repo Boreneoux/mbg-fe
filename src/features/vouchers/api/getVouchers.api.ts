@@ -6,6 +6,7 @@ export interface GetVouchersParams {
   page?: number;
   limit?: number;
   usage_type?: string;
+  search?: string;
 }
 
 export async function getVouchersApi(params?: GetVouchersParams) {

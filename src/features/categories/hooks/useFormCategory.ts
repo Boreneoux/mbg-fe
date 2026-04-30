@@ -28,7 +28,7 @@ export function useFormCategory(mode: 'create' | 'edit' = 'create', initialData?
   // Check if category name already exists
   const checkDuplicateName = async (name: string): Promise<boolean> => {
     try {
-      const categories = await getCategoriesApi();
+      const { data: categories } = await getCategoriesApi();
       const exists = categories.some(
         (cat) => cat.name.toLowerCase() === name.toLowerCase() && cat.id !== initialData?.id
       );
