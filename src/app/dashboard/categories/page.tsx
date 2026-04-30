@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 export default function CategoriesPage() {
   const user = useAuthStore((s) => s.user);
-  const { categories, isLoading, error, refetch } = useCategories();
+  const { categories, meta, isLoading, error, refetch, page, setPage, search, setSearch } = useCategories();
 
   const isSuperAdmin = user?.role === 'super_admin';
   const isStoreAdmin = user?.role === 'store_admin';
@@ -28,7 +28,7 @@ export default function CategoriesPage() {
     try {
       await deleteCategoryApi(slug);
       toast.success('Category deleted successfully');
-      if (refetch) refetch();
+      refetch();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to delete category');
     }
@@ -60,6 +60,11 @@ export default function CategoriesPage() {
         canEdit={isSuperAdmin}
         canDelete={isSuperAdmin}
         onDelete={handleDelete}
+        pagination={meta}
+        page={page}
+        onPageChange={setPage}
+        search={search}
+        onSearchChange={setSearch}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import { Plus } from 'lucide-react';
 
 export default function DashboardProductsPage() {
   const user = useAuthStore((s) => s.user);
-  const { products, isLoading, refetch } = useProducts();
+  const { products, meta, isLoading, refetch, page, setPage, search, setSearch } = useProducts();
 
   return (
     <div className="space-y-6">
@@ -30,9 +30,26 @@ export default function DashboardProductsPage() {
       </div>
 
       {user?.role === 'super_admin' ? (
-        <ProductTable products={products} isLoading={isLoading} onRefetch={refetch} />
+        <ProductTable
+          products={products}
+          isLoading={isLoading}
+          onRefetch={refetch}
+          pagination={meta}
+          page={page}
+          onPageChange={setPage}
+          search={search}
+          onSearchChange={setSearch}
+        />
       ) : (
-        <ProductReadOnlyView products={products} isLoading={isLoading} />
+        <ProductReadOnlyView
+          products={products}
+          isLoading={isLoading}
+          pagination={meta}
+          page={page}
+          onPageChange={setPage}
+          search={search}
+          onSearchChange={setSearch}
+        />
       )}
     </div>
   );

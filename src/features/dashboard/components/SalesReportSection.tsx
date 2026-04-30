@@ -10,11 +10,11 @@ import {
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Category } from '@/features/categories/types';
 import MonthlyBarChart from '@/features/dashboard/components/MonthlyBarChart';
 import ReportPagination from '@/features/dashboard/components/ReportPagination';
@@ -175,26 +175,22 @@ export default function SalesReportSection({
                 <FormField
                   control={form.control}
                   name="fromMonth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Month</FormLabel>
-                      <FormControl>
-                        <Input type="month" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="toMonth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>To Month</FormLabel>
-                      <FormControl>
-                        <Input type="month" {...field} />
-                      </FormControl>
+                  render={({ field: fromField }) => (
+                    <FormItem className="col-span-full sm:col-span-2">
+                      <FormLabel>Date Range</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="toMonth"
+                        render={({ field: toField }) => (
+                          <DateRangePicker
+                            fromMonth={fromField.value}
+                            toMonth={toField.value}
+                            onFromChange={fromField.onChange}
+                            onToChange={toField.onChange}
+                            disabled={isLoadingOptions}
+                          />
+                        )}
+                      />
                       <FormMessage />
                     </FormItem>
                   )}

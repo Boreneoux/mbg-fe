@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import { useProducts } from '@/features/products/hooks/useProducts';
 
 interface VoucherFormProps {
@@ -188,16 +189,12 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
           name="expired_at"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expiry Date & Time</FormLabel>
+              <FormLabel>Expiry Date</FormLabel>
               <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  onChange={(e) => {
-                    const date = new Date(e.target.value);
-                    field.onChange(date.toISOString());
-                  }}
-                  value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                <DatePickerSingle
+                  value={field.value ?? null}
+                  onChange={(val) => field.onChange(val ?? null)}
+                  placeholder="Pick expiry date"
                 />
               </FormControl>
               <FormMessage />

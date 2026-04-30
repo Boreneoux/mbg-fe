@@ -7,12 +7,7 @@ export type Category = {
   updated_at: string;
 };
 
-/** Generic envelope returned by all BE endpoints */
-export type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data: T;
-};
+import { ApiResponse } from '@/types/api';
 
 export type CreateCategoryPayload = {
   name: string;
