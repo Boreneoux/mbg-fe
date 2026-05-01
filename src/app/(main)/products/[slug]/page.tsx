@@ -4,10 +4,13 @@ import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProduct } from '@/features/products/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
+import { useActiveDiscounts } from '@/features/discounts/hooks/useActiveDiscounts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import { formatCurrencyIDR } from '@/utils/currency';
+import { QuantityControl } from '@/features/cart/components/QuantityControl';
+import { getBestDiscountPreview, getDefaultStoreId } from '@/features/products/pricing';
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -21,6 +24,7 @@ export default function PublicProductDetailPage({
 
   const { product, isLoading, error } = useProduct(slug);
   const { addToCart, isLoading: isCartLoading } = useCart();
+  const { discounts } = useActiveDiscounts();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -74,16 +78,16 @@ export default function PublicProductDetailPage({
   const totalStock =
     product.store_inventories?.reduce((acc, inv) => acc + inv.stock, 0) || 0;
   const isOutOfStock = totalStock === 0;
+  const defaultStoreId = getDefaultStoreId(product) ?? '';
+  const discountPreview = getBestDiscountPreview(product, discounts, quantity, defaultStoreId || null);
 
-  const handleQuantityChange = (delta: number) => {
-    const newQuantity = quantity + delta;
+  const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= totalStock) {
       setQuantity(newQuantity);
     }
   };
 
   const handleAddToCart = () => {
-    const defaultStoreId = product.store_inventories?.[0]?.store_id || '';
     addToCart(product.id, quantity, defaultStoreId);
   };
 
@@ -148,9 +152,36 @@ export default function PublicProductDetailPage({
                 {product.name}
               </h1>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatCurrencyIDR(product.price)}
-            </p>
+            <div className="space-y-2">
+              {discountPreview ? (
+                <>
+                  <div className="inline-flex rounded-full bg-rose-500 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+                    {discountPreview.badge}
+                  </div>
+                  <div className="flex flex-wrap items-end gap-3">
+                    <p className="text-3xl font-bold text-gray-900">
+                      {formatCurrencyIDR(
+                        discountPreview.discountedPrice !== null
+                          ? discountPreview.discountedPrice
+                          : product.price
+                      )}
+                    </p>
+                    {discountPreview.discountedPrice !== null && (
+                      <p className="text-lg text-muted-foreground line-through">
+                        {formatCurrencyIDR(product.price)}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-rose-600">
+                    Save {formatCurrencyIDR(discountPreview.savingsAmount ?? 0)} for {quantity} item{quantity > 1 ? 's' : ''}
+                  </p>
+                </>
+              ) : (
+                <p className="text-3xl font-bold text-gray-900">
+                  {formatCurrencyIDR(product.price)}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -173,23 +204,14 @@ export default function PublicProductDetailPage({
                 <span className="text-sm font-medium text-gray-700">
                   Quantity
                 </span>
-                <div className="flex items-center border rounded-lg bg-white">
-                  <button
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-l-lg transition-colors">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-medium">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= totalStock}
-                    className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-r-lg transition-colors">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
+                <QuantityControl
+                  quantity={quantity}
+                  onQuantityChange={handleQuantityChange}
+                  isLoading={isCartLoading}
+                  minQuantity={1}
+                  maxQuantity={totalStock}
+                  allowInput
+                />
               </div>
             )}
 
