@@ -27,9 +27,9 @@ function buildPageNumbers(current: number, total: number): (number | 'ellipsis')
 interface DiscountListProps {
   discounts: Discount[];
   isLoading: boolean;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
   onEdit?: (discount: Discount) => void;
-  onToggleActive?: (id: number, currentStatus: boolean) => void;
+  onToggleActive?: (id: string, currentStatus: boolean) => void;
   pagination?: { page: number; limit: number; total: number; totalPages: number };
   page?: number;
   onPageChange?: (page: number) => void;

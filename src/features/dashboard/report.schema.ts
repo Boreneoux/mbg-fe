@@ -84,14 +84,11 @@ export function createDefaultStockReportFilters(): StockReportFiltersValues {
   };
 }
 
-export function parseOptionalNumber(value: string) {
+export function parseOptionalId(value: string) {
   if (value === 'all') {
     return undefined;
   }
-
-  const parsedValue = Number(value);
-
-  return Number.isNaN(parsedValue) ? undefined : parsedValue;
+  return value || undefined;
 }
 
 export function parseOptionalStockType(value: 'all' | ReportStockJournalType) {

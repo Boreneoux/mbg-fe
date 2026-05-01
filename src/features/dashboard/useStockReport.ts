@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import {
   createDefaultStockReportFilters,
-  parseOptionalNumber,
+  parseOptionalId,
   parseOptionalStockType,
   stockReportFiltersSchema,
   StockReportFiltersValues,
@@ -68,9 +68,9 @@ export function useStockReport() {
       setIsLoading(true);
       setError(null);
 
-      const storeId = parseOptionalNumber(appliedFilters.storeId);
-      const categoryId = parseOptionalNumber(appliedFilters.categoryId);
-      const productId = parseOptionalNumber(appliedFilters.productId);
+      const storeId = parseOptionalId(appliedFilters.storeId);
+      const categoryId = parseOptionalId(appliedFilters.categoryId);
+      const productId = parseOptionalId(appliedFilters.productId);
       const stockType = parseOptionalStockType(appliedFilters.type);
       const search = appliedFilters.search.trim() || undefined;
 

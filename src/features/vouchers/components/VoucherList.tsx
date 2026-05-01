@@ -28,10 +28,10 @@ function buildPageNumbers(current: number, total: number): (number | 'ellipsis')
 interface VoucherListProps {
   vouchers: Voucher[];
   isLoading: boolean;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
   onEdit?: (voucher: Voucher) => void;
-  onSetReferral?: (id: number) => void;
-  onSetReferrerReward?: (id: number) => void;
+  onSetReferral?: (id: string) => void;
+  onSetReferrerReward?: (id: string) => void;
   pagination?: { page: number; limit: number; total: number; totalPages: number };
   page?: number;
   onPageChange?: (page: number) => void;
