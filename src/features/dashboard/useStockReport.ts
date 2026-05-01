@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import {
   createDefaultStockReportFilters,
-  createMonthDateRange,
   parseOptionalNumber,
   parseOptionalStockType,
   stockReportFiltersSchema,
@@ -69,7 +68,6 @@ export function useStockReport() {
       setIsLoading(true);
       setError(null);
 
-      const dateRange = createMonthDateRange(appliedFilters.fromMonth, appliedFilters.toMonth);
       const storeId = parseOptionalNumber(appliedFilters.storeId);
       const categoryId = parseOptionalNumber(appliedFilters.categoryId);
       const productId = parseOptionalNumber(appliedFilters.productId);
@@ -82,8 +80,8 @@ export function useStockReport() {
             store_id: storeId,
             product_id: productId,
             type: stockType,
-            from: dateRange.from,
-            to: dateRange.to,
+            from: appliedFilters.fromDate,
+            to: appliedFilters.toDate,
             page: monthlyPage,
             limit: DETAIL_LIMIT,
             sort: 'desc',
@@ -95,8 +93,8 @@ export function useStockReport() {
             product_id: productId,
             type: stockType,
             search,
-            from: dateRange.from,
-            to: dateRange.to,
+            from: appliedFilters.fromDate,
+            to: appliedFilters.toDate,
             page: historyPage,
             limit: DETAIL_LIMIT,
             sort: 'desc',

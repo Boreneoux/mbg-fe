@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import {
   createDefaultSalesReportFilters,
-  createMonthDateRange,
   parseOptionalNumber,
   SalesReportFiltersValues,
   salesReportFiltersSchema,
@@ -72,7 +71,6 @@ export function useSalesReport() {
       setIsLoading(true);
       setError(null);
 
-      const dateRange = createMonthDateRange(appliedFilters.fromMonth, appliedFilters.toMonth);
       const storeId = parseOptionalNumber(appliedFilters.storeId);
       const categoryId = parseOptionalNumber(appliedFilters.categoryId);
       const productId = parseOptionalNumber(appliedFilters.productId);
@@ -81,8 +79,8 @@ export function useSalesReport() {
         const [monthlyResponse, categoryResponse, productResponse] = await Promise.all([
           getSalesMonthlyReportApi({
             store_id: storeId,
-            from: dateRange.from,
-            to: dateRange.to,
+            from: appliedFilters.fromDate,
+            to: appliedFilters.toDate,
             page: 1,
             limit: CHART_LIMIT,
             sort: 'asc',
@@ -91,8 +89,8 @@ export function useSalesReport() {
           getSalesCategoryReportApi({
             store_id: storeId,
             category_id: categoryId,
-            from: dateRange.from,
-            to: dateRange.to,
+            from: appliedFilters.fromDate,
+            to: appliedFilters.toDate,
             page: categoryPage,
             limit: DETAIL_LIMIT,
             sort: 'desc',
@@ -102,8 +100,8 @@ export function useSalesReport() {
             store_id: storeId,
             category_id: categoryId,
             product_id: productId,
-            from: dateRange.from,
-            to: dateRange.to,
+            from: appliedFilters.fromDate,
+            to: appliedFilters.toDate,
             page: productPage,
             limit: DETAIL_LIMIT,
             sort: 'desc',

@@ -27,7 +27,14 @@ export function useCreateDiscount(onSuccess?: () => void) {
   const onSubmit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
     try {
-      await createDiscountApi(values);
+      const payload = { ...values };
+      if (payload.started_at) {
+        payload.started_at = new Date(payload.started_at).toISOString();
+      }
+      if (payload.expired_at) {
+        payload.expired_at = new Date(payload.expired_at).toISOString();
+      }
+      await createDiscountApi(payload);
       toast.success('Discount created successfully');
       form.reset();
       if (onSuccess) onSuccess();

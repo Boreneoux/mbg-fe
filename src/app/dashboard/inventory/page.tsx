@@ -47,7 +47,7 @@ export default function InventoryPage() {
 
   // Stores (for Super Admin) — load all, no pagination needed in selector
   const { stores } = useStores();
-  const { products } = useProducts();
+  const { products } = useProducts({ limit: 1000 });
 
   const refreshAll = () => {
     inventoriesHook.refetch();
