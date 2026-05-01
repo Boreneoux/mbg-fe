@@ -14,8 +14,9 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Pencil, Trash2, UserPlus, Gift } from 'lucide-react';
 import { formatCurrencyIDR } from '@/utils/currency';
+import { Button } from '@/components/ui/button';
 
 function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -125,36 +126,44 @@ export function VoucherList({
                 <TableCell>{voucher.product?.name || 'All'}</TableCell>
                 <TableCell className="text-right space-x-2">
                   {onSetReferral && !voucher.is_referral && (
-                    <button
+                    <Button
+                      variant="ghost" size="icon"
+                      title="Set as Referral"
                       onClick={() => onSetReferral(voucher.id)}
-                      className="text-xs text-emerald-600 hover:text-emerald-800 underline"
+                      className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 h-8 w-8"
                     >
-                      Set as Referral
-                    </button>
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
                   )}
                   {onSetReferrerReward && !voucher.is_referrer_reward && (
-                    <button
+                    <Button
+                      variant="ghost" size="icon"
+                      title="Set as Referrer Reward"
                       onClick={() => onSetReferrerReward(voucher.id)}
-                      className="text-xs text-violet-600 hover:text-violet-800 underline"
+                      className="text-violet-600 hover:text-violet-800 hover:bg-violet-50 h-8 w-8"
                     >
-                      Set as Referrer Reward
-                    </button>
+                      <Gift className="h-4 w-4" />
+                    </Button>
                   )}
                   {onEdit && (
-                    <button
+                    <Button
+                      variant="ghost" size="icon"
+                      title="Edit"
                       onClick={() => onEdit(voucher)}
-                      className="text-xs text-blue-500 hover:text-blue-700 underline"
+                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
                     >
-                      Edit
-                    </button>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                   )}
                   {onDelete && (
-                    <button
+                    <Button
+                      variant="ghost" size="icon"
+                      title="Delete"
                       onClick={() => onDelete(voucher.id)}
-                      className="text-xs text-red-500 hover:text-red-700 underline"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
                     >
-                      Delete
-                    </button>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   )}
                 </TableCell>
               </TableRow>

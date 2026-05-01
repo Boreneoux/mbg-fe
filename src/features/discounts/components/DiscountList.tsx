@@ -13,8 +13,9 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Pencil, Trash2, Power, PowerOff } from 'lucide-react';
 import { formatCurrencyIDR } from '@/utils/currency';
+import { Button } from '@/components/ui/button';
 
 function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -117,28 +118,34 @@ export function DiscountList({
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   {onToggleActive && (
-                    <button 
+                    <Button 
+                      variant="ghost" size="icon"
+                      title={discount.is_active ? 'Deactivate' : 'Activate'}
                       onClick={() => onToggleActive(discount.id, discount.is_active)}
-                      className="text-xs text-gray-500 hover:text-gray-700 underline"
+                      className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8"
                     >
-                      {discount.is_active ? 'Deactivate' : 'Activate'}
-                    </button>
+                      {discount.is_active ? <PowerOff className="h-4 w-4 text-orange-500" /> : <Power className="h-4 w-4 text-emerald-500" />}
+                    </Button>
                   )}
                   {onEdit && (
-                    <button 
+                    <Button 
+                      variant="ghost" size="icon"
+                      title="Edit"
                       onClick={() => onEdit(discount)}
-                      className="text-xs text-blue-500 hover:text-blue-700 underline"
+                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
                     >
-                      Edit
-                    </button>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                   )}
                   {onDelete && (
-                    <button 
+                    <Button 
+                      variant="ghost" size="icon"
+                      title="Delete"
                       onClick={() => onDelete(discount.id)}
-                      className="text-xs text-red-500 hover:text-red-700 underline"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
                     >
-                      Delete
-                    </button>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   )}
                 </TableCell>
               </TableRow>

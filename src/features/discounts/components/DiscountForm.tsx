@@ -38,7 +38,11 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
               <FormItem>
                 <FormLabel>Target Store</FormLabel>
                 <Select
-                  onValueChange={(val) => field.onChange(val === 'all' ? 'all' : Number(val))}
+                  onValueChange={(val) => {
+                    if (val === 'all') return field.onChange('all');
+                    const num = Number(val);
+                    field.onChange(Number.isNaN(num) ? null : num);
+                  }}
                   value={field.value?.toString() ?? ''}
                 >
                   <FormControl>
@@ -67,7 +71,11 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
             <FormItem>
               <FormLabel>Specific Product (Optional)</FormLabel>
               <Select
-                onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
+                onValueChange={(val) => {
+                  if (val === 'none') return field.onChange(null);
+                  const num = Number(val);
+                  field.onChange(Number.isNaN(num) ? null : num);
+                }}
                 value={field.value?.toString() ?? 'none'}
               >
                 <FormControl>

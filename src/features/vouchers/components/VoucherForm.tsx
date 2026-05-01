@@ -72,7 +72,11 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
               <FormItem>
                 <FormLabel>Specific Product</FormLabel>
                 <Select
-                  onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
+                  onValueChange={(val) => {
+                    if (val === 'none') return field.onChange(null);
+                    const num = Number(val);
+                    field.onChange(Number.isNaN(num) ? null : num);
+                  }}
                   value={field.value?.toString() ?? 'none'}
                 >
                   <FormControl>
