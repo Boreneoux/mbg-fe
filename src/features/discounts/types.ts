@@ -1,9 +1,9 @@
 export type DiscountType = 'percentage' | 'nominal' | 'buy_one_get_one';
 
 export interface Discount {
-  id: number;
-  store_id: number;
-  product_id: number | null;
+  id: string;
+  store_id: string;
+  product_id: string | null;
   type: DiscountType;
   value: string | number | null;
   min_purchase_amount: string | number | null;
@@ -15,11 +15,11 @@ export interface Discount {
   updated_at: string;
 
   store?: {
-    id: number;
+    id: string;
     name: string;
   };
   product?: {
-    id: number;
+    id: string;
     name: string;
   } | null;
 }

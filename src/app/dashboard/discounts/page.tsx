@@ -18,13 +18,13 @@ export default function DiscountsPage() {
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingDiscount, setEditingDiscount] = useState<Discount | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   
   const { discounts, meta, isLoading, refetch, page, setPage, search, setSearch } = useDiscounts();
   const { deleteDiscount, isDeleting } = useDeleteDiscount(refetch);
   const { updateDiscount } = useUpdateDiscount(refetch);
 
-  const handleToggleActive = (id: number, currentStatus: boolean) => {
+  const handleToggleActive = (id: string, currentStatus: boolean) => {
     updateDiscount(id, { is_active: !currentStatus });
   };
 

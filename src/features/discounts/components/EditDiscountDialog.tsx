@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -19,6 +20,10 @@ interface EditDiscountDialogProps {
 
 export function EditDiscountDialog({ discount, open, onOpenChange, onSuccess }: EditDiscountDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function toPickerDate(value: string | null) {
+    return value ? value.slice(0, 10) : null;
+  }
 
   const form = useForm<CreateDiscountFormValues>({
     resolver: zodResolver(createDiscountSchema),
@@ -43,8 +48,8 @@ export function EditDiscountDialog({ discount, open, onOpenChange, onSuccess }: 
         value: discount.value ? Number(discount.value) : null,
         min_purchase_amount: discount.min_purchase_amount ? Number(discount.min_purchase_amount) : null,
         max_discount_value: discount.max_discount_value ? Number(discount.max_discount_value) : null,
-        started_at: discount.started_at ? new Date(discount.started_at).toISOString().slice(0, 16) : null,
-        expired_at: discount.expired_at ? new Date(discount.expired_at).toISOString().slice(0, 16) : null,
+        started_at: toPickerDate(discount.started_at),
+        expired_at: toPickerDate(discount.expired_at),
       });
     }
   }, [discount, open, form]);
@@ -53,13 +58,22 @@ export function EditDiscountDialog({ discount, open, onOpenChange, onSuccess }: 
     if (!discount) return;
     setIsSubmitting(true);
     try {
-      await updateDiscountApi(discount.id, values);
+      const payload = {
+        ...values,
+        started_at: values.started_at ? new Date(values.started_at).toISOString() : values.started_at,
+        expired_at: values.expired_at ? new Date(values.expired_at).toISOString() : values.expired_at,
+      };
+
+      await updateDiscountApi(discount.id, payload);
       toast.success('Discount updated successfully');
       form.reset();
       onOpenChange(false);
       if (onSuccess) onSuccess();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update discount');
+    } catch (error) {
+      const message = isAxiosError<{ message?: string }>(error)
+        ? (error.response?.data?.message ?? 'Failed to update discount')
+        : 'Failed to update discount';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -73,7 +87,7 @@ export function EditDiscountDialog({ discount, open, onOpenChange, onSuccess }: 
         </DialogHeader>
         <FormProvider {...form}>
           <DiscountForm
-            form={form as any}
+            form={form}
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
             onCancel={() => onOpenChange(false)}

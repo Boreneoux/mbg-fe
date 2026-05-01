@@ -20,9 +20,9 @@ export default function VouchersPage() {
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
-  const [confirmSetReferralId, setConfirmSetReferralId] = useState<number | null>(null);
-  const [confirmSetReferrerRewardId, setConfirmSetReferrerRewardId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmSetReferralId, setConfirmSetReferralId] = useState<string | null>(null);
+  const [confirmSetReferrerRewardId, setConfirmSetReferrerRewardId] = useState<string | null>(null);
 
   const { vouchers, meta, isLoading, refetch, page, setPage, search, setSearch } = useVouchers();
   const { deleteVoucher, isDeleting } = useDeleteVoucher(refetch);

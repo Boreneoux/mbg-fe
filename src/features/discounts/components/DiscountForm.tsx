@@ -1,19 +1,21 @@
 'use client';
 
-import { useFormContext, Controller } from 'react-hook-form';
-import { CreateDiscountFormValues } from '../schemas/discount.schema';
+import type { FormEventHandler } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerSingle } from '@/components/ui/date-picker-single';
+import { ProductCombobox } from '@/components/ui/product-combobox';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import useAuthStore from '@/stores/useAuthStore';
+import type { CreateDiscountFormValues } from '@/features/discounts/schemas/discount.schema';
 
 interface DiscountFormProps {
-  form: ReturnType<typeof useFormContext>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateDiscountFormValues>;
+  onSubmit: FormEventHandler<HTMLFormElement>;
   isSubmitting: boolean;
   onCancel: () => void;
 }
@@ -25,14 +27,18 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
   const { products } = useProducts({ limit: 100 });
 
   const type = form.watch('type');
+  const productOptions = products.map((product) => ({
+    value: String(product.id),
+    label: product.name,
+  }));
 
   return (
-    <Form {...(form as any)}>
+    <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
         {/* Store Selection (Only for Super Admin) */}
         {isSuperAdmin && (
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="store_id"
             render={({ field }) => (
               <FormItem>
@@ -40,8 +46,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
                 <Select
                   onValueChange={(val) => {
                     if (val === 'all') return field.onChange('all');
-                    const num = Number(val);
-                    field.onChange(Number.isNaN(num) ? null : num);
+                    field.onChange(val || null);
                   }}
                   value={field.value?.toString() ?? ''}
                 >
@@ -65,31 +70,23 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
 
         {/* Product Selection */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="product_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Specific Product (Optional)</FormLabel>
-              <Select
-                onValueChange={(val) => {
-                  if (val === 'none') return field.onChange(null);
-                  const num = Number(val);
-                  field.onChange(Number.isNaN(num) ? null : num);
-                }}
-                value={field.value?.toString() ?? 'none'}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select product" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">No specific product (Store-wide)</SelectItem>
-                  {products?.map((p) => (
-                    <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <ProductCombobox
+                  options={productOptions}
+                  value={field.value ? String(field.value) : ''}
+                  onValueChange={(value) => {
+                    field.onChange(value || null);
+                  }}
+                  placeholder="No specific product (Store-wide)"
+                  searchPlaceholder="Search products..."
+                  emptyMessage="No product found."
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -97,7 +94,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
 
         {/* Discount Type */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="type"
           render={({ field }) => (
             <FormItem>
@@ -122,7 +119,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
         {/* Value (Not needed for BOGO) */}
         {type !== 'buy_one_get_one' && (
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="value"
             render={({ field }) => (
               <FormItem>
@@ -145,7 +142,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
 
         {/* Minimum Purchase */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="min_purchase_amount"
           render={({ field }) => (
             <FormItem>
@@ -168,7 +165,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
         {/* Max Discount (Only useful for percentage) */}
         {type === 'percentage' && (
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="max_discount_value"
             render={({ field }) => (
               <FormItem>
@@ -191,7 +188,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
 
         {/* Started At */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="started_at"
           render={({ field }) => (
             <FormItem>
@@ -211,7 +208,7 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
 
         {/* Expired At */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="expired_at"
           render={({ field }) => (
             <FormItem>
