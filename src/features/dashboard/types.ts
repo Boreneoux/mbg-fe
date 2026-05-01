@@ -16,7 +16,7 @@ export type SalesMonthlyReportItem = {
 };
 
 export type SalesCategoryReportItem = {
-  category_id: number;
+  category_id: string;
   category_name: string;
   total_sales: number;
   total_quantity: number;
@@ -24,10 +24,10 @@ export type SalesCategoryReportItem = {
 };
 
 export type SalesProductReportItem = {
-  product_id: number;
+  product_id: string;
   product_name: string;
   product_slug: string;
-  category_id: number;
+  category_id: string;
   category_name: string;
   total_sales: number;
   total_quantity: number;
@@ -43,18 +43,18 @@ export type StockMonthlyReportItem = {
 };
 
 export type StockHistoryReportItem = {
-  id: number;
+  id: string;
   created_at: string;
   type: ReportStockJournalType;
   quantity: number;
   description: string | null;
-  reference_id: number | null;
-  store_id: number;
+  reference_id: string | null;
+  store_id: string;
   store_name: string;
-  product_id: number;
+  product_id: string;
   product_name: string;
   product_slug: string;
-  category_id: number;
+  category_id: string;
   category_name: string;
 };
 
@@ -64,7 +64,7 @@ export type ReportListResponse<T> = {
 };
 
 export type SalesMonthlyReportParams = {
-  store_id?: number;
+  store_id?: string;
   from?: string;
   to?: string;
   page?: number;
@@ -74,8 +74,8 @@ export type SalesMonthlyReportParams = {
 };
 
 export type SalesCategoryReportParams = {
-  store_id?: number;
-  category_id?: number;
+  store_id?: string;
+  category_id?: string;
   search?: string;
   from?: string;
   to?: string;
@@ -86,9 +86,9 @@ export type SalesCategoryReportParams = {
 };
 
 export type SalesProductReportParams = {
-  store_id?: number;
-  category_id?: number;
-  product_id?: number;
+  store_id?: string;
+  category_id?: string;
+  product_id?: string;
   search?: string;
   from?: string;
   to?: string;
@@ -104,8 +104,8 @@ export type SalesProductReportParams = {
 };
 
 export type StockMonthlyReportParams = {
-  store_id?: number;
-  product_id?: number;
+  store_id?: string;
+  product_id?: string;
   type?: ReportStockJournalType;
   from?: string;
   to?: string;
@@ -116,9 +116,9 @@ export type StockMonthlyReportParams = {
 };
 
 export type StockHistoryReportParams = {
-  store_id?: number;
-  product_id?: number;
-  category_id?: number;
+  store_id?: string;
+  product_id?: string;
+  category_id?: string;
   type?: ReportStockJournalType;
   search?: string;
   from?: string;

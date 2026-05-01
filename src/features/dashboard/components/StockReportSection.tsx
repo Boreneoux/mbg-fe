@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import {
   Form,
   FormControl,
@@ -73,13 +74,28 @@ export default function StockReportSection({
   } = useStockReport();
 
   const selectedCategoryId = form.watch('categoryId');
+  const selectedProductId = form.watch('productId');
   const filteredProducts = products.filter((product) => {
     if (selectedCategoryId === 'all') {
       return true;
     }
 
-    return product.category_id === selectedCategoryId;
+    return String(product.category_id) === selectedCategoryId;
   });
+
+  useEffect(() => {
+    if (selectedProductId === 'all') {
+      return;
+    }
+
+    const productStillAvailable = filteredProducts.some(
+      (product) => String(product.id) === selectedProductId
+    );
+
+    if (!productStillAvailable) {
+      form.setValue('productId', 'all');
+    }
+  }, [filteredProducts, form, selectedProductId]);
 
   const totalIn = monthlyItems.reduce((total, item) => total + item.total_in, 0);
   const totalOut = monthlyItems.reduce((total, item) => total + item.total_out, 0);
