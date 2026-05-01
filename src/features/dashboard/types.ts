@@ -96,11 +96,11 @@ export type SalesProductReportParams = {
   limit?: number;
   sort?: 'asc' | 'desc';
   sort_by?:
-    | 'product_name'
-    | 'category_name'
-    | 'total_sales'
-    | 'total_quantity'
-    | 'total_orders';
+  | 'product_name'
+  | 'category_name'
+  | 'total_sales'
+  | 'total_quantity'
+  | 'total_orders';
 };
 
 export type StockMonthlyReportParams = {

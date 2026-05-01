@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import ReportPagination from '@/features/dashboard/components/ReportPagination';
 import { Category } from '@/features/categories/types';
 import { useStockReport } from '@/features/dashboard/useStockReport';
@@ -207,23 +207,35 @@ export default function StockReportSection({
 
                 <FormField
                   control={form.control}
-                  name="fromMonth"
-                  render={({ field: fromField }) => (
-                    <FormItem className="col-span-full sm:col-span-2">
-                      <FormLabel>Date Range</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="toMonth"
-                        render={({ field: toField }) => (
-                          <DateRangePicker
-                            fromMonth={fromField.value}
-                            toMonth={toField.value}
-                            onFromChange={fromField.onChange}
-                            onToChange={toField.onChange}
-                            disabled={isLoadingOptions}
-                          />
-                        )}
-                      />
+                  name="fromDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="toDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

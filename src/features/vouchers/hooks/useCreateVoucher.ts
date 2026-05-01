@@ -27,7 +27,11 @@ export function useCreateVoucher(onSuccess?: () => void) {
   const onSubmit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
     try {
-      await createVoucherApi(values);
+      const payload = { ...values };
+      if (payload.expired_at) {
+        payload.expired_at = new Date(payload.expired_at).toISOString();
+      }
+      await createVoucherApi(payload);
       toast.success('Voucher created successfully');
       form.reset();
       if (onSuccess) onSuccess();
