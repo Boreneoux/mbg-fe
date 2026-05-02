@@ -175,12 +175,7 @@ export function useAddressForm({ address, onSuccess, existingLabels = [] }: UseA
     }
 
     try {
-      const payload = {
-        ...values,
-        province_id: Number(values.province_id),
-        city_id: Number(values.city_id),
-        district_id: Number(values.district_id),
-      };
+      const payload = { ...values };
       const saved = isEdit
         ? await updateAddressApi(address!.id, payload)
         : await createAddressApi(payload);

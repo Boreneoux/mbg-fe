@@ -7,9 +7,9 @@ export type CreateAddressPayload = {
   recipient_name: string;
   phone: string;
   address: string;
-  province_id: number;
-  city_id: number;
-  district_id: number;
+  province_id: string;
+  city_id: string;
+  district_id: string;
   postal_code?: string;
   latitude: number;
   longitude: number;
