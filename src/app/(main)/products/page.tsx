@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import { useCategories } from '@/features/products/hooks/useCategories';
+import { useCart } from '@/features/cart/hooks/useCart';
+import { useActiveDiscounts } from '@/features/discounts/hooks/useActiveDiscounts';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,8 +17,9 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search } from 'lucide-react';
+import { Search, ShoppingCart } from 'lucide-react';
 import { formatCurrencyIDR } from '@/utils/currency';
+import { getBestDiscountPreview } from '@/features/products/pricing';
 import {
   Pagination,
   PaginationContent,
@@ -27,24 +30,48 @@ import {
 } from '@/components/ui/pagination';
 
 export default function ProductsPage() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [category, setCategory] = useState<string | undefined>(
-    searchParams.get('category') ?? undefined
-  );
   const [sort, setSort] = useState<string>('newest');
   const [page, setPage] = useState(1);
+  const { categories } = useCategories();
+  const { addToCart, isLoading: isAddingToCart } = useCart();
+  const { discounts } = useActiveDiscounts();
+  const categoryParam = searchParams.get('category') ?? undefined;
+
+  const selectedCategory = useMemo(
+    () =>
+      categories.find(
+        (category) => category.slug === categoryParam || category.id === categoryParam
+      ),
+    [categories, categoryParam]
+  );
+
+  const categoryId = selectedCategory?.id;
 
   const { products, meta, isLoading } = useProducts({
     page,
     limit: 12,
     search: debouncedSearch || undefined,
-    category,
+    category: categoryId,
     sort
   });
 
-  const { categories } = useCategories();
+  const updateQueryParams = (nextCategorySlug?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextCategorySlug) {
+      params.set('category', nextCategorySlug);
+    } else {
+      params.delete('category');
+    }
+
+    const nextQuery = params.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +80,8 @@ export default function ProductsPage() {
   };
 
   const handleCategoryChange = (val: string) => {
-    setCategory(val === 'all' ? undefined : val);
+    const nextCategoryParam = val === 'all' ? undefined : val;
+    updateQueryParams(nextCategoryParam);
     setPage(1);
   };
 
@@ -85,7 +113,7 @@ export default function ProductsPage() {
           </form>
 
           <Select
-            value={category ?? 'all'}
+            value={selectedCategory?.slug ?? categoryParam ?? 'all'}
             onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full sm:w-45">
               <SelectValue placeholder="All Categories" />
@@ -93,7 +121,7 @@ export default function ProductsPage() {
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map(cat => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
+                <SelectItem key={cat.id} value={cat.slug}>
                   {cat.name}
                 </SelectItem>
               ))}
@@ -116,10 +144,11 @@ export default function ProductsPage() {
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="space-y-3">
-              <Skeleton className="h-48 w-full rounded-xl" />
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-40 w-full rounded-xl" />
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-9 w-full rounded-lg" />
             </div>
           ))}
         </div>
@@ -144,40 +173,86 @@ export default function ProductsPage() {
                   0
                 ) || 0;
               const isOutOfStock = totalStock === 0;
+              const defaultStoreId = product.store_inventories?.find((inventory) => inventory.stock > 0)?.store_id;
+              const discountPreview = getBestDiscountPreview(product, discounts, 1, defaultStoreId);
 
               return (
-                <Link
+                <div
                   key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group relative block overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md">
-                  <div className="aspect-square w-full relative">
-                    <img
-                      src={primaryImage}
-                      alt={product.name}
-                      className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? 'opacity-50 grayscale' : ''}`}
-                    />
-                    {isOutOfStock && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="bg-black/80 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                          Out of Stock
+                  className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="group block"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                      <img
+                        src={primaryImage}
+                        alt={product.name}
+                        className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? 'opacity-50 grayscale' : ''}`}
+                      />
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                            Out of Stock
+                          </span>
+                        </div>
+                      )}
+                      {discountPreview && (
+                        <div className="absolute left-2 top-2 rounded-full bg-rose-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                          {discountPreview.badge}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+
+                  <div className="space-y-3 p-3">
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        {product.category.name}
+                      </p>
+                      <Link href={`/products/${product.slug}`} className="block">
+                        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-gray-900 transition-colors hover:text-green-700">
+                          {product.name}
+                        </h3>
+                      </Link>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="space-y-0.5">
+                          <p className="text-base font-bold text-green-600">
+                            {formatCurrencyIDR(discountPreview?.discountedPrice ?? product.price)}
+                          </p>
+                          {discountPreview && discountPreview.discountedPrice !== null && (
+                            <p className="text-xs text-muted-foreground line-through">
+                              {formatCurrencyIDR(product.price)}
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          Stock {totalStock}
                         </span>
                       </div>
-                    )}
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-semibold text-gray-900 line-clamp-2">
-                        {product.name}
-                      </h3>
+                      {discountPreview && (
+                        <p className="text-xs font-medium text-rose-600">
+                          Save {formatCurrencyIDR(discountPreview.savingsAmount ?? 0)}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-sm text-gray-500">
-                      {product.category.name}
-                    </p>
-                    <p className="font-bold text-lg text-green-600">
-                      {formatCurrencyIDR(product.price)}
-                    </p>
+
+                    <Button
+                      type="button"
+                      className="w-full"
+                      size="sm"
+                      disabled={isOutOfStock || !defaultStoreId || isAddingToCart}
+                      onClick={() => {
+                        if (!defaultStoreId) return;
+                        addToCart(product.id, 1, defaultStoreId);
+                      }}
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Tambah
+                    </Button>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
