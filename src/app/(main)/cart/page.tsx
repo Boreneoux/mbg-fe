@@ -28,11 +28,9 @@ export default function ShoppingCartPage() {
   ) ?? [];
 
   const subtotal = selectedCartItems.reduce(
-    (sum, item) => sum + Number(item.product.price) * item.quantity,
+    (sum, item) => sum + Number(item.total_price ?? (Number(item.product.price) * item.quantity)),
     0
   );
-
-  const deliveryFee = subtotal > 0 ? 20000 : 0; // Fixed delivery fee in IDR
 
   const isAllSelected = cart?.cart_items.length === selectedItems.length && cart?.cart_items.length > 0;
 
@@ -47,7 +45,7 @@ export default function ShoppingCartPage() {
   if (isLoading && !cart) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold mb-8">Keranjang Belanja</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -65,7 +63,7 @@ export default function ShoppingCartPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold mb-8">Keranjang Belanja</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
@@ -80,7 +78,7 @@ export default function ShoppingCartPage() {
               htmlFor="select-all" 
               className="text-sm font-medium cursor-pointer"
             >
-              Select All ({cart.cart_items.length} items)
+              Pilih Semua ({cart.cart_items.length} items)
             </label>
           </div>
 
@@ -102,7 +100,7 @@ export default function ShoppingCartPage() {
               onClick={clearCart}
               disabled={isLoading}
             >
-              Clear Cart
+              Kosongkan Keranjang
             </Button>
           </div>
         </div>
@@ -110,7 +108,7 @@ export default function ShoppingCartPage() {
         {/* Order Summary */}
         <OrderSummary
           subtotal={subtotal}
-          deliveryFee={deliveryFee}
+          deliveryFee={null}
           onCheckout={() => router.push('/checkout')}
           onContinueShopping={() => router.push('/products')}
           isLoading={isLoading}

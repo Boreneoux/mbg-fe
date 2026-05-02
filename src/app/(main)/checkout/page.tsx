@@ -53,10 +53,14 @@ export default function CheckoutPage() {
 
     form,
     handleApplyDiscount,
+    handleRemoveDiscount,
     handlePlaceOrder,
     isAuthenticated,
     addresses,
     appliedDiscount,
+    appliedVoucher,
+    availableVouchers,
+    isApplyingVoucher,
     signIn,
     isPlacingOrder
   } = useCheckout();
@@ -87,7 +91,7 @@ export default function CheckoutPage() {
               >
                 {addresses.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-4 space-y-4">
-                    <p className="text-sm text-muted-foreground">Tidak ada alamat ditemukan. Silahkan tambahkan alamat di profile.</p>
+                    <p className="text-sm text-muted-foreground">Alamat tidak ditemukan. Silahkan tambahkan alamat di profil.</p>
                     <Button asChild variant="outline" size="sm">
                       <Link href="/account/addresses">Tambah Alamat</Link>
                     </Button>
@@ -102,17 +106,105 @@ export default function CheckoutPage() {
 
 
 
-          {/* Discount Code */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4">Diskon</h2>
-            <form onSubmit={form.handleSubmit(handleApplyDiscount)} className="flex gap-2">
+        {/* Discount Code */}
+        <Card className="p-6">
+          <h2 className="text-xl font-bold mb-4">Diskon & Voucher</h2>
+          
+          {appliedVoucher ? (
+            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-4">
+              <div>
+                <p className="font-semibold text-green-800">{appliedVoucher.code}</p>
+                <p className="text-sm text-green-700">
+                  {appliedVoucher.discount_type === 'percentage' 
+                    ? `Diskon ${appliedVoucher.discount_value}%` 
+                    : `Diskon ${formatCurrencyIDR(Number(appliedVoucher.discount_value))}`}
+                </p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRemoveDiscount}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                Hapus
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={form.handleSubmit((data) => handleApplyDiscount(data, false))} className="flex gap-2 mb-4">
               <Input {...form.register('code')} placeholder="Masukkan kode" />
-              <Button type="submit" variant="outline">Terapkan</Button>
+              <Button type="submit" variant="outline" disabled={isApplyingVoucher}>
+                {isApplyingVoucher ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Terapkan'}
+              </Button>
             </form>
-            {appliedDiscount && (
-              <p className="text-sm text-green-600 mt-2">✓ Code "{appliedDiscount}" diterapkan</p>
-            )}
-          </Card>
+          )}
+
+          {availableVouchers.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-semibold mb-2 text-muted-foreground">Voucher Kamu:</p>
+              <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                {availableVouchers.map((uv) => {
+                  const isApplied = appliedVoucher?.code === uv.voucher.code;
+                  const canUse = (uv as any).eligible;
+                  const reason = (uv as any).reason as string | null;
+
+                  return (
+                    <div
+                      key={uv.id}
+                      className={`flex items-center justify-between p-3 border rounded-lg text-sm transition-colors ${
+                        isApplied
+                          ? 'bg-green-50 border-green-300'
+                          : canUse
+                          ? 'bg-background border-border hover:border-primary/50'
+                          : 'bg-muted/40 border-border opacity-60'
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className={`font-bold tracking-wide ${isApplied ? 'text-green-800' : ''}`}>
+                            {uv.voucher.code}
+                          </p>
+                          {uv.voucher.usage_type === 'shipping' && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Ongkir</span>
+                          )}
+                          {uv.voucher.usage_type === 'product_specific' && (
+                            <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Produk</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {uv.voucher.discount_type === 'percentage'
+                            ? `Diskon ${uv.voucher.discount_value}%`
+                            : `Diskon ${formatCurrencyIDR(Number(uv.voucher.discount_value))}`}
+                          {uv.voucher.min_purchase_amount
+                            ? ` · Min. ${formatCurrencyIDR(Number(uv.voucher.min_purchase_amount))}`
+                            : ''}
+                        </p>
+                        {!canUse && reason && (
+                          <p className="text-xs text-red-500 mt-0.5">⚠ {reason}</p>
+                        )}
+                      </div>
+
+                      {isApplied ? (
+                        <span className="text-xs text-green-700 font-semibold ml-3 shrink-0">✓ Dipakai</span>
+                      ) : canUse && !appliedVoucher ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="ml-3 h-7 text-xs shrink-0"
+                          onClick={() => {
+                            form.setValue('code', uv.voucher.code);
+                            handleApplyDiscount({ code: uv.voucher.code }, false);
+                          }}
+                        >
+                          Pakai
+                        </Button>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </Card>
         </div>
 
         {/* Order Summary */}
@@ -131,7 +223,16 @@ export default function CheckoutPage() {
                     <span>
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span>{formatCurrencyIDR(Number(item.product.price) * item.quantity)}</span>
+                    <div className="flex flex-col text-right">
+                      {item.discount_amount && item.discount_amount > 0 && (
+                         <span className="text-xs text-muted-foreground line-through">
+                           {formatCurrencyIDR(Number(item.original_total_price ?? (Number(item.product.price) * item.quantity)))}
+                         </span>
+                      )}
+                      <span>
+                        {formatCurrencyIDR(Number(item.total_price ?? (Number(item.product.price) * item.quantity)))}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
@@ -163,11 +264,20 @@ export default function CheckoutPage() {
               {isPlacingOrder ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  Sedang diproses...
                 </>
               ) : (
                 'Buat Pesanan'
               )}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full mt-3"
+              asChild
+              disabled={isPlacingOrder}
+            >
+              <Link href="/cart">Kembali ke Keranjang</Link>
             </Button>
           </Card>
         </div>

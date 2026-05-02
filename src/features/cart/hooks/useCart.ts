@@ -42,7 +42,7 @@ export const useCart = () => {
       setError(null);
       try {
         await cartService.deleteItem(cartItemId);
-        removeStoreItem(cartItemId);
+        await fetchCart();
         toast.success('Item removed from cart');
       } catch (err) {
         const message = axios.isAxiosError(err)
@@ -52,7 +52,7 @@ export const useCart = () => {
         toast.error(message);
       }
     },
-    [removeStoreItem, setError]
+    [fetchCart, setError]
   );
 
   // 4. Update Quantity - Depends on removeFromCart (which is now stable)
@@ -65,7 +65,7 @@ export const useCart = () => {
           return;
         }
         await cartService.updateItem(cartItemId, quantity);
-        updateStoreItem(cartItemId, quantity);
+        await fetchCart();
         toast.success('Cart updated');
       } catch (err) {
         const message = axios.isAxiosError(err)
@@ -75,7 +75,7 @@ export const useCart = () => {
         toast.error(message);
       }
     },
-    [updateStoreItem, setError, removeFromCart]
+    [fetchCart, setError, removeFromCart]
   );
 
   // 5. Clear Cart
