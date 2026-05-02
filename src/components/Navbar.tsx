@@ -98,7 +98,7 @@ export default function Navbar() {
           {/* Location picker */}
           <button
             onClick={handleLocationClick}
-            className="group flex items-center gap-1.5 shrink-0">
+            className="group flex items-center gap-1.5 shrink-0 cursor-pointer">
             <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="hidden sm:inline text-white/50 text-xs mr-0.5">
               Kirim ke
@@ -145,7 +145,7 @@ export default function Navbar() {
                 <div className="px-6 py-3 bg-secondary/50 border-b border-border">
                   <button
                     onClick={handleLocationClick}
-                    className="flex items-center gap-2 text-sm">
+                    className="flex items-center gap-2 text-sm cursor-pointer">
                     <MapPin className="w-4 h-4 text-primary" />
                     <span className="text-muted-foreground">Kirim ke:</span>
                     <span className="font-medium text-foreground truncate max-w-40">
@@ -250,6 +250,28 @@ export default function Navbar() {
             className="flex items-center gap-1.5 ml-auto lg:ml-0"
             onMouseEnter={openNavOverlay}
             onMouseLeave={closeNavOverlayDelayed}>
+            {/* Cart — only shown when logged in */}
+            {user && (
+              <>
+                <div className="hidden md:block">
+                  <NavbarCartPopover cart={cart} isLoggedIn />
+                </div>
+                <Link href="/cart" className="relative md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <ShoppingCart className="w-5 h-5" />
+                    {(() => {
+                      const totalItems = cart?.cart_items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+                      return totalItems > 0 ? (
+                        <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-primary text-white text-xs">
+                          {totalItems > 99 ? '99+' : totalItems}
+                        </Badge>
+                      ) : null;
+                    })()}
+                  </Button>
+                </Link>
+              </>
+            )}
+
             {/* Desktop profile dropdown / auth buttons */}
             {user ? (
               <div className="hidden md:flex items-center">
@@ -276,24 +298,6 @@ export default function Navbar() {
                 </Button>
               </div>
             )}
-
-            {/* Cart — desktop shows popover, mobile is plain link */}
-            <div className="hidden md:block">
-              <NavbarCartPopover cart={cart} isLoggedIn={!!user} />
-            </div>
-            <Link href="/cart" className="relative md:hidden">
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="w-5 h-5" />
-                {(() => {
-                  const totalItems = cart?.cart_items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
-                  return totalItems > 0 ? (
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-primary text-white text-xs">
-                      {totalItems > 99 ? '99+' : totalItems}
-                    </Badge>
-                  ) : null;
-                })()}
-              </Button>
-            </Link>
           </div>
         </div>
 

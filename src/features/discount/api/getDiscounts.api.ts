@@ -1,19 +1,20 @@
-import axiosInstance from '@/utils/axiosInstance';
-import { ApiResponse } from '@/types/api';
+import api from '@/utils/axiosInstance';
 import { Discount } from '../types';
+import { PaginationMeta } from '@/types/api';
 
 export interface GetDiscountsParams {
   page?: number;
   limit?: number;
-  store_id?: number;
-  product_id?: number;
+  search?: string;
   is_active?: boolean;
 }
 
-export async function getDiscountsApi(params?: GetDiscountsParams) {
-  const response = await axiosInstance.get<ApiResponse<Discount[]>>('/discounts', {
-    params,
-  });
-
-  return response.data;
+interface GetDiscountsResponse {
+  data: Discount[];
+  meta: PaginationMeta;
 }
+
+export const getDiscountsApi = async (params?: GetDiscountsParams): Promise<GetDiscountsResponse> => {
+  const { data } = await api.get('/discounts', { params });
+  return data;
+};

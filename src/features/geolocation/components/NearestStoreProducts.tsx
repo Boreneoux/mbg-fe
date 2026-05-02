@@ -71,13 +71,6 @@ function ProductCard({
             <ImageOff className="w-5 h-5 text-muted-foreground/30" />
           </div>
         )}
-
-        {/* Category chip */}
-        <span className="absolute top-1.5 left-1.5 bg-white/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-full border border-border/60 leading-none max-w-[75%] truncate">
-          {product.category.name}
-        </span>
-
-        {/* Out of stock */}
         {isOutOfStock && (
           <div className="absolute inset-0 flex items-end justify-center pb-2">
             <span className="bg-black/70 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium">
@@ -88,7 +81,12 @@ function ProductCard({
       </Link>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 px-2 pt-1.5 pb-2 sm:px-2.5 sm:pt-2 sm:pb-2.5">
+      <div className="p-2 sm:p-2.5">
+        {/* Category */}
+        <span className="block text-[9px] sm:text-[10px] font-medium text-muted-foreground leading-none mb-1.5 truncate">
+          {product.category.name}
+        </span>
+
         {/* Name */}
         <Link href={`/products/${product.slug}`}>
           <p className="text-[11px] sm:text-xs font-semibold text-foreground leading-snug line-clamp-2 hover:text-primary transition-colors mb-1">
@@ -96,17 +94,17 @@ function ProductCard({
           </p>
         </Link>
 
-        {/* Low stock badge */}
-        {!isOutOfStock && storeStock <= 5 && (
-          <p className="text-[9px] sm:text-[10px] text-orange-500 font-medium mb-1 leading-none">
-            Sisa {storeStock} lagi!
+        {/* Price + low stock */}
+        <div className="flex items-center justify-between gap-1 mb-2.5">
+          <p className="text-xs sm:text-sm font-bold text-foreground">
+            {formatPrice(product.price)}
           </p>
-        )}
-
-        {/* Price */}
-        <p className="text-xs sm:text-sm font-bold text-foreground mt-auto mb-1.5">
-          {formatPrice(product.price)}
-        </p>
+          {!isOutOfStock && storeStock <= 5 && (
+            <span className="text-[9px] sm:text-[10px] text-orange-500 font-medium leading-none shrink-0">
+              Sisa {storeStock}!
+            </span>
+          )}
+        </div>
 
         {/* Add to cart button */}
         <Button

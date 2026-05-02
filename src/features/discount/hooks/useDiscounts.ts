@@ -1,35 +1,65 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getDiscountsApi, GetDiscountsParams } from '../api/getDiscounts.api';
 import { Discount } from '../types';
+import { getDiscountsApi } from '../api/getDiscounts.api';
+import { isAxiosError } from 'axios';
+import { PaginationMeta } from '@/types/api';
+import { useDebounce } from '@/hooks/useDebounce';
 
-export function useDiscounts(params?: GetDiscountsParams) {
+const LIMIT = 10;
+
+export function useDiscounts() {
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  const [meta, setMeta] = useState<{ page: number; limit: number; total: number; totalPages: number } | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: LIMIT, total: 0, totalPages: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchDiscounts = async (currentParams?: GetDiscountsParams) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await getDiscountsApi(currentParams || params);
-      setDiscounts(response.data);
-      if (response.meta) {
-        setMeta(response.meta);
-      }
-    } catch (err) {
-      setError('Failed to load discounts.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
-    fetchDiscounts(params);
-  }, [params?.page, params?.limit, params?.store_id, params?.product_id, params?.is_active]);
+    setPage(1);
+  }, [debouncedSearch]);
 
-  return { discounts, meta, isLoading, error, refetch: fetchDiscounts };
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchDiscounts = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await getDiscountsApi({
+          page,
+          limit: LIMIT,
+          search: debouncedSearch || undefined,
+        });
+        if (!cancelled) {
+          setDiscounts(result.data);
+          if (result.meta) setMeta(result.meta);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message = isAxiosError(err)
+            ? (err.response?.data?.message ?? 'Failed to fetch discounts')
+            : 'An unexpected error occurred';
+          setError(message);
+          setDiscounts([]);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    fetchDiscounts();
+    return () => { cancelled = true; };
+  }, [page, debouncedSearch, refreshKey]);
+
+  function refetch() {
+    setRefreshKey((k) => k + 1);
+  }
+
+  return { discounts, meta, isLoading, error, page, setPage, search, setSearch, refetch };
 }

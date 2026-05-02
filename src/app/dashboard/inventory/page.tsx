@@ -80,13 +80,13 @@ export default function InventoryPage() {
 
       <div className="flex gap-4 border-b">
         <button
-          className={`pb-2 px-1 text-sm font-medium ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`pb-2 px-1 text-sm font-medium cursor-pointer ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-gray-700'}`}
           onClick={() => setActiveTab('overview')}
         >
           Stock Overview
         </button>
         <button
-          className={`pb-2 px-1 text-sm font-medium ${activeTab === 'journal' ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`pb-2 px-1 text-sm font-medium cursor-pointer ${activeTab === 'journal' ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-gray-700'}`}
           onClick={() => setActiveTab('journal')}
         >
           Stock Journal

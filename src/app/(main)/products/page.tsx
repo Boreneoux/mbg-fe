@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import { useCategories } from '@/features/products/hooks/useCategories';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { useActiveDiscounts } from '@/features/discounts/hooks/useActiveDiscounts';
+import { useActiveDiscounts } from '@/features/discount/hooks/useActiveDiscounts';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,7 +45,8 @@ export default function ProductsPage() {
   const selectedCategory = useMemo(
     () =>
       categories.find(
-        (category) => category.slug === categoryParam || category.id === categoryParam
+        category =>
+          category.slug === categoryParam || category.id === categoryParam
       ),
     [categories, categoryParam]
   );
@@ -70,7 +71,9 @@ export default function ProductsPage() {
     }
 
     const nextQuery = params.toString();
-    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false
+    });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -173,19 +176,24 @@ export default function ProductsPage() {
                   0
                 ) || 0;
               const isOutOfStock = totalStock === 0;
-              const defaultStoreId = product.store_inventories?.find((inventory) => inventory.stock > 0)?.store_id;
-              const discountPreview = getBestDiscountPreview(product, discounts, 1, defaultStoreId);
+              const defaultStoreId = product.store_inventories?.find(
+                inventory => inventory.stock > 0
+              )?.store_id;
+              const discountPreview = getBestDiscountPreview(
+                product,
+                discounts,
+                1,
+                defaultStoreId
+              );
 
               return (
                 <div
                   key={product.id}
-                  className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
+                  className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                   <Link
                     href={`/products/${product.slug}`}
-                    className="group block"
-                  >
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                    className="group block">
+                    <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
                       <img
                         src={primaryImage}
                         alt={product.name}
@@ -211,7 +219,9 @@ export default function ProductsPage() {
                       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                         {product.category.name}
                       </p>
-                      <Link href={`/products/${product.slug}`} className="block">
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="block">
                         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-gray-900 transition-colors hover:text-green-700">
                           {product.name}
                         </h3>
@@ -219,13 +229,16 @@ export default function ProductsPage() {
                       <div className="flex items-center justify-between gap-2">
                         <div className="space-y-0.5">
                           <p className="text-base font-bold text-green-600">
-                            {formatCurrencyIDR(discountPreview?.discountedPrice ?? product.price)}
+                            {formatCurrencyIDR(
+                              discountPreview?.discountedPrice ?? product.price
+                            )}
                           </p>
-                          {discountPreview && discountPreview.discountedPrice !== null && (
-                            <p className="text-xs text-muted-foreground line-through">
-                              {formatCurrencyIDR(product.price)}
-                            </p>
-                          )}
+                          {discountPreview &&
+                            discountPreview.discountedPrice !== null && (
+                              <p className="text-xs text-muted-foreground line-through">
+                                {formatCurrencyIDR(product.price)}
+                              </p>
+                            )}
                         </div>
                         <span className="text-xs text-muted-foreground">
                           Stock {totalStock}
@@ -233,7 +246,10 @@ export default function ProductsPage() {
                       </div>
                       {discountPreview && (
                         <p className="text-xs font-medium text-rose-600">
-                          Save {formatCurrencyIDR(discountPreview.savingsAmount ?? 0)}
+                          Save{' '}
+                          {formatCurrencyIDR(
+                            discountPreview.savingsAmount ?? 0
+                          )}
                         </p>
                       )}
                     </div>
@@ -242,12 +258,13 @@ export default function ProductsPage() {
                       type="button"
                       className="w-full"
                       size="sm"
-                      disabled={isOutOfStock || !defaultStoreId || isAddingToCart}
+                      disabled={
+                        isOutOfStock || !defaultStoreId || isAddingToCart
+                      }
                       onClick={() => {
                         if (!defaultStoreId) return;
                         addToCart(product.id, 1, defaultStoreId);
-                      }}
-                    >
+                      }}>
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Tambah
                     </Button>

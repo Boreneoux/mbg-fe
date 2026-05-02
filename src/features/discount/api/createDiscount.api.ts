@@ -1,12 +1,8 @@
-import axiosInstance from '@/utils/axiosInstance';
-import { ApiResponse } from '@/types/api';
-import { CreateDiscountInput, Discount } from '../types';
+import api from '@/utils/axiosInstance';
+import { CreateDiscountFormValues } from '../schemas/discount.schema';
+import { Discount } from '../types';
 
-export async function createDiscountApi(input: CreateDiscountInput) {
-  const response = await axiosInstance.post<ApiResponse<Discount>>(
-    '/discounts',
-    input
-  );
-
+export const createDiscountApi = async (data: CreateDiscountFormValues): Promise<Discount> => {
+  const response = await api.post('/discounts', data);
   return response.data.data;
-}
+};

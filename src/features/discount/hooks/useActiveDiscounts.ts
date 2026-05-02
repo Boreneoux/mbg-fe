@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { isAxiosError } from 'axios';
-import { getDiscountsApi } from '@/features/discounts/api/getDiscounts.api';
-import type { Discount } from '@/features/discounts/types';
+import { getDiscountsApi } from '@/features/discount/api/getDiscounts.api';
+import type { Discount } from '@/features/discount/types';
 
 const PAGE_LIMIT = 100;
 

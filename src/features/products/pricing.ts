@@ -1,4 +1,4 @@
-import type { Discount } from '@/features/discounts/types';
+import type { Discount } from '@/features/discount/types';
 import type { Product } from '@/features/products/types';
 
 export type ProductDiscountPreview = {
