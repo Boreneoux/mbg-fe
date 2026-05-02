@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ShoppingCart,
   User,
@@ -24,6 +25,8 @@ import { DeliveryAddressSheet } from '@/features/addresses/components/DeliveryAd
 import { NavbarProfileDropdown } from '@/components/NavbarProfileDropdown';
 import { NavbarCartPopover } from '@/components/NavbarCartPopover';
 import { useCategories } from '@/features/categories/hooks/useCategories';
+import { useProductSearch } from '@/features/products/hooks/useProductSearch';
+import { NavbarSearchDropdown } from '@/components/NavbarSearchDropdown';
 
 type ActiveOverlay = 'search' | 'nav' | null;
 
@@ -36,6 +39,8 @@ export default function Navbar() {
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
   const [activeOverlay, setActiveOverlay] = useState<ActiveOverlay>(null);
   const overlayCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   const openNavOverlay = useCallback(() => {
     if (overlayCloseTimer.current) {
@@ -66,12 +71,46 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', onKey);
   }, [activeOverlay, closeOverlay]);
 
+  useEffect(() => {
+    if (activeOverlay !== 'search') return;
+    function onPointerDown(e: PointerEvent) {
+      const target = e.target as Node;
+      const insideDesktop = desktopSearchRef.current?.contains(target) ?? false;
+      const insideMobile = mobileSearchRef.current?.contains(target) ?? false;
+      if (!insideDesktop && !insideMobile) closeOverlay();
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [activeOverlay, closeOverlay]);
+
   function handleLocationClick() {
     if (user) {
       setAddressSheetOpen(true);
     } else {
       openLocationDialog();
     }
+  }
+
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { products: searchResults, isLoading: isSearching } = useProductSearch(searchQuery);
+  const showDropdown = activeOverlay === 'search' && searchQuery.trim().length >= 2;
+
+  function navigateToProduct(slug: string) {
+    closeOverlay();
+    setSearchQuery('');
+    router.push(`/products/${slug}`);
+  }
+
+  function navigateToResults() {
+    const trimmed = searchQuery.trim();
+    closeOverlay();
+    setSearchQuery('');
+    router.push(`/products${trimmed ? `?search=${encodeURIComponent(trimmed)}` : ''}`);
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') navigateToResults();
   }
 
   const cart = useCartStore(s => s.cart);
@@ -232,16 +271,27 @@ export default function Navbar() {
           </div>
 
           {/* Center: search bar */}
-          <div className="flex-1 hidden md:block">
+          <div ref={desktopSearchRef} className="flex-1 hidden md:block">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               <Input
                 type="search"
                 placeholder="Search produk segar..."
                 className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60 focus:bg-white focus:border-primary transition-colors"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setActiveOverlay('search')}
-                onBlur={closeOverlay}
+                onKeyDown={handleSearchKeyDown}
               />
+              {showDropdown && (
+                <NavbarSearchDropdown
+                  query={searchQuery}
+                  products={searchResults}
+                  isLoading={isSearching}
+                  onItemClick={navigateToProduct}
+                  onSeeAll={navigateToResults}
+                />
+              )}
             </div>
           </div>
 
@@ -302,16 +352,27 @@ export default function Navbar() {
         </div>
 
         {/* Mobile search bar */}
-        <div className="md:hidden mt-3">
+        <div ref={mobileSearchRef} className="md:hidden mt-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
               placeholder="Search produk segar..."
               className="w-full pl-9 h-10 rounded-full border-border bg-secondary/60"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setActiveOverlay('search')}
-              onBlur={closeOverlay}
+              onKeyDown={handleSearchKeyDown}
             />
+            {showDropdown && (
+              <NavbarSearchDropdown
+                query={searchQuery}
+                products={searchResults}
+                isLoading={isSearching}
+                onItemClick={navigateToProduct}
+                onSeeAll={navigateToResults}
+              />
+            )}
           </div>
         </div>
 
