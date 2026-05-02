@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useProducts } from '@/features/products/hooks/useProducts';
@@ -41,6 +41,13 @@ export default function ProductsPage() {
   const { addToCart, isLoading: isAddingToCart } = useCart();
   const { discounts } = useActiveDiscounts();
   const categoryParam = searchParams.get('category') ?? undefined;
+  const searchParam = searchParams.get('search') ?? '';
+
+  useEffect(() => {
+    setSearch(searchParam);
+    setDebouncedSearch(searchParam);
+    setPage(1);
+  }, [searchParam]);
 
   const selectedCategory = useMemo(
     () =>
