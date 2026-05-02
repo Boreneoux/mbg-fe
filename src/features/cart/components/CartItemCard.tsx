@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { QuantityControl } from './QuantityControl';
 import type { CartItem } from '@/features/cart/types';
 import { formatCurrencyIDR } from '@/utils/currency';
@@ -53,9 +54,35 @@ export function CartItemCard({
             </h3>
           </Link>
           <p className="text-sm text-muted-foreground mb-2">
-            {product.weight}g
+            {product.weight} kg
           </p>
-          <p className="text-lg font-bold">{formatCurrencyIDR(Number(product.price))}</p>
+          
+          {item.discount_amount && item.discount_amount > 0 ? (
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive" className="px-1.5 py-0 text-[10px]">Diskon</Badge>
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatCurrencyIDR(item.original_total_price ?? (Number(product.price) * item.quantity))}
+                </span>
+              </div>
+              <p className="text-lg font-bold">
+                {formatCurrencyIDR(item.total_price ?? (Number(product.price) * item.quantity))}
+              </p>
+            </div>
+          ) : item.is_bogo_item ? (
+             <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-orange-500 hover:bg-orange-600 px-1.5 py-0 text-[10px]">Beli 1 Gratis 1</Badge>
+              </div>
+              <p className="text-lg font-bold">
+                {formatCurrencyIDR(item.total_price ?? (Number(product.price) * item.quantity))}
+              </p>
+            </div>
+          ) : (
+            <p className="text-lg font-bold">
+              {formatCurrencyIDR(item.total_price ?? (Number(product.price) * item.quantity))}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col items-end justify-between self-stretch">
@@ -75,6 +102,7 @@ export function CartItemCard({
             }
             isLoading={isLoading}
             minQuantity={1}
+            allowInput={true}
           />
         </div>
       </div>

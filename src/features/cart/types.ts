@@ -6,6 +6,11 @@ export type CartItem = {
   product_id: number;
   quantity: number;
   product: Product;
+  discount_amount?: number;
+  discount_id?: string;
+  is_bogo_item?: boolean;
+  original_total_price?: number;
+  total_price?: number;
 };
 
 export type Cart = {
