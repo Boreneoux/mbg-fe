@@ -21,7 +21,7 @@ export async function updateProductApi(slug: string, payload: UpdateProductFormV
 
   if (payload.photos && payload.photos.length > 0) {
     payload.photos.forEach((file) => {
-      formData.append('photos', file);
+      formData.append('images', file);
     });
   }
 

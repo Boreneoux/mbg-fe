@@ -1,35 +1,58 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getVouchersApi, GetVouchersParams } from '../api/getVouchers.api';
+import { getVouchersApi } from '../api/getVouchers.api';
 import { Voucher } from '../types';
+import { PaginationMeta } from '@/types/api';
+import { useDebounce } from '@/hooks/useDebounce';
 
-export function useVouchers(params?: GetVouchersParams) {
+const LIMIT = 10;
+
+export function useVouchers() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
-  const [meta, setMeta] = useState<{ page: number; limit: number; total: number; totalPages: number } | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: LIMIT, total: 0, totalPages: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchVouchers = async (currentParams?: GetVouchersParams) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await getVouchersApi(currentParams || params);
-      setVouchers(response.data);
-      if (response.meta) {
-        setMeta(response.meta);
-      }
-    } catch (err) {
-      setError('Failed to load vouchers.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
-    fetchVouchers(params);
-  }, [params?.page, params?.limit, params?.usage_type]);
+    setPage(1);
+  }, [debouncedSearch]);
 
-  return { vouchers, meta, isLoading, error, refetch: fetchVouchers };
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchVouchers = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await getVouchersApi({
+          page,
+          limit: LIMIT,
+          search: debouncedSearch || undefined,
+        });
+        if (!cancelled) {
+          setVouchers(response.data);
+          if (response.meta) setMeta(response.meta);
+        }
+      } catch (err) {
+        if (!cancelled) setError('Failed to load vouchers.');
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    fetchVouchers();
+    return () => { cancelled = true; };
+  }, [page, debouncedSearch, refreshKey]);
+
+  function refetch() {
+    setRefreshKey((k) => k + 1);
+  }
+
+  return { vouchers, meta, isLoading, error, page, setPage, search, setSearch, refetch };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useInventories } from '@/features/inventory/hooks/useInventories';
 import { useJournals } from '@/features/inventory/hooks/useJournals';
 import { useAdjustStock } from '@/features/inventory/hooks/useAdjustStock';
@@ -14,10 +14,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Pagination, PaginationContent, PaginationEllipsis,
+  PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Badge } from '@/components/ui/badge';
+import { ProductCombobox } from '@/components/ui/product-combobox';
 import { StoreInventory, StockJournalType } from '@/features/inventory/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
+import { PaginationMeta } from '@/types/api';
+
+function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, 'ellipsis', total];
+  if (current >= total - 3) return [1, 'ellipsis', total - 4, total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
 
 export default function InventoryPage() {
   const { user } = useAuthStore();
@@ -25,41 +37,28 @@ export default function InventoryPage() {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'journal'>('overview');
   const [selectedStore, setSelectedStore] = useState<string>('all');
-  
-  // Overview state
-  const { inventories, isLoading: isLoadingInventories, refetch: refetchInventories } = useInventories({
-    store_id: selectedStore === 'all' ? undefined : selectedStore,
-  });
-
-  // Journal state
-  const [journalPage, setJournalPage] = useState(1);
   const [journalType, setJournalType] = useState<string>('all');
-  const { journals, meta: journalMeta, isLoading: isLoadingJournals, refetch: refetchJournals } = useJournals({
-    store_id: selectedStore === 'all' ? undefined : selectedStore,
-    type: journalType === 'all' ? undefined : (journalType as StockJournalType),
-    page: journalPage,
-    limit: 10,
-  });
 
-  // Stores (for Super Admin)
+  const storeId = selectedStore === 'all' ? undefined : selectedStore;
+  const journalTypeFilter = journalType === 'all' ? undefined : (journalType as StockJournalType);
+
+  const inventoriesHook = useInventories(storeId);
+  const journalsHook = useJournals(storeId, journalTypeFilter);
+
+  // Stores (for Super Admin) — load all, no pagination needed in selector
   const { stores } = useStores();
-  const { products } = useProducts();
-
-  // Reset pagination when filter changes
-  useEffect(() => {
-    setJournalPage(1);
-  }, [selectedStore, journalType]);
+  const { products } = useProducts({ limit: 1000 });
 
   const refreshAll = () => {
-    refetchInventories();
-    refetchJournals();
+    inventoriesHook.refetch();
+    journalsHook.refetch();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold">Inventory Management</h1>
-        
+
         {isSuperAdmin && (
           <div className="w-full sm:w-64">
             <Select value={selectedStore} onValueChange={setSelectedStore}>
@@ -96,25 +95,20 @@ export default function InventoryPage() {
 
       {activeTab === 'overview' && (
         <OverviewTab
-          inventories={inventories}
-          isLoading={isLoadingInventories}
+          inventoriesHook={inventoriesHook}
           onSuccess={refreshAll}
-          selectedStoreId={selectedStore === 'all' ? undefined : selectedStore}
+          selectedStoreId={storeId}
         />
       )}
 
       {activeTab === 'journal' && (
         <JournalTab
-          journals={journals}
-          meta={journalMeta}
-          isLoading={isLoadingJournals}
+          journalsHook={journalsHook}
           journalType={journalType}
           setJournalType={setJournalType}
-          page={journalPage}
-          setPage={setJournalPage}
           stores={stores}
           products={products}
-          selectedStoreId={selectedStore === 'all' ? undefined : selectedStore}
+          selectedStoreId={storeId}
           isSuperAdmin={isSuperAdmin}
           onSuccess={refreshAll}
         />
@@ -123,35 +117,37 @@ export default function InventoryPage() {
   );
 }
 
+// ─── Overview Tab ────────────────────────────────────────────────────────────
+
+type InventoriesHook = ReturnType<typeof useInventories>;
+
 function OverviewTab({
-  inventories,
-  isLoading,
+  inventoriesHook,
   onSuccess,
-  selectedStoreId
+  selectedStoreId,
 }: {
-  inventories: StoreInventory[],
-  isLoading: boolean,
-  onSuccess: () => void,
-  selectedStoreId?: string
+  inventoriesHook: InventoriesHook;
+  onSuccess: () => void;
+  selectedStoreId?: string;
 }) {
+  const { inventories, meta, isLoading, page, setPage, search, setSearch } = inventoriesHook;
   const { adjustStock, isLoading: isAdjusting } = useAdjustStock();
   const [openDialog, setOpenDialog] = useState<string | null>(null);
-  
-  // Adjust stock form state
   const [qty, setQty] = useState('');
   const [type, setType] = useState<'addition' | 'reduction'>('addition');
   const [desc, setDesc] = useState('');
 
+  const pageNumbers = buildPageNumbers(page, meta.totalPages);
+
   const handleAdjustStock = async (e: React.FormEvent, inventory: StoreInventory) => {
     e.preventDefault();
     if (!qty || isNaN(parseInt(qty)) || parseInt(qty) <= 0) return;
-
     await adjustStock({
-      store_id: inventory.store_id, // ensure store_id is correctly passed
+      store_id: inventory.store_id,
       product_id: inventory.product_id,
       quantity: parseInt(qty),
       type,
-      description: desc || undefined
+      description: desc || undefined,
     }, () => {
       setOpenDialog(null);
       setQty('');
@@ -161,171 +157,203 @@ function OverviewTab({
     });
   };
 
-  if (isLoading) {
-    return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>;
-  }
-
   return (
-    <div className="rounded-md border bg-white">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Store</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Current Stock</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {inventories.length === 0 ? (
+    <div className="space-y-4">
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by store or product..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="rounded-md border bg-white">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-8 text-gray-500">
-                No inventory found matching criteria.
-              </TableCell>
+              <TableHead>Store</TableHead>
+              <TableHead>Product</TableHead>
+              <TableHead>Current Stock</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ) : (
-            inventories.map((inv) => (
-              <TableRow key={inv.id}>
-                <TableCell className="font-medium">{inv.store?.name || `Store #${inv.store_id}`}</TableCell>
-                <TableCell>{inv.product?.name || `Product #${inv.product_id}`}</TableCell>
-                <TableCell>
-                  <Badge variant={inv.stock <= 5 ? "destructive" : "secondary"}>
-                    {inv.stock}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Dialog open={openDialog === inv.id} onOpenChange={(open) => {
-                    setOpenDialog(open ? inv.id : null);
-                    if (!open) {
-                      setQty('');
-                      setDesc('');
-                      setType('addition');
-                    }
-                  }}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">Adjust Stock</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Adjust Stock for {inv.product?.name}</DialogTitle>
-                      </DialogHeader>
-                      <form onSubmit={(e) => handleAdjustStock(e, inv)} className="space-y-4 pt-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Operation</Label>
-                            <Select value={type} onValueChange={(v: 'addition'|'reduction') => setType(v)}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="addition">Addition</SelectItem>
-                                <SelectItem value="reduction">Reduction</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Quantity</Label>
-                            <Input 
-                              type="number" 
-                              min="1" 
-                              value={qty} 
-                              onChange={(e) => setQty(e.target.value)}
-                              required 
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description / Note</Label>
-                          <Input 
-                            value={desc} 
-                            onChange={(e) => setDesc(e.target.value)} 
-                            placeholder="Reason for adjustment" 
-                          />
-                        </div>
-                        <Button type="submit" className="w-full" disabled={isAdjusting || !qty}>
-                          {isAdjusting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Confirm Adjustment
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-400" />
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : inventories.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                  {search
+                    ? `No inventory found for "${search}".`
+                    : 'No inventory found matching criteria.'}
+                </TableCell>
+              </TableRow>
+            ) : (
+              inventories.map((inv) => (
+                <TableRow key={inv.id}>
+                  <TableCell className="font-medium">{inv.store?.name || `Store #${inv.store_id}`}</TableCell>
+                  <TableCell>{inv.product?.name || `Product #${inv.product_id}`}</TableCell>
+                  <TableCell>
+                    <Badge variant={inv.stock <= 5 ? 'destructive' : 'secondary'}>
+                      {inv.stock}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Dialog open={openDialog === inv.id} onOpenChange={(open) => {
+                      setOpenDialog(open ? inv.id : null);
+                      if (!open) { setQty(''); setDesc(''); setType('addition'); }
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">Adjust Stock</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Adjust Stock for {inv.product?.name}</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={(e) => handleAdjustStock(e, inv)} className="space-y-4 pt-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Operation</Label>
+                              <Select value={type} onValueChange={(v: 'addition' | 'reduction') => setType(v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="addition">Addition</SelectItem>
+                                  <SelectItem value="reduction">Reduction</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Quantity</Label>
+                              <Input type="number" min="1" value={qty} onChange={(e) => setQty(e.target.value)} required />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description / Note</Label>
+                            <Input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Reason for adjustment" />
+                          </div>
+                          <Button type="submit" className="w-full" disabled={isAdjusting || !qty}>
+                            {isAdjusting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Confirm Adjustment
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      {meta.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * meta.limit + 1}–{Math.min(page * meta.limit, meta.total)} of {meta.total} items
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious onClick={() => setPage(page - 1)} className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
+              </PaginationItem>
+              {pageNumbers.map((p, i) =>
+                p === 'ellipsis' ? (
+                  <PaginationItem key={`e-${i}`}><PaginationEllipsis /></PaginationItem>
+                ) : (
+                  <PaginationItem key={p}>
+                    <PaginationLink isActive={p === page} onClick={() => setPage(p as number)} className="cursor-pointer">{p}</PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext onClick={() => setPage(page + 1)} className={page === meta.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }
 
-function JournalTab({ 
-  journals, 
-  meta, 
-  isLoading,
+// ─── Journal Tab ─────────────────────────────────────────────────────────────
+
+type JournalsHook = ReturnType<typeof useJournals>;
+
+function JournalTab({
+  journalsHook,
   journalType,
   setJournalType,
-  page,
-  setPage,
   stores,
   products,
   selectedStoreId,
   isSuperAdmin,
-  onSuccess
-}: { 
-  journals: any[], 
-  meta: any, 
-  isLoading: boolean,
-  journalType: string,
-  setJournalType: (v: string) => void,
-  page: number,
-  setPage: (p: number) => void,
-  stores: any[],
-  products: any[],
-  selectedStoreId?: string,
-  isSuperAdmin: boolean,
-  onSuccess: () => void
+  onSuccess,
+}: {
+  journalsHook: JournalsHook;
+  journalType: string;
+  setJournalType: (v: string) => void;
+  stores: any[];
+  products: any[];
+  selectedStoreId?: string;
+  isSuperAdmin: boolean;
+  onSuccess: () => void;
 }) {
+  const { journals, meta, isLoading, page, setPage, search, setSearch } = journalsHook;
   const { createJournal, isLoading: isCreating } = useCreateJournal();
   const [openDialog, setOpenDialog] = useState(false);
-  
-  // Create journal form state
   const [storeId, setStoreId] = useState('');
   const [productId, setProductId] = useState('');
   const [qty, setQty] = useState('');
   const [type, setType] = useState<StockJournalType>('addition');
   const [desc, setDesc] = useState('');
 
+  const pageNumbers = buildPageNumbers(page, meta.totalPages);
+
   const handleCreateJournal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productId || !qty || isNaN(parseInt(qty)) || parseInt(qty) <= 0) return;
-
     const payload = {
       store_id: isSuperAdmin ? (storeId || undefined) : selectedStoreId,
       product_id: productId,
       quantity: parseInt(qty),
       type,
-      description: desc || undefined
+      description: desc || undefined,
     };
-
     await createJournal(payload, () => {
       setOpenDialog(false);
-      setStoreId('');
-      setProductId('');
-      setQty('');
-      setDesc('');
-      setType('addition');
+      setStoreId(''); setProductId(''); setQty(''); setDesc(''); setType('addition');
       onSuccess();
     });
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 w-full sm:w-auto">
+      {/* Controls row */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search */}
+        <div className="relative sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by product..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Type filter */}
         <Select value={journalType} onValueChange={setJournalType}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by Type" />
-          </SelectTrigger>
+          <SelectTrigger className="w-48"><SelectValue placeholder="Filter by Type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="addition">Addition</SelectItem>
@@ -337,27 +365,22 @@ function JournalTab({
           </SelectContent>
         </Select>
 
+        {/* Create journal */}
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
             <Button>Create Journal Entry</Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create Journal Entry</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Create Journal Entry</DialogTitle></DialogHeader>
             <form onSubmit={handleCreateJournal} className="space-y-4 pt-4">
               {isSuperAdmin && (
                 <div className="space-y-2">
                   <Label>Store</Label>
                   <Select value={storeId} onValueChange={setStoreId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Store" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select Store" /></SelectTrigger>
                     <SelectContent>
                       {stores.map((store) => (
-                        <SelectItem key={store.id} value={store.id.toString()}>
-                          {store.name}
-                        </SelectItem>
+                        <SelectItem key={store.id} value={store.id.toString()}>{store.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -365,26 +388,18 @@ function JournalTab({
               )}
               <div className="space-y-2">
                 <Label>Product</Label>
-                <Select value={productId} onValueChange={setProductId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id.toString()}>
-                        {product.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ProductCombobox
+                  options={products.map((p) => ({ value: p.id.toString(), label: p.name }))}
+                  value={productId}
+                  onValueChange={setProductId}
+                  placeholder="Search & select product..."
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Type</Label>
                   <Select value={type} onValueChange={(v: StockJournalType) => setType(v)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="addition">Addition</SelectItem>
                       <SelectItem value="reduction">Reduction</SelectItem>
@@ -393,22 +408,12 @@ function JournalTab({
                 </div>
                 <div className="space-y-2">
                   <Label>Quantity</Label>
-                  <Input 
-                    type="number" 
-                    min="1" 
-                    value={qty} 
-                    onChange={(e) => setQty(e.target.value)}
-                    required 
-                  />
+                  <Input type="number" min="1" value={qty} onChange={(e) => setQty(e.target.value)} required />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Description / Note</Label>
-                <Input 
-                  value={desc} 
-                  onChange={(e) => setDesc(e.target.value)} 
-                  placeholder="Reason for entry" 
-                />
+                <Input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Reason for entry" />
               </div>
               <Button type="submit" className="w-full" disabled={isCreating || !productId || !qty}>
                 {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -419,6 +424,7 @@ function JournalTab({
         </Dialog>
       </div>
 
+      {/* Table */}
       <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
@@ -441,34 +447,27 @@ function JournalTab({
             ) : journals.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                  No journals found.
+                  {search ? `No journals found for "${search}".` : 'No journals found.'}
                 </TableCell>
               </TableRow>
             ) : (
               journals.map((j) => {
                 const storeInv = j.store_inventory || {};
                 const isPositive = ['addition', 'mutation_in'].includes(j.type);
-                
                 return (
                   <TableRow key={j.id}>
-                    <TableCell className="whitespace-nowrap">
-                      {new Date(j.created_at).toLocaleString()}
-                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{new Date(j.created_at).toLocaleString()}</TableCell>
                     <TableCell>{storeInv.store?.name || `Store #${storeInv.store_id}`}</TableCell>
                     <TableCell>{storeInv.product?.name || `Product #${storeInv.product_id}`}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {j.type.replace('_', ' ')}
-                      </Badge>
+                      <Badge variant="outline" className="capitalize">{j.type.replace('_', ' ')}</Badge>
                     </TableCell>
                     <TableCell>
                       <span className={`font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                         {isPositive ? '+' : '-'}{j.quantity}
                       </span>
                     </TableCell>
-                    <TableCell className="text-gray-500 text-sm">
-                      {j.description || '-'}
-                    </TableCell>
+                    <TableCell className="text-gray-500 text-sm">{j.description || '-'}</TableCell>
                   </TableRow>
                 );
               })
@@ -477,36 +476,32 @@ function JournalTab({
         </Table>
       </div>
 
-      {meta && meta.totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
-                className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-            {Array.from({ length: meta.totalPages }).map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink 
-                  href="#" 
-                  isActive={page === i + 1}
-                  onClick={(e) => { e.preventDefault(); setPage(i + 1); }}
-                >
-                  {i + 1}
-                </PaginationLink>
+      {/* Pagination */}
+      {meta.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * meta.limit + 1}–{Math.min(page * meta.limit, meta.total)} of {meta.total} entries
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious onClick={() => setPage(page - 1)} className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
               </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); if (page < meta.totalPages) setPage(page + 1); }}
-                className={page >= meta.totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              {pageNumbers.map((p, i) =>
+                p === 'ellipsis' ? (
+                  <PaginationItem key={`e-${i}`}><PaginationEllipsis /></PaginationItem>
+                ) : (
+                  <PaginationItem key={p}>
+                    <PaginationLink isActive={p === page} onClick={() => setPage(p as number)} className="cursor-pointer">{p}</PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext onClick={() => setPage(page + 1)} className={page === meta.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ export interface GetJournalsParams {
   page?: number;
   limit?: number;
   sort?: 'asc' | 'desc';
+  search?: string;
 }
 
 export async function getJournalsApi(params?: GetJournalsParams) {

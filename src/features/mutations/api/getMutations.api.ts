@@ -6,6 +6,7 @@ export interface GetMutationsParams {
   page?: number;
   limit?: number;
   sort?: 'asc' | 'desc';
+  search?: string;
 }
 
 export async function getMutationsApi(params?: GetMutationsParams) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -38,13 +39,13 @@ export function EditVoucherDialog({ voucher, open, onOpenChange, onSuccess }: Ed
     if (voucher && open) {
       form.reset({
         code: voucher.code,
-        usage_type: voucher.usage_type as any,
-        discount_type: voucher.discount_type as any,
+        usage_type: voucher.usage_type,
+        discount_type: voucher.discount_type,
         discount_value: Number(voucher.discount_value),
         min_purchase_amount: voucher.min_purchase_amount ? Number(voucher.min_purchase_amount) : null,
         max_discount_amount: voucher.max_discount_amount ? Number(voucher.max_discount_amount) : null,
         product_id: voucher.product_id,
-        expired_at: voucher.expired_at ? new Date(voucher.expired_at).toISOString().slice(0, 16) : '',
+        expired_at: voucher.expired_at ? voucher.expired_at.slice(0, 10) : '',
       });
     }
   }, [voucher, open, form]);
@@ -65,8 +66,11 @@ export function EditVoucherDialog({ voucher, open, onOpenChange, onSuccess }: Ed
       form.reset();
       onOpenChange(false);
       if (onSuccess) onSuccess();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update voucher');
+    } catch (error) {
+      const message = isAxiosError<{ message?: string }>(error)
+        ? (error.response?.data?.message ?? 'Failed to update voucher')
+        : 'Failed to update voucher';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -80,7 +84,7 @@ export function EditVoucherDialog({ voucher, open, onOpenChange, onSuccess }: Ed
         </DialogHeader>
         <FormProvider {...form}>
           <VoucherForm
-            form={form as any}
+            form={form}
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
             onCancel={() => onOpenChange(false)}

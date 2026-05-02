@@ -10,22 +10,21 @@ import { useUpdateDiscount } from '@/features/discounts/hooks/useUpdateDiscount'
 import { DiscountList } from '@/features/discounts/components/DiscountList';
 import { CreateDiscountDialog } from '@/features/discounts/components/CreateDiscountDialog';
 import { EditDiscountDialog } from '@/features/discounts/components/EditDiscountDialog';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Discount } from '@/features/discounts/types';
 import { ConfirmDeleteDialog } from '@/components/ui/ConfirmDeleteDialog';
 
 export default function DiscountsPage() {
   const user = useAuthStore((s) => s.user);
-  const [page, setPage] = useState(1);
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingDiscount, setEditingDiscount] = useState<Discount | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   
-  const { discounts, meta, isLoading, refetch } = useDiscounts({ page, limit: 10 });
+  const { discounts, meta, isLoading, refetch, page, setPage, search, setSearch } = useDiscounts();
   const { deleteDiscount, isDeleting } = useDeleteDiscount(refetch);
   const { updateDiscount } = useUpdateDiscount(refetch);
 
-  const handleToggleActive = (id: number, currentStatus: boolean) => {
+  const handleToggleActive = (id: string, currentStatus: boolean) => {
     updateDiscount(id, { is_active: !currentStatus });
   };
 
@@ -50,37 +49,12 @@ export default function DiscountsPage() {
         onDelete={(id) => setConfirmDeleteId(id)}
         onEdit={setEditingDiscount}
         onToggleActive={handleToggleActive}
+        pagination={meta}
+        page={page}
+        onPageChange={setPage}
+        search={search}
+        onSearchChange={setSearch}
       />
-
-      {meta && meta.totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className={meta.page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            {[...Array(meta.totalPages)].map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink 
-                  onClick={() => setPage(i + 1)}
-                  isActive={meta.page === i + 1}
-                  className="cursor-pointer"
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                className={meta.page >= meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
 
       {showCreateDialog && (
         <CreateDiscountDialog

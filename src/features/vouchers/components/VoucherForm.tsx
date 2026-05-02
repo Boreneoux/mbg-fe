@@ -1,15 +1,19 @@
 'use client';
 
-import { useFormContext } from 'react-hook-form';
+import type { FormEventHandler } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
+import { ProductCombobox } from '@/components/ui/product-combobox';
 import { useProducts } from '@/features/products/hooks/useProducts';
+import type { CreateVoucherFormValues } from '@/features/vouchers/schemas/voucher.schema';
 
 interface VoucherFormProps {
-  form: ReturnType<typeof useFormContext>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateVoucherFormValues>;
+  onSubmit: FormEventHandler<HTMLFormElement>;
   isSubmitting: boolean;
   onCancel: () => void;
 }
@@ -19,13 +23,17 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
   const usageType = form.watch('usage_type');
   const discountType = form.watch('discount_type');
+  const productOptions = products.map((product) => ({
+    value: String(product.id),
+    label: product.name,
+  }));
 
   return (
-    <Form {...(form as any)}>
+    <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
         {/* Code */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="code"
           render={({ field }) => (
             <FormItem>
@@ -40,7 +48,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
         {/* Usage Type */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="usage_type"
           render={({ field }) => (
             <FormItem>
@@ -65,27 +73,21 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
         {/* Product Selection */}
         {usageType === 'product_specific' && (
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="product_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Specific Product</FormLabel>
-                <Select
-                  onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
-                  value={field.value?.toString() ?? 'none'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select product" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none" disabled>Select a product</SelectItem>
-                    {products?.map((p) => (
-                      <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <ProductCombobox
+                    options={productOptions}
+                    value={field.value ? String(field.value) : ''}
+                    onValueChange={(value) => field.onChange(value || null)}
+                    placeholder="Select product"
+                    searchPlaceholder="Search products..."
+                    emptyMessage="No product found."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -94,7 +96,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
         {/* Discount Type */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="discount_type"
           render={({ field }) => (
             <FormItem>
@@ -117,7 +119,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
         {/* Value */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="discount_value"
           render={({ field }) => (
             <FormItem>
@@ -139,7 +141,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
         {/* Minimum Purchase */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="min_purchase_amount"
           render={({ field }) => (
             <FormItem>
@@ -162,7 +164,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
         {/* Max Discount (Only useful for percentage) */}
         {discountType === 'percentage' && (
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="max_discount_amount"
             render={({ field }) => (
               <FormItem>
@@ -184,20 +186,16 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
         )}
 
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="expired_at"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expiry Date & Time</FormLabel>
+              <FormLabel>Expiry Date</FormLabel>
               <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  onChange={(e) => {
-                    const date = new Date(e.target.value);
-                    field.onChange(date.toISOString());
-                  }}
-                  value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                <DatePickerSingle
+                  value={field.value ?? null}
+                  onChange={(val) => field.onChange(val ?? null)}
+                  placeholder="Pick expiry date"
                 />
               </FormControl>
               <FormMessage />
@@ -207,7 +205,7 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
 
         {/* Reward Duration */}
         <FormField
-          control={form.control as any}
+          control={form.control}
           name="reward_duration_days"
           render={({ field }) => (
             <FormItem>

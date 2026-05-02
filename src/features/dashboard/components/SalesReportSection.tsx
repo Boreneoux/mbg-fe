@@ -10,11 +10,11 @@ import {
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import { Category } from '@/features/categories/types';
 import MonthlyBarChart from '@/features/dashboard/components/MonthlyBarChart';
 import ReportPagination from '@/features/dashboard/components/ReportPagination';
@@ -174,12 +174,16 @@ export default function SalesReportSection({
 
                 <FormField
                   control={form.control}
-                  name="fromMonth"
+                  name="fromDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>From Month</FormLabel>
+                      <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        <Input type="month" {...field} />
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,12 +192,16 @@ export default function SalesReportSection({
 
                 <FormField
                   control={form.control}
-                  name="toMonth"
+                  name="toDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>To Month</FormLabel>
+                      <FormLabel>End Date</FormLabel>
                       <FormControl>
-                        <Input type="month" {...field} />
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

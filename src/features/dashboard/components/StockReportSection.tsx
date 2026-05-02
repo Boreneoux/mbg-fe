@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import {
   Form,
   FormControl,
@@ -15,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import ReportPagination from '@/features/dashboard/components/ReportPagination';
 import { Category } from '@/features/categories/types';
 import { useStockReport } from '@/features/dashboard/useStockReport';
@@ -72,13 +74,28 @@ export default function StockReportSection({
   } = useStockReport();
 
   const selectedCategoryId = form.watch('categoryId');
+  const selectedProductId = form.watch('productId');
   const filteredProducts = products.filter((product) => {
     if (selectedCategoryId === 'all') {
       return true;
     }
 
-    return product.category_id === selectedCategoryId;
+    return String(product.category_id) === selectedCategoryId;
   });
+
+  useEffect(() => {
+    if (selectedProductId === 'all') {
+      return;
+    }
+
+    const productStillAvailable = filteredProducts.some(
+      (product) => String(product.id) === selectedProductId
+    );
+
+    if (!productStillAvailable) {
+      form.setValue('productId', 'all');
+    }
+  }, [filteredProducts, form, selectedProductId]);
 
   const totalIn = monthlyItems.reduce((total, item) => total + item.total_in, 0);
   const totalOut = monthlyItems.reduce((total, item) => total + item.total_out, 0);
@@ -206,12 +223,16 @@ export default function StockReportSection({
 
                 <FormField
                   control={form.control}
-                  name="fromMonth"
+                  name="fromDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>From Month</FormLabel>
+                      <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        <Input type="month" {...field} />
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,12 +241,16 @@ export default function StockReportSection({
 
                 <FormField
                   control={form.control}
-                  name="toMonth"
+                  name="toDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>To Month</FormLabel>
+                      <FormLabel>End Date</FormLabel>
                       <FormControl>
-                        <Input type="month" {...field} />
+                        <DatePickerSingle
+                          value={field.value}
+                          onChange={(val) => field.onChange(val || '')}
+                          disabled={isLoadingOptions}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
