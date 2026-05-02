@@ -4,13 +4,13 @@ import { useState } from 'react';
 import useAuthStore from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useDiscounts } from '@/features/discounts/hooks/useDiscounts';
-import { useDeleteDiscount } from '@/features/discounts/hooks/useDeleteDiscount';
-import { useUpdateDiscount } from '@/features/discounts/hooks/useUpdateDiscount';
-import { DiscountList } from '@/features/discounts/components/DiscountList';
-import { CreateDiscountDialog } from '@/features/discounts/components/CreateDiscountDialog';
-import { EditDiscountDialog } from '@/features/discounts/components/EditDiscountDialog';
-import { Discount } from '@/features/discounts/types';
+import { useDiscounts } from '@/features/discount/hooks/useDiscounts';
+import { useDeleteDiscount } from '@/features/discount/hooks/useDeleteDiscount';
+import { useUpdateDiscount } from '@/features/discount/hooks/useUpdateDiscount';
+import { DiscountList } from '@/features/discount/components/DiscountList';
+import { CreateDiscountDialog } from '@/features/discount/components/CreateDiscountDialog';
+import { EditDiscountDialog } from '@/features/discount/components/EditDiscountDialog';
+import { Discount } from '@/features/discount/types';
 import { ConfirmDeleteDialog } from '@/components/ui/ConfirmDeleteDialog';
 
 export default function DiscountsPage() {

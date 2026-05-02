@@ -11,7 +11,7 @@ import { ProductCombobox } from '@/components/ui/product-combobox';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import useAuthStore from '@/stores/useAuthStore';
-import type { CreateDiscountFormValues } from '@/features/discounts/schemas/discount.schema';
+import type { CreateDiscountFormValues } from '@/features/discount/schemas/discount.schema';
 
 interface DiscountFormProps {
   form: UseFormReturn<CreateDiscountFormValues>;

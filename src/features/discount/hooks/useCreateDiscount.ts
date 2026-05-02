@@ -1,55 +1,45 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { toast } from 'sonner';
+import { CreateDiscountFormValues, createDiscountSchema } from '../schemas/discount.schema';
 import { createDiscountApi } from '../api/createDiscount.api';
-import { createDiscountSchema, CreateDiscountFormValues } from '../schemas/discount.schema';
-import { CreateDiscountInput } from '../types';
 
-export function useCreateDiscount(
-  onSuccess?: () => void,
-  defaultValues?: Partial<CreateDiscountFormValues>
-) {
+export function useCreateDiscount(onSuccess?: () => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CreateDiscountFormValues>({
     resolver: zodResolver(createDiscountSchema),
     defaultValues: {
-      store_id: 0,
+      type: 'nominal',
+      store_id: null,
       product_id: null,
-      type: 'percentage',
-      value: null,
+      value: 0,
       min_purchase_amount: null,
       max_discount_value: null,
       started_at: null,
       expired_at: null,
-      ...defaultValues,
     },
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
     try {
-      const payload: CreateDiscountInput = {
-        store_id: values.store_id,
-        product_id: values.product_id ?? null,
-        type: values.type,
-        value: values.value ?? null,
-        min_purchase_amount: values.min_purchase_amount ?? null,
-        max_discount_value: values.max_discount_value ?? null,
-        started_at: values.started_at ?? null,
-        expired_at: values.expired_at ?? null,
-      };
-
+      const payload = { ...values };
+      if (payload.started_at) {
+        payload.started_at = new Date(payload.started_at).toISOString();
+      }
+      if (payload.expired_at) {
+        payload.expired_at = new Date(payload.expired_at).toISOString();
+      }
       await createDiscountApi(payload);
-      toast.success('Discount created successfully.');
+      toast.success('Discount created successfully');
       form.reset();
-      onSuccess?.();
-    } catch (error) {
-      const message = (error as { data?: { message?: string } })?.data?.message ?? 'Failed to create discount.';
-      toast.error(message);
+      if (onSuccess) onSuccess();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to create discount');
     } finally {
       setIsSubmitting(false);
     }

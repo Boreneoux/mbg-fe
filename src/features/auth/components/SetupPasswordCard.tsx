@@ -77,7 +77,7 @@ export function SetupPasswordCard({ token }: Props) {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -108,7 +108,7 @@ export function SetupPasswordCard({ token }: Props) {
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
                       aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
                     >
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -131,7 +131,7 @@ export function SetupPasswordCard({ token }: Props) {
         <div className="mt-6 text-center">
           <Link
             href="/auth/login"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
           >
             Sudah punya akun? Masuk di sini
           </Link>

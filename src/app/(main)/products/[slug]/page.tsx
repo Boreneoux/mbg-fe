@@ -4,7 +4,7 @@ import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProduct } from '@/features/products/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { useActiveDiscounts } from '@/features/discounts/hooks/useActiveDiscounts';
+import { useActiveDiscounts } from '@/features/discount/hooks/useActiveDiscounts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ShoppingCart } from 'lucide-react';
@@ -125,7 +125,7 @@ export default function PublicProductDetailPage({
                 <button
                   key={img.id}
                   onClick={() => setSelectedImage(img.image_url)}
-                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
                     currentImage === img.image_url
                       ? 'border-green-600 shadow-sm'
                       : 'border-transparent hover:border-gray-300'
