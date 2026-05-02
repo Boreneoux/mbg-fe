@@ -5,7 +5,7 @@ import { formatCurrencyIDR } from '@/utils/currency';
 
 type OrderSummaryProps = {
   subtotal: number;
-  deliveryFee: number;
+  deliveryFee?: number | null;
   onCheckout: () => void;
   onContinueShopping: () => void;
   isLoading?: boolean;
@@ -18,12 +18,12 @@ export function OrderSummary({
   onContinueShopping,
   isLoading = false,
 }: OrderSummaryProps) {
-  const total = subtotal + deliveryFee;
+  const total = subtotal + (deliveryFee || 0);
 
   return (
     <div>
       <Card className="p-6 sticky top-24">
-        <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+        <h2 className="text-xl font-bold mb-4">Rincian</h2>
 
         <div className="space-y-3 mb-4">
           <div className="flex justify-between">
@@ -31,8 +31,12 @@ export function OrderSummary({
             <span className="font-semibold">{formatCurrencyIDR(subtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Delivery Fee</span>
-            <span className="font-semibold">{formatCurrencyIDR(deliveryFee)}</span>
+            <span className="text-muted-foreground">Ongkos Kirim</span>
+            <span className="font-semibold text-right">
+              {deliveryFee === undefined || deliveryFee === null 
+                ? <span className="text-sm font-normal text-muted-foreground">Dihitung saat checkout</span> 
+                : formatCurrencyIDR(deliveryFee)}
+            </span>
           </div>
 
           <Separator />
@@ -49,7 +53,7 @@ export function OrderSummary({
           onClick={onCheckout}
           disabled={isLoading || subtotal === 0}
         >
-          Proceed to Checkout
+          Checkout Sekarang
         </Button>
 
         <Button
@@ -58,7 +62,7 @@ export function OrderSummary({
           onClick={onContinueShopping}
           disabled={isLoading}
         >
-          Continue Shopping
+          Lanjutkan Belanja
         </Button>
       </Card>
     </div>

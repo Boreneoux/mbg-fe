@@ -31,7 +31,7 @@ export function NavbarCartPopover({ cart, isLoggedIn }: NavbarCartPopoverProps) 
   const overflowCount = items.length - MAX_PREVIEW_ITEMS;
 
   const total = items.reduce(
-    (sum, item) => sum + Number(item.product.price) * item.quantity,
+    (sum, item) => sum + Number(item.total_price ?? (Number(item.product.price) * item.quantity)),
     0,
   );
 
@@ -116,7 +116,7 @@ export function NavbarCartPopover({ cart, isLoggedIn }: NavbarCartPopoverProps) 
                       </p>
                     </div>
                     <p className="text-sm font-semibold shrink-0 text-primary">
-                      {formatCurrencyIDR(Number(item.product.price) * item.quantity)}
+                      {formatCurrencyIDR(item.total_price ?? (Number(item.product.price) * item.quantity))}
                     </p>
                   </li>
                 );
