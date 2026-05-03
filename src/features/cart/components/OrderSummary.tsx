@@ -5,6 +5,8 @@ import { formatCurrencyIDR } from '@/utils/currency';
 
 type OrderSummaryProps = {
   subtotal: number;
+  originalSubtotal?: number;
+  productDiscount?: number;
   deliveryFee?: number | null;
   onCheckout: () => void;
   onContinueShopping: () => void;
@@ -13,6 +15,8 @@ type OrderSummaryProps = {
 
 export function OrderSummary({
   subtotal,
+  originalSubtotal,
+  productDiscount,
   deliveryFee,
   onCheckout,
   onContinueShopping,
@@ -28,8 +32,14 @@ export function OrderSummary({
         <div className="space-y-3 mb-4">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-semibold">{formatCurrencyIDR(subtotal)}</span>
+            <span className="font-semibold">{formatCurrencyIDR(originalSubtotal ?? subtotal)}</span>
           </div>
+          {productDiscount !== undefined && productDiscount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Diskon Produk</span>
+              <span>-{formatCurrencyIDR(productDiscount)}</span>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Ongkos Kirim</span>
             <span className="font-semibold text-right">
