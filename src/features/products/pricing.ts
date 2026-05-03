@@ -101,7 +101,7 @@ export function getBestDiscountPreview(
       badge = 'Discount';
     }
 
-    if (savingsAmount <= 0) {
+    if (savingsAmount <= 0 && discount.type !== 'buy_one_get_one') {
       continue;
     }
 
@@ -112,7 +112,7 @@ export function getBestDiscountPreview(
       badge,
     };
 
-    if (!bestPreview || preview.savingsAmount! > bestPreview.savingsAmount!) {
+    if (!bestPreview || preview.savingsAmount! > bestPreview.savingsAmount! || (discount.type === 'buy_one_get_one' && !bestPreview)) {
       bestPreview = preview;
     }
   }

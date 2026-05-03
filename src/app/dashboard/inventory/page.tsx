@@ -453,7 +453,7 @@ function JournalTab({
             ) : (
               journals.map((j) => {
                 const storeInv = j.store_inventory || {};
-                const isPositive = ['addition', 'mutation_in'].includes(j.type);
+                const isPositive = ['addition', 'mutation_in', 'order_cancellation_return'].includes(j.type);
                 return (
                   <TableRow key={j.id}>
                     <TableCell className="whitespace-nowrap">{new Date(j.created_at).toLocaleString()}</TableCell>

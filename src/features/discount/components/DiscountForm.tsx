@@ -11,6 +11,7 @@ import { ProductCombobox } from '@/components/ui/product-combobox';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import useAuthStore from '@/stores/useAuthStore';
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupInput } from '@/components/ui/input-group';
 import type { CreateDiscountFormValues } from '@/features/discount/schemas/discount.schema';
 
 interface DiscountFormProps {
@@ -24,13 +25,17 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
   const user = useAuthStore((s) => s.user);
   const isSuperAdmin = user?.role === 'super_admin';
   const { stores } = useStores();
-  const { products } = useProducts({ limit: 100 });
+  const { products } = useProducts({ limit: 9999 });
 
   const type = form.watch('type');
-  const productOptions = products.map((product) => ({
-    value: String(product.id),
-    label: product.name,
-  }));
+  const productId = form.watch('product_id');
+  const productOptions = [
+    { value: '', label: 'Store-wide (No specific product)' },
+    ...products.map((product) => ({
+      value: String(product.id),
+      label: product.name,
+    })),
+  ];
 
   return (
     <Form {...form}>
@@ -140,27 +145,34 @@ export function DiscountForm({ form, onSubmit, isSubmitting, onCancel }: Discoun
           />
         )}
 
-        {/* Minimum Purchase */}
-        <FormField
-          control={form.control}
-          name="min_purchase_amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Minimum Purchase (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Minimum Purchase (Not needed for BOGO or specific product) */}
+        {type !== 'buy_one_get_one' && !productId && (
+          <FormField
+            control={form.control}
+            name="min_purchase_amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Minimum Purchase Amount (Optional)</FormLabel>
+                <FormControl>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <InputGroupText>Rp</InputGroupText>
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </InputGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Max Discount (Only useful for percentage) */}
         {type === 'percentage' && (
