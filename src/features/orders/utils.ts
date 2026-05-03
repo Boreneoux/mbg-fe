@@ -5,7 +5,7 @@ export const translateOrderStatus = (status: OrderStatus | string): string => {
     waiting_for_payment: 'Menunggu Pembayaran',
     waiting_for_confirmation: 'Menunggu Konfirmasi',
     processing: 'Sedang Diproses',
-    shipped: 'Sedang Dikirim',
+    shipped: 'Terkirim',
     confirmed: 'Selesai',
     cancelled: 'Dibatalkan',
   };

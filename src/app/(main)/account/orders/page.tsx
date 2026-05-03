@@ -29,6 +29,16 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+import { DatePickerSingle } from '@/components/ui/date-picker-single';
+
 import { useGetOrders } from '@/features/orders/hooks/useGetOrders';
 import { useDebounce } from '@/hooks/useDebounce';
 import { OrderStatus } from '@/features/orders/types';
@@ -42,13 +52,20 @@ export default function OrderListPage() {
 
   // URL state logic
   const initialSearch = searchParams.get('search') || '';
+  const initialDate = searchParams.get('date') || '';
+  const initialSort = searchParams.get('sort') || 'desc';
+
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [dateParam, setDateParam] = useState(initialDate);
+  const [sortParam, setSortParam] = useState(initialSort);
+
   const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedDate = useDebounce(dateParam, 500);
 
   const page = Number(searchParams.get('page')) || 1;
   const limit = 10;
 
-  // Sync debounced search to URL
+  // Sync debounced search and sort to URL
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     let changed = false;
@@ -67,16 +84,40 @@ export default function OrderListPage() {
       }
     }
 
+    if (debouncedDate) {
+      if (params.get('date') !== debouncedDate) {
+        params.set('date', debouncedDate);
+        params.set('page', '1'); // Reset to page 1 on new date filter
+        changed = true;
+      }
+    } else {
+      if (params.has('date')) {
+        params.delete('date');
+        params.set('page', '1'); // Reset to page 1 on cleared date filter
+        changed = true;
+      }
+    }
+
+    if (sortParam && params.get('sort') !== sortParam) {
+      params.set('sort', sortParam);
+      changed = true;
+    }
+
     if (changed) {
       router.push(`${pathname}?${params.toString()}`);
     }
-  }, [debouncedSearch, pathname, router, searchParams]);
+  }, [debouncedSearch, debouncedDate, sortParam, pathname, router, searchParams]);
 
   // Handle data fetching via hook
   const { orders, isLoading, error, pagination } = useGetOrders(
     page,
     limit,
-    searchParams.get('search') || undefined
+    searchParams.get('search') || undefined,
+    undefined,
+    undefined,
+    false,
+    searchParams.get('date') || undefined,
+    searchParams.get('sort') || undefined
   );
 
   const handlePageChange = (
@@ -130,21 +171,43 @@ export default function OrderListPage() {
   return (
     <div className="space-y-5">
       <section className="rounded-2xl bg-white border border-border shadow-sm">
-        <div className="px-6 py-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="px-6 py-4 border-b border-border flex flex-col gap-4">
           <div>
             <h1 className="text-base font-semibold">Pesanan Saya</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Lihat dan lacak riwayat pesanan kamu
             </p>
           </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari nomor pesanan..."
-              className="pl-10 h-10 text-sm"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2 w-full">
+            <div className="relative w-full md:col-span-5 lg:col-span-6">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari nomor pesanan..."
+                className="pl-10 h-10 text-sm w-full"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="w-full md:col-span-4 lg:col-span-3">
+              <DatePickerSingle
+                value={dateParam || null}
+                onChange={(val) => setDateParam(val || '')}
+                placeholder="Pilih Tanggal"
+                className="h-10 text-sm w-full"
+                optional={true}
+              />
+            </div>
+            <div className="w-full md:col-span-3 lg:col-span-3">
+              <Select value={sortParam} onValueChange={setSortParam}>
+                <SelectTrigger className="!h-10 w-full">
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Terbaru</SelectItem>
+                  <SelectItem value="asc">Terlama</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -167,11 +230,11 @@ export default function OrderListPage() {
                   Belum Ada Pesanan
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                  {debouncedSearch
-                    ? 'Coba cari dengan kata kunci lain'
+                  {debouncedSearch || debouncedDate
+                    ? 'Coba cari dengan kata kunci atau tanggal lain'
                     : 'Mulai belanja untuk melihat pesanan kamu di sini'}
                 </p>
-                {!debouncedSearch && (
+                {!(debouncedSearch || debouncedDate) && (
                   <Button asChild size="sm">
                     <Link href="/products">Belanja Sekarang</Link>
                   </Button>
@@ -219,15 +282,17 @@ export default function OrderListPage() {
                               <h3 className="font-bold text-sm md:text-base mb-1">
                                 {order.order_number}
                               </h3>
-                              <p className="text-xs text-muted-foreground mb-2">
-                                {new Date(order.created_at).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  }
-                                )}
+                              <p className="text-xs text-slate-700 font-medium mb-2">
+                                {new Date(order.created_at).toLocaleDateString('id-ID', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}{' '}
+                                {new Date(order.created_at).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: false
+                                })}
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {order.order_items

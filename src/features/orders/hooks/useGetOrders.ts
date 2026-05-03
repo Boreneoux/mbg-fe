@@ -11,7 +11,9 @@ export function useGetOrders(
   search?: string,
   status?: string,
   warehouse_id?: number | string,
-  isAdmin: boolean = false
+  isAdmin: boolean = false,
+  date?: string,
+  sort?: string
 ) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +35,7 @@ export function useGetOrders(
       try {
         const data = isAdmin 
           ? await getAdminOrdersApi(page, limit, search, status, warehouse_id)
-          : await getOrdersApi(page, limit, search, status, warehouse_id);
+          : await getOrdersApi(page, limit, search, status, warehouse_id, date, sort);
         if (!cancelled) {
           setOrders(data.data);
           setPagination(data.meta);
@@ -56,7 +58,7 @@ export function useGetOrders(
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search, status, warehouse_id, isAdmin]);
+  }, [page, limit, search, status, warehouse_id, isAdmin, date, sort]);
 
   return { orders, isLoading, error, pagination };
 }
