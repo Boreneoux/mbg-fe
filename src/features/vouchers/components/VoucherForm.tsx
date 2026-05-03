@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerSingle } from '@/components/ui/date-picker-single';
 import { ProductCombobox } from '@/components/ui/product-combobox';
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupInput } from '@/components/ui/input-group';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import type { CreateVoucherFormValues } from '@/features/vouchers/schemas/voucher.schema';
 
@@ -19,14 +20,17 @@ interface VoucherFormProps {
 }
 
 export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherFormProps) {
-  const { products } = useProducts({ limit: 100 });
+  const { products } = useProducts({ limit: 9999 });
 
   const usageType = form.watch('usage_type');
   const discountType = form.watch('discount_type');
-  const productOptions = products.map((product) => ({
-    value: String(product.id),
-    label: product.name,
-  }));
+  const productOptions = [
+    { value: '', label: 'Select a product...' },
+    ...products.map((product) => ({
+      value: String(product.id),
+      label: product.name,
+    })),
+  ];
 
   return (
     <Form {...form}>
@@ -53,7 +57,12 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
           render={({ field }) => (
             <FormItem>
               <FormLabel>Usage Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={(val) => {
+                field.onChange(val);
+                if (val !== 'product_specific') {
+                  form.setValue('product_id', null, { shouldValidate: true });
+                }
+              }} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select usage type" />
@@ -140,26 +149,33 @@ export function VoucherForm({ form, onSubmit, isSubmitting, onCancel }: VoucherF
         />
 
         {/* Minimum Purchase */}
-        <FormField
-          control={form.control}
-          name="min_purchase_amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Minimum Purchase (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {usageType !== 'product_specific' && (
+          <FormField
+            control={form.control}
+            name="min_purchase_amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Minimum Purchase Amount (Optional)</FormLabel>
+                <FormControl>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <InputGroupText>Rp</InputGroupText>
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </InputGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Max Discount (Only useful for percentage) */}
         {discountType === 'percentage' && (

@@ -7,6 +7,7 @@ import { useProducts } from '@/features/products/hooks/useProducts';
 import { useCategories } from '@/features/products/hooks/useCategories';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useActiveDiscounts } from '@/features/discount/hooks/useActiveDiscounts';
+import useLocationStore from '@/stores/useLocationStore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,6 +41,7 @@ export default function ProductsPage() {
   const { categories } = useCategories();
   const { addToCart, isLoading: isAddingToCart } = useCart();
   const { discounts } = useActiveDiscounts();
+  const { selectedStoreId } = useLocationStore();
   const categoryParam = searchParams.get('category') ?? undefined;
   const searchParam = searchParams.get('search') ?? '';
 
@@ -177,15 +179,14 @@ export default function ProductsPage() {
                 product.product_images[0]?.image_url ||
                 '/placeholder.png';
 
-              const totalStock =
-                product.store_inventories?.reduce(
-                  (acc, inv) => acc + inv.stock,
-                  0
-                ) || 0;
-              const isOutOfStock = totalStock === 0;
-              const defaultStoreId = product.store_inventories?.find(
-                inventory => inventory.stock > 0
-              )?.store_id;
+              const totalStock = product.store_inventories?.reduce((acc, inv) => acc + inv.stock, 0) || 0;
+              const nearestStoreStock = selectedStoreId 
+                ? (product.store_inventories?.find(inv => inv.store_id === selectedStoreId)?.stock || 0)
+                : null;
+              const displayStock = selectedStoreId ? nearestStoreStock : totalStock;
+              const isOutOfStock = displayStock === 0;
+
+              const defaultStoreId = selectedStoreId || product.store_inventories?.find(inventory => inventory.stock > 0)?.store_id;
               const discountPreview = getBestDiscountPreview(
                 product,
                 discounts,
@@ -247,8 +248,10 @@ export default function ProductsPage() {
                               </p>
                             )}
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          Stock {totalStock}
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {selectedStoreId 
+                            ? `Stock: ${nearestStoreStock}`
+                            : `Stock: ${totalStock}`}
                         </span>
                       </div>
                       {discountPreview && (

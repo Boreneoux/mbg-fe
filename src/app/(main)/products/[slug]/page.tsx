@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useProduct } from '@/features/products/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useActiveDiscounts } from '@/features/discount/hooks/useActiveDiscounts';
+import useLocationStore from '@/stores/useLocationStore';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ShoppingCart } from 'lucide-react';
@@ -25,6 +26,7 @@ export default function PublicProductDetailPage({
   const { product, isLoading, error } = useProduct(slug);
   const { addToCart, isLoading: isCartLoading } = useCart();
   const { discounts } = useActiveDiscounts();
+  const { selectedStoreId } = useLocationStore();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -75,14 +77,18 @@ export default function PublicProductDetailPage({
   const currentImage = selectedImage || primaryImage;
   const otherImages = product.product_images;
 
-  const totalStock =
-    product.store_inventories?.reduce((acc, inv) => acc + inv.stock, 0) || 0;
-  const isOutOfStock = totalStock === 0;
-  const defaultStoreId = getDefaultStoreId(product) ?? '';
+  const totalStock = product.store_inventories?.reduce((acc, inv) => acc + inv.stock, 0) || 0;
+  const nearestStoreStock = selectedStoreId 
+    ? (product.store_inventories?.find(inv => inv.store_id === selectedStoreId)?.stock || 0)
+    : null;
+  const displayStock = selectedStoreId ? (nearestStoreStock ?? 0) : totalStock;
+  const isOutOfStock = displayStock === 0;
+
+  const defaultStoreId = selectedStoreId || getDefaultStoreId(product) || '';
   const discountPreview = getBestDiscountPreview(product, discounts, quantity, defaultStoreId || null);
 
   const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= totalStock) {
+    if (newQuantity >= 1 && newQuantity <= displayStock) {
       setQuantity(newQuantity);
     }
   };
@@ -194,7 +200,9 @@ export default function PublicProductDetailPage({
             </p>
             <p className="text-sm text-gray-500">Weight: {product.weight} kg</p>
             <p className="text-sm text-gray-500">
-              Stock available: {totalStock}
+              {selectedStoreId 
+                ? `Stock available: ${nearestStoreStock}`
+                : `Stock available: ${totalStock}`}
             </p>
           </div>
 
@@ -209,7 +217,7 @@ export default function PublicProductDetailPage({
                   onQuantityChange={handleQuantityChange}
                   isLoading={isCartLoading}
                   minQuantity={1}
-                  maxQuantity={totalStock}
+                  maxQuantity={displayStock}
                   allowInput
                 />
               </div>
