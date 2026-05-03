@@ -179,9 +179,9 @@ export default function PublicProductDetailPage({
                       </p>
                     )}
                   </div>
-                  {discountPreview.description && (
+                  {totalDiscountPreview?.description && (
                     <p className="text-sm font-medium text-rose-600">
-                      {discountPreview.description}
+                      {totalDiscountPreview.description}
                     </p>
                   )}
                 </>
