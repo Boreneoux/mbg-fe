@@ -27,6 +27,16 @@ export default function ShoppingCartPage() {
     selectedItems.includes(item.id)
   ) ?? [];
 
+  const originalSubtotal = selectedCartItems.reduce(
+    (sum, item) => sum + Number(item.original_total_price ?? (Number(item.product.price) * item.quantity)),
+    0
+  );
+
+  const productDiscount = selectedCartItems.reduce(
+    (sum, item) => sum + Number(item.discount_amount ?? 0),
+    0
+  );
+
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + Number(item.total_price ?? (Number(item.product.price) * item.quantity)),
     0
@@ -105,9 +115,10 @@ export default function ShoppingCartPage() {
           </div>
         </div>
 
-        {/* Order Summary */}
         <OrderSummary
           subtotal={subtotal}
+          originalSubtotal={originalSubtotal}
+          productDiscount={productDiscount}
           deliveryFee={null}
           onCheckout={() => router.push('/checkout')}
           onContinueShopping={() => router.push('/products')}

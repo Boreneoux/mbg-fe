@@ -44,6 +44,8 @@ function SummaryRow({ title, value, highlight }: { title: string; value: string;
 export default function CheckoutPage() {
   const {
     cartItems,
+    originalSubtotal,
+    productDiscount,
     subtotal,
     discount,
     deliveryFee,
@@ -239,11 +241,18 @@ export default function CheckoutPage() {
 
               <Separator />
 
-              <SummaryRow title="Subtotal" value={formatCurrencyIDR(subtotal)} />
+              <SummaryRow title="Subtotal" value={formatCurrencyIDR(originalSubtotal)} />
+
+              {productDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Diskon Produk</span>
+                  <span>-{formatCurrencyIDR(productDiscount)}</span>
+                </div>
+              )}
 
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Diskon</span>
+                  <span>Diskon Voucher</span>
                   <span>-{formatCurrencyIDR(discount)}</span>
                 </div>
               )}

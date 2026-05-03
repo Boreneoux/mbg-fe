@@ -82,6 +82,16 @@ export const useCheckout = () => {
     }
   }, [user]);
 
+  const originalSubtotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.original_total_price ?? ((Number(item.product?.price) || 0) * item.quantity)),
+    0
+  );
+
+  const productDiscount = cartItems.reduce(
+    (sum, item) => sum + Number(item.discount_amount ?? 0),
+    0
+  );
+
   const subtotal = cartItems.reduce(
     (sum, item) => sum + Number(item.total_price ?? ((Number(item.product?.price) || 0) * item.quantity)),
     0
@@ -233,6 +243,8 @@ export const useCheckout = () => {
 
   return {
     cartItems,
+    originalSubtotal,
+    productDiscount,
     subtotal,
     discount,
     deliveryFee,
