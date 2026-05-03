@@ -42,7 +42,14 @@ export type Order = {
   total_price: number;
   total_discount: number;
   shipping_cost: number;
+  shipping_method?: string;
   payment_method: PaymentMethod;
+  payment_deadline?: string;
+  midtrans_status?: string | null;
+  shipped_at?: string | null;
+  shipped_simulate_at?: string | null;
+  confirmed_at?: string | null;
+  cancelled_at?: string | null;
   created_at: string;
   order_items: OrderItem[];
   address: UserAddress;
