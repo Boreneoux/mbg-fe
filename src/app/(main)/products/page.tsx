@@ -254,12 +254,9 @@ export default function ProductsPage() {
                             : `Stock: ${totalStock}`}
                         </span>
                       </div>
-                      {discountPreview && (
+                      {discountPreview && discountPreview.description && (
                         <p className="text-xs font-medium text-rose-600">
-                          Save{' '}
-                          {formatCurrencyIDR(
-                            discountPreview.savingsAmount ?? 0
-                          )}
+                          {discountPreview.description}
                         </p>
                       )}
                     </div>

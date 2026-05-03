@@ -1,11 +1,13 @@
 import type { Discount } from '@/features/discount/types';
 import type { Product } from '@/features/products/types';
+import { formatCurrencyIDR } from '@/utils/currency';
 
 export type ProductDiscountPreview = {
   discount: Discount;
   discountedPrice: number | null;
   savingsAmount: number | null;
   badge: string;
+  description: string | null; // e.g. "Save Rp x with minimum purchase of Rp y"
 };
 
 function toNumber(value: string | number | null | undefined) {
@@ -71,11 +73,17 @@ export function getBestDiscountPreview(
     let discountedPrice: number | null = null;
     let savingsAmount = 0;
     let badge = '';
+    let description: string | null = null;
+
+    const minPurchase = toNumber(discount.min_purchase_amount);
 
     if (discount.type === 'buy_one_get_one') {
       const freeQuantity = Math.floor(quantity / 2);
       savingsAmount = unitPrice * freeQuantity;
       badge = 'Buy 1 Get 1';
+      description = freeQuantity > 0
+        ? `Buy ${quantity}, get ${freeQuantity} free!`
+        : 'Buy 1 Get 1 — add 2 items to save!';
     } else if (discount.type === 'percentage') {
       const percentageValue = toNumber(discount.value);
       if (!percentageValue) {
@@ -90,6 +98,9 @@ export function getBestDiscountPreview(
 
       discountedPrice = Math.max(unitPrice - savingsAmount / quantity, 0);
       badge = `${percentageValue}% OFF`;
+      description = minPurchase && minPurchase > 0
+        ? `Save ${formatCurrencyIDR(savingsAmount)} with min. purchase ${formatCurrencyIDR(minPurchase)}`
+        : `Save ${formatCurrencyIDR(savingsAmount)}`;
     } else if (discount.type === 'nominal') {
       const nominalValue = toNumber(discount.value);
       if (!nominalValue) {
@@ -99,6 +110,9 @@ export function getBestDiscountPreview(
       savingsAmount = Math.min(nominalValue, lineTotal);
       discountedPrice = Math.max(unitPrice - savingsAmount / quantity, 0);
       badge = 'Discount';
+      description = minPurchase && minPurchase > 0
+        ? `Save ${formatCurrencyIDR(savingsAmount)} with min. purchase ${formatCurrencyIDR(minPurchase)}`
+        : `Save ${formatCurrencyIDR(savingsAmount)}`;
     }
 
     if (savingsAmount <= 0 && discount.type !== 'buy_one_get_one') {
@@ -110,6 +124,7 @@ export function getBestDiscountPreview(
       discountedPrice,
       savingsAmount,
       badge,
+      description,
     };
 
     if (!bestPreview || preview.savingsAmount! > bestPreview.savingsAmount! || (discount.type === 'buy_one_get_one' && !bestPreview)) {

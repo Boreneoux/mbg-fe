@@ -12,11 +12,11 @@ export interface GetInventoriesParams {
 }
 
 export async function getInventoriesApi(params?: GetInventoriesParams) {
-  const { data } = await axiosInstance.get<{ success: boolean; data: { inventories: StoreInventory[] }, meta?: PaginationMeta }>('/inventory', {
+  const { data } = await axiosInstance.get<{ success: boolean; data: { inventories: StoreInventory[]; meta: PaginationMeta } }>('/inventory', {
     params,
   });
   return {
     inventories: data.data.inventories,
-    meta: data.meta,
+    meta: data.data.meta,
   };
 }
