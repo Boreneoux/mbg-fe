@@ -27,8 +27,8 @@ export const useCart = () => {
       setCart(data);
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? err.response?.data?.message || 'Failed to fetch cart'
-        : 'Failed to fetch cart';
+        ? err.response?.data?.message || 'Gagal memuat keranjang'
+        : 'Gagal memuat keranjang';
       setError(message);
       toast.error(message);
     } finally {
@@ -43,11 +43,11 @@ export const useCart = () => {
       try {
         await cartService.deleteItem(cartItemId);
         await fetchCart();
-        toast.success('Item removed from cart');
+        toast.success('Produk dihapus dari keranjang');
       } catch (err) {
         const message = axios.isAxiosError(err)
-          ? err.response?.data?.message || 'Failed to remove item'
-          : 'Failed to remove item';
+          ? err.response?.data?.message || 'Gagal menghapus produk'
+          : 'Gagal menghapus produk';
         setError(message);
         toast.error(message);
       }
@@ -66,11 +66,11 @@ export const useCart = () => {
         }
         await cartService.updateItem(cartItemId, quantity);
         await fetchCart();
-        toast.success('Cart updated');
+        toast.success('Keranjang diperbarui');
       } catch (err) {
         const message = axios.isAxiosError(err)
-          ? err.response?.data?.message || 'Failed to update cart'
-          : 'Failed to update cart';
+          ? err.response?.data?.message || 'Gagal memperbarui keranjang'
+          : 'Gagal memperbarui keranjang';
         setError(message);
         toast.error(message);
       }
@@ -87,11 +87,11 @@ export const useCart = () => {
         cart.cart_items.map((item) => cartService.deleteItem(item.id))
       );
       clearStore();
-      toast.success('Cart cleared');
+      toast.success('Keranjang dikosongkan');
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? err.response?.data?.message || 'Failed to clear cart'
-        : 'Failed to clear cart';
+        ? err.response?.data?.message || 'Gagal mengosongkan keranjang'
+        : 'Gagal mengosongkan keranjang';
       setError(message);
       toast.error(message);
     }
@@ -105,11 +105,11 @@ export const useCart = () => {
       try {
         await cartService.addItem(productId, quantity, storeId);
         await fetchCart(); // Re-fetch to get complete cart state with the new item
-        toast.success('Added to cart');
+        toast.success('Ditambahkan ke keranjang');
       } catch (err) {
         const message = axios.isAxiosError(err)
-          ? err.response?.data?.message || 'Failed to add to cart'
-          : 'Failed to add to cart';
+          ? err.response?.data?.message || 'Gagal menambahkan ke keranjang'
+          : 'Gagal menambahkan ke keranjang';
         setError(message);
         toast.error(message);
       } finally {

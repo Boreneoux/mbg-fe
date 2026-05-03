@@ -85,7 +85,8 @@ export default function PublicProductDetailPage({
   const isOutOfStock = displayStock === 0;
 
   const defaultStoreId = selectedStoreId || getDefaultStoreId(product) || '';
-  const discountPreview = getBestDiscountPreview(product, discounts, quantity, defaultStoreId || null);
+  const unitDiscountPreview = getBestDiscountPreview(product, discounts, 1, defaultStoreId || null);
+  const totalDiscountPreview = getBestDiscountPreview(product, discounts, quantity, defaultStoreId || null);
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= displayStock) {
@@ -159,20 +160,20 @@ export default function PublicProductDetailPage({
               </h1>
             </div>
             <div className="space-y-2">
-              {discountPreview ? (
+              {unitDiscountPreview ? (
                 <>
                   <div className="inline-flex rounded-full bg-rose-500 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white">
-                    {discountPreview.badge}
+                    {unitDiscountPreview.badge}
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <p className="text-3xl font-bold text-gray-900">
                       {formatCurrencyIDR(
-                        discountPreview.discountedPrice !== null
-                          ? discountPreview.discountedPrice
+                        unitDiscountPreview.discountedPrice !== null
+                          ? unitDiscountPreview.discountedPrice
                           : product.price
                       )}
                     </p>
-                    {discountPreview.discountedPrice !== null && (
+                    {unitDiscountPreview.discountedPrice !== null && (
                       <p className="text-lg text-muted-foreground line-through">
                         {formatCurrencyIDR(product.price)}
                       </p>
