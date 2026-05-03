@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { isAxiosError } from 'axios';
 import { 
   adminConfirmPaymentApi, 
-  adminRejectPaymentApi, 
   adminShipOrderApi, 
-  adminCancelOrderApi 
+  adminProcessShipmentApi,
+  adminCancelOrderApi,
+  adminSyncPaymentStatusApi
 } from '../api/orders.api';
 
 export function useAdminOrderActions(orderNumber: string, onUpdate?: () => void) {
@@ -31,12 +32,12 @@ export function useAdminOrderActions(orderNumber: string, onUpdate?: () => void)
 
   const confirmPayment = () => handleAction(
     () => adminConfirmPaymentApi(orderNumber),
-    'Payment confirmed successfully'
+    'Payment confirmed — order is now processing'
   );
 
-  const rejectPayment = () => handleAction(
-    () => adminRejectPaymentApi(orderNumber),
-    'Payment proof rejected'
+  const processShipment = () => handleAction(
+    () => adminProcessShipmentApi(orderNumber),
+    'Shipment processed — delivery timer started'
   );
 
   const shipOrder = () => handleAction(
@@ -49,11 +50,17 @@ export function useAdminOrderActions(orderNumber: string, onUpdate?: () => void)
     'Order cancelled successfully'
   );
 
+  const syncPayment = () => handleAction(
+    () => adminSyncPaymentStatusApi(orderNumber),
+    'Payment status synchronized with Midtrans'
+  );
+
   return {
     confirmPayment,
-    rejectPayment,
+    processShipment,
     shipOrder,
     cancelOrder,
+    syncPayment,
     isUpdating
   };
 }

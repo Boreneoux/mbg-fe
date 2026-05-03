@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 import { CalendarIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,7 @@ export function DatePickerSingle({
         >
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
           <span className="flex-1 truncate">
-            {selected ? format(selected, 'PPP') : placeholder}
+            {selected ? format(selected, 'PPP', { locale: id }) : placeholder}
           </span>
           {optional && selected && (
             <X

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useGetOrder } from '@/features/orders/hooks/useGetOrder';
-import { ArrowLeft, Package, MapPin, CreditCard, Loader2, Store, RefreshCw, XCircle, CheckCircle, Truck } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, CreditCard, Loader2, Store, XCircle, CheckCircle, Truck, RefreshCcw } from 'lucide-react';
 import { useAdminOrderActions } from '@/features/orders/hooks/useAdminOrderActions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ export default function AdminOrderDetailPage() {
   const router = useRouter();
 
   const { order, isLoading, error, refetch } = useGetOrder(orderNumber as string, true);
-  const { confirmPayment, rejectPayment, shipOrder, cancelOrder, isUpdating } = useAdminOrderActions(orderNumber as string, refetch);
+  const { confirmPayment, processShipment, shipOrder, cancelOrder, syncPayment, isUpdating } = useAdminOrderActions(orderNumber as string, refetch);
 
   if (isLoading) {
     return (
@@ -42,14 +42,13 @@ export default function AdminOrderDetailPage() {
       case 'cancelled':
         return 'bg-rose-600 text-white hover:bg-rose-700';
       case 'processing':
-      case 'waiting_for_confirmation':
         return 'bg-sky-600 text-white hover:bg-sky-700';
+      case 'waiting_for_confirmation':
+        return 'bg-blue-500 text-white hover:bg-blue-600';
       case 'shipped':
         return 'bg-violet-600 text-white hover:bg-violet-700';
       case 'waiting_for_payment':
         return 'bg-amber-500 text-white hover:bg-amber-600';
-      case 'delivered':
-        return 'bg-green-600 text-white hover:bg-green-700';
       default:
         return 'bg-slate-500 text-white hover:bg-slate-600';
     }
@@ -65,6 +64,8 @@ export default function AdminOrderDetailPage() {
   };
 
   const subtotal = Number(order.total_price) + Number(order.total_discount) - Number(order.shipping_cost);
+
+  const canCancel = ['waiting_for_payment', 'waiting_for_confirmation'].includes(order.status);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -196,45 +197,71 @@ export default function AdminOrderDetailPage() {
               <CreditCard className="w-4 h-4" />
               <span>Paid with {formatText(order.payment_method)}</span>
             </div>
+
+            {/* Midtrans status */}
+            {order.midtrans_status && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Gateway status: <span className="font-semibold capitalize">{order.midtrans_status}</span>
+              </p>
+            )}
           </Card>
 
           <Card className="p-6 shadow-sm mt-6">
             <h2 className="text-lg font-bold mb-4">Admin Controls</h2>
             <div className="space-y-3">
-              {order.status === 'waiting_for_confirmation' && (
-                <>
-                  <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onClick={confirmPayment}
-                    disabled={isUpdating}
-                  >
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Approve Payment
-                  </Button>
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={rejectPayment}
-                    disabled={isUpdating}
-                  >
-                    <RefreshCw className="w-5 h-5 mr-2" />
-                    Reject Payment
-                  </Button>
-                </>
-              )}
-
-              {order.status === 'processing' && (
+              {/* Check Payment Status */}
+              {order.status === 'waiting_for_payment' && (
                 <Button
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white"
-                  onClick={shipOrder}
+                  className="w-full bg-slate-600 hover:bg-slate-700 text-white"
+                  onClick={syncPayment}
                   disabled={isUpdating}
                 >
-                  <Truck className="w-5 h-5 mr-2" />
-                  Mark as Shipped
+                  <RefreshCcw className="w-5 h-5 mr-2" />
+                  Check Payment Status
                 </Button>
               )}
 
-              {['waiting_for_payment', 'waiting_for_confirmation', 'processing'].includes(order.status) && (
+              {/* Confirm payment → processing */}
+              {['waiting_for_confirmation', 'waiting_for_payment'].includes(order.status) && (
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={confirmPayment}
+                  disabled={isUpdating}
+                >
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Confirm Payment (Start Packing)
+                </Button>
+              )}
+
+              {/* Start Shipment Timer */}
+              {order.status === 'processing' && !order.shipped_simulate_at && (
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={processShipment}
+                  disabled={isUpdating}
+                >
+                  <Truck className="w-5 h-5 mr-2" />
+                  Send to Courier (Start Delivery)
+                </Button>
+              )}
+
+              {/* Auto-ship timer info */}
+              {order.status === 'processing' && order.shipped_simulate_at && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground text-center bg-muted/50 p-3 rounded-md">
+                    Auto-ship scheduled at{' '}
+                    <span className="font-semibold text-foreground">
+                      {new Date(order.shipped_simulate_at).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {/* Cancel */}
+              {canCancel && (
                 <Button
                   className="w-full"
                   variant="destructive"
@@ -246,15 +273,12 @@ export default function AdminOrderDetailPage() {
                 </Button>
               )}
 
-              {!['waiting_for_confirmation', 'processing', 'waiting_for_payment'].includes(order.status) && (
+              {!canCancel && !['waiting_for_confirmation', 'processing'].includes(order.status) && (
                 <p className="text-sm text-muted-foreground text-center py-2 italic">
                   No further actions available for this status.
                 </p>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              Order management functionality can be connected to actions here.
-            </p>
           </Card>
         </div>
       </div>

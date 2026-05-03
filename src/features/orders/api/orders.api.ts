@@ -16,7 +16,9 @@ export const getOrdersApi = async (
   limit: number,
   search?: string,
   status?: string,
-  warehouse_id?: number | string
+  warehouse_id?: number | string,
+  date?: string,
+  sort?: string
 ) => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -33,6 +35,14 @@ export const getOrdersApi = async (
 
   if (warehouse_id && warehouse_id !== 'all') {
     params.append('warehouse_id', warehouse_id.toString());
+  }
+
+  if (date) {
+    params.append('date', date);
+  }
+
+  if (sort) {
+    params.append('sort', sort);
   }
 
   const response = await axiosInstance.get<{ data: Order[], meta: OrderPaginationMeta }>(
@@ -98,18 +108,23 @@ export const adminConfirmPaymentApi = async (orderNumber: string) => {
   return response.data;
 };
 
-export const adminRejectPaymentApi = async (orderNumber: string) => {
-  const response = await axiosInstance.post(`/admin/orders/${orderNumber}/reject-payment-proof`);
-  return response.data;
-};
-
 export const adminShipOrderApi = async (orderNumber: string) => {
   const response = await axiosInstance.post(`/admin/orders/${orderNumber}/ship`);
   return response.data;
 };
 
+export const adminProcessShipmentApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/orders/${orderNumber}/process-shipment`);
+  return response.data;
+};
+
 export const adminCancelOrderApi = async (orderNumber: string) => {
   const response = await axiosInstance.post(`/admin/orders/${orderNumber}/cancel`);
+  return response.data;
+};
+
+export const adminSyncPaymentStatusApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/orders/${orderNumber}/admin-sync-payment`);
   return response.data;
 };
 
@@ -125,5 +140,10 @@ export const confirmReceiptApi = async (orderNumber: string) => {
 
 export const getPaymentStatusApi = async (orderNumber: string) => {
   const response = await axiosInstance.get(`/orders/${orderNumber}/payment-status`);
+  return response.data;
+};
+
+export const syncPaymentStatusApi = async (orderNumber: string) => {
+  const response = await axiosInstance.post(`/orders/${orderNumber}/sync-payment`);
   return response.data;
 };
