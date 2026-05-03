@@ -179,9 +179,9 @@ export default function PublicProductDetailPage({
                       </p>
                     )}
                   </div>
-                  {totalDiscountPreview && totalDiscountPreview.savingsAmount !== null && totalDiscountPreview.savingsAmount > 0 && (
+                  {discountPreview.description && (
                     <p className="text-sm font-medium text-rose-600">
-                      Save {formatCurrencyIDR(totalDiscountPreview.savingsAmount)} for {quantity} item{quantity > 1 ? 's' : ''}
+                      {discountPreview.description}
                     </p>
                   )}
                 </>
@@ -195,17 +195,17 @@ export default function PublicProductDetailPage({
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Description
+              Deskripsi
             </h3>
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
               {product.description ||
-                'No description available for this product.'}
+                'Tidak deskripsi untuk produk ini.'}
             </p>
-            <p className="text-sm text-gray-500">Weight: {product.weight} kg</p>
+            <p className="text-sm text-gray-500">Berat: {product.weight} kg</p>
             <p className="text-sm text-gray-500">
               {selectedStoreId 
-                ? `Stock available: ${nearestStoreStock}`
-                : `Stock available: ${totalStock}`}
+                ? `Sisa: ${nearestStoreStock}`
+                : `Sisa: ${totalStock}`}
             </p>
           </div>
 
@@ -213,7 +213,7 @@ export default function PublicProductDetailPage({
             {!isOutOfStock && (
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-gray-700">
-                  Quantity
+                  Jumlah
                 </span>
                 <QuantityControl
                   quantity={quantity}
@@ -235,8 +235,8 @@ export default function PublicProductDetailPage({
               {isOutOfStock
                 ? 'Out of Stock'
                 : isCartLoading
-                  ? 'Adding...'
-                  : 'Add to Cart'}
+                  ? 'Menambahkan...'
+                  : 'Tambahkan ke keranjang'}
             </Button>
           </div>
         </div>

@@ -39,7 +39,7 @@ export function useInventories(storeId?: string) {
         });
         if (!cancelled) {
           setInventories(inventories);
-          if (meta) setMeta(meta);
+          setMeta(meta ?? { page: 1, limit: LIMIT, total: 0, totalPages: 0 });
         }
       } catch (err) {
         if (cancelled) return;

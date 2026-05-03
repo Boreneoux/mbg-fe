@@ -3,8 +3,9 @@
 import { useMutations } from '@/features/mutations/hooks/useMutations';
 import { useCreateMutation } from '@/features/mutations/hooks/useCreateMutation';
 import { useStores } from '@/features/stores/hooks/useStores';
-import { useProducts } from '@/features/products/hooks/useProducts';
 import useAuthStore from '@/stores/useAuthStore';
+import { getInventoriesApi } from '@/features/inventory/api/getInventories.api';
+import { ProductCombobox } from '@/components/ui/product-combobox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, Search, ArrowUpDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -37,13 +38,36 @@ export default function StockMutationsPage() {
   const { mutations, meta, isLoading, refetch, page, setPage, search, setSearch, sort, setSort } = useMutations();
   const { createMutation, isLoading: isCreating } = useCreateMutation();
   const { stores } = useStores();
-  const { products } = useProducts();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [sourceStore, setSourceStore] = useState('');
   const [destStore, setDestStore] = useState('');
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [sourceStoreProducts, setSourceStoreProducts] = useState<{ value: string; label: string }[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  // Fetch products available in the selected source store
+  useEffect(() => {
+    if (!sourceStore) {
+      setSourceStoreProducts([]);
+      setProduct('');
+      return;
+    }
+    setIsLoadingProducts(true);
+    getInventoriesApi({ store_id: sourceStore, limit: 9999 })
+      .then(({ inventories }) => {
+        const opts = inventories
+          .filter((inv) => inv.stock > 0)
+          .map((inv) => ({
+            value: inv.product_id,
+            label: `${inv.product?.name ?? inv.product_id} (Stock: ${inv.stock})`,
+          }));
+        setSourceStoreProducts(opts);
+      })
+      .finally(() => setIsLoadingProducts(false));
+    setProduct('');
+  }, [sourceStore]);
 
   const pageNumbers = buildPageNumbers(page, meta.totalPages);
 
@@ -82,7 +106,7 @@ export default function StockMutationsPage() {
             <form onSubmit={handleCreate} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label>Source Store</Label>
-                <Select value={sourceStore} onValueChange={setSourceStore}>
+                <Select value={sourceStore} onValueChange={(v) => { setSourceStore(v); setDestStore(''); }}>
                   <SelectTrigger><SelectValue placeholder="Select Source Store" /></SelectTrigger>
                   <SelectContent>
                     {stores.map((s) => (
@@ -105,15 +129,16 @@ export default function StockMutationsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Product</Label>
-                <Select value={product} onValueChange={setProduct}>
-                  <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
-                  <SelectContent>
-                    {products.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Product {!sourceStore && <span className="text-muted-foreground font-normal text-xs">— select a source store first</span>}</Label>
+                <ProductCombobox
+                  options={sourceStoreProducts}
+                  value={product}
+                  onValueChange={setProduct}
+                  placeholder={isLoadingProducts ? 'Loading products...' : 'Search & select product...'}
+                  searchPlaceholder="Search products..."
+                  emptyMessage={sourceStore ? 'No products with stock in this store.' : 'Select a source store first.'}
+                  disabled={!sourceStore || isLoadingProducts}
+                />
               </div>
 
               <div className="space-y-2">
