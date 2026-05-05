@@ -127,42 +127,38 @@ export function VoucherList({
                 <TableCell className="text-right space-x-2">
                   {onSetReferral && !voucher.is_referral && (
                     <Button
-                      variant="ghost" size="icon"
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Set as Referral"
                       onClick={() => onSetReferral(voucher.id)}
-                      className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 h-8 w-8"
                     >
                       <UserPlus className="h-4 w-4" />
                     </Button>
                   )}
                   {onSetReferrerReward && !voucher.is_referrer_reward && (
                     <Button
-                      variant="ghost" size="icon"
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Set as Referrer Reward"
                       onClick={() => onSetReferrerReward(voucher.id)}
-                      className="text-violet-600 hover:text-violet-800 hover:bg-violet-50 h-8 w-8"
                     >
                       <Gift className="h-4 w-4" />
                     </Button>
                   )}
                   {onEdit && (
                     <Button
-                      variant="ghost" size="icon"
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Edit"
                       onClick={() => onEdit(voucher)}
-                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                   {onDelete && (
                     <Button
-                      variant="ghost" size="icon"
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Delete"
                       onClick={() => onDelete(voucher.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
                 </TableCell>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Edit2, Trash2, Plus } from 'lucide-react';
+import { Loader2, Pencil, Trash2, Plus } from 'lucide-react';
 import { UserWithStore, UserPaginationMeta } from '../types';
 import {
   Table,
@@ -196,20 +196,24 @@ export function UserListTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Edit"
                         onClick={() => onEdit(user)}
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Delete"
                         onClick={() => onDelete(user)}
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
                   </TableCell>
