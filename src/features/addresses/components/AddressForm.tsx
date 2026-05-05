@@ -2,6 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { LocateFixed, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const LABEL_TEMPLATES = ['Rumah', 'Kantor', 'Kos', 'Apartemen', 'Gudang'];
 
 const MapPicker = dynamic(
   () => import('./MapPicker').then(m => m.MapPicker),
@@ -66,8 +69,28 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
           render={({ field }) => (
             <FormItem>
               <FormLabel>Label Alamat <span className="text-destructive">*</span></FormLabel>
+              <div className="flex flex-wrap gap-2 mb-1">
+                {LABEL_TEMPLATES.map(tpl => {
+                  const isActive = field.value?.toLowerCase() === tpl.toLowerCase();
+                  return (
+                    <button
+                      key={tpl}
+                      type="button"
+                      onClick={() => field.onChange(isActive ? '' : tpl)}
+                      className={cn(
+                        'rounded-full border px-3 py-1 text-sm transition-colors',
+                        isActive
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border bg-background text-muted-foreground hover:border-primary hover:text-primary',
+                      )}
+                    >
+                      {tpl}
+                    </button>
+                  );
+                })}
+              </div>
               <FormControl>
-                <Input placeholder="cth: Rumah, Kantor" {...field} />
+                <Input placeholder="atau ketik label sendiri..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -118,33 +118,32 @@ export function DiscountList({
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   {onToggleActive && (
-                    <Button 
-                      variant="ghost" size="icon"
+                    <Button
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title={discount.is_active ? 'Deactivate' : 'Activate'}
                       onClick={() => onToggleActive(discount.id, discount.is_active)}
-                      className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8"
                     >
-                      {discount.is_active ? <PowerOff className="h-4 w-4 text-orange-500" /> : <Power className="h-4 w-4 text-emerald-500" />}
+                      {discount.is_active
+                        ? <PowerOff className="h-4 w-4 text-orange-500" />
+                        : <Power className="h-4 w-4 text-emerald-500" />}
                     </Button>
                   )}
                   {onEdit && (
-                    <Button 
-                      variant="ghost" size="icon"
+                    <Button
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Edit"
                       onClick={() => onEdit(discount)}
-                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                   {onDelete && (
-                    <Button 
-                      variant="ghost" size="icon"
+                    <Button
+                      variant="ghost" size="icon" className="h-8 w-8"
                       title="Delete"
                       onClick={() => onDelete(discount.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
                 </TableCell>
