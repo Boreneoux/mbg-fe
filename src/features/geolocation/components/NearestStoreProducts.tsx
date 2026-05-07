@@ -121,22 +121,6 @@ function ProductCard({
   );
 }
 
-// ── Store Banner ──────────────────────────────────────────────────────────────
-function StoreBanner() {
-  const status = useLocationStore((s) => s.status);
-  const selectedStoreName = useLocationStore((s) => s.selectedStoreName);
-
-  if (status === 'found' && selectedStoreName) {
-    return (
-      <div className="inline-flex items-center gap-1.5 mb-4 bg-primary/8 border border-primary/20 text-primary rounded-full px-3 py-1 text-xs font-medium">
-        <MapPin className="w-3.5 h-3.5 shrink-0" />
-        Dari toko: <span className="font-semibold">{selectedStoreName}</span>
-      </div>
-    );
-  }
-  return null;
-}
-
 // ── No Location Block ─────────────────────────────────────────────────────────
 function NoLocationBlock() {
   const status = useLocationStore((s) => s.status);
@@ -227,8 +211,6 @@ export default function NearestStoreProducts() {
             </Link>
           )}
         </div>
-
-        {showProducts && <StoreBanner />}
 
         {error && (
           <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 mb-4 text-xs text-red-700">
