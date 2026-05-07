@@ -10,11 +10,9 @@ import {
   XCircle,
   Search,
   Truck,
-  CreditCard,
   RefreshCw
 } from 'lucide-react';
 
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,7 +39,7 @@ import { DatePickerSingle } from '@/components/ui/date-picker-single';
 
 import { useGetOrders } from '@/features/orders/hooks/useGetOrders';
 import { useDebounce } from '@/hooks/useDebounce';
-import { OrderStatus } from '@/features/orders/types';
+import { OrderStatus, OrderItem } from '@/features/orders/types';
 import { formatCurrencyIDR } from '@/utils/currency';
 import { translateOrderStatus } from '@/features/orders/utils';
 
@@ -182,7 +180,7 @@ export default function OrderListPage() {
             <div className="relative w-full md:col-span-5 lg:col-span-6">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Cari nomor pesanan..."
+                placeholder="Cari nomor pesanan atau nama produk..."
                 className="pl-10 h-10 text-sm w-full"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
@@ -259,7 +257,11 @@ export default function OrderListPage() {
                                 const firstItem = order.order_items[0];
                                 const primaryImage =
                                   firstItem?.product?.product_images?.find(
-                                    (img: any) => img.is_primary
+                                    (
+                                      image: NonNullable<
+                                        OrderItem['product']['product_images']
+                                      >[number]
+                                    ) => image.is_primary
                                   )?.image_url ||
                                   firstItem?.product?.product_images?.[0]
                                     ?.image_url;
