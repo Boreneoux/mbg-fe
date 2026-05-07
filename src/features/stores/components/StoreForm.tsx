@@ -224,7 +224,7 @@ export function StoreForm({ store }: Props) {
                             <SelectValue placeholder={loadingProvinces ? 'Memuat…' : 'Pilih provinsi'} />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent position="popper" align="start">
                           {provinces.map((p) => (
                             <SelectItem key={p.id} value={String(p.id)}>
                               {p.name}
@@ -261,7 +261,7 @@ export function StoreForm({ store }: Props) {
                             />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent position="popper" align="start">
                           {cities.map((c) => (
                             <SelectItem key={c.id} value={String(c.id)}>
                               {c.type ? `${c.type} ${c.name}` : c.name}
@@ -300,7 +300,7 @@ export function StoreForm({ store }: Props) {
                             />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent position="popper" align="start">
                           {districts.map((d) => (
                             <SelectItem key={d.id} value={String(d.id)}>
                               {d.name}

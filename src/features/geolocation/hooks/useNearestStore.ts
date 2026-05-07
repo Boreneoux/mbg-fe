@@ -65,6 +65,19 @@ export function useNearestStore() {
     [setStatus, setSelectedStore, clearStore, setDisplayLocation, setOutOfRangeMessage],
   );
 
+  const resolveWithFreshGPS = useCallback(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoordinates({ lat: latitude, lng: longitude });
+        resolveStore(latitude, longitude, actions);
+      },
+      () => null, // silent fail — keep existing store
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 },
+    );
+  }, [setCoordinates, setSelectedStore, clearStore, setDisplayLocation, setOutOfRangeMessage]);
+
   const promptLocation = useCallback(() => {
     setHasPrompted(true);
 
@@ -103,5 +116,5 @@ export function useNearestStore() {
     setStatus('denied');
   }, [setHasPrompted, clearStore, setStatus]);
 
-  return { promptLocation, skipLocation, resolveNearestStore, resolveNearestStoreSilently };
+  return { promptLocation, skipLocation, resolveNearestStore, resolveNearestStoreSilently, resolveWithFreshGPS };
 }
