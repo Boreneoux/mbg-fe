@@ -141,7 +141,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
                     <SelectValue placeholder={loadingProvinces ? 'Memuat...' : 'Pilih provinsi'} />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent position="popper" align="start">
                   {provinces.map(p => (
                     <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
                   ))}
@@ -172,7 +172,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
                     } />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent position="popper" align="start">
                   {cities.map(c => (
                     <SelectItem key={c.id} value={String(c.id)}>
                       {[c.type, c.name].filter(Boolean).join(' ')}
@@ -205,7 +205,7 @@ export function AddressForm({ address, onSuccess, existingLabels = [] }: Props) 
                     } />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent position="popper" align="start">
                   {districts.map(d => (
                     <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
                   ))}

@@ -109,9 +109,11 @@ export function MapPicker({ lat, lng, onPositionChange, centerOn }: Props) {
   }, [lat, lng]);
 
   return (
-    <div
-      ref={containerRef}
-      className="h-56 w-full rounded-lg border border-border overflow-hidden"
-    />
+    <div className="isolate">
+      <div
+        ref={containerRef}
+        className="h-56 w-full rounded-lg border border-border overflow-hidden"
+      />
+    </div>
   );
 }
