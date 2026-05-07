@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useProducts } from '@/features/products/hooks/useProducts';
@@ -34,22 +34,16 @@ export default function ProductsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const categoryParam = searchParams.get('category') ?? undefined;
+  const searchParam = searchParams.get('search') ?? '';
+  const [search, setSearch] = useState(searchParam);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParam);
   const [sort, setSort] = useState<string>('newest');
   const [page, setPage] = useState(1);
   const { categories } = useCategories();
   const { addToCart, isLoading: isAddingToCart } = useCart();
   const { discounts } = useActiveDiscounts();
   const { selectedStoreId } = useLocationStore();
-  const categoryParam = searchParams.get('category') ?? undefined;
-  const searchParam = searchParams.get('search') ?? '';
-
-  useEffect(() => {
-    setSearch(searchParam);
-    setDebouncedSearch(searchParam);
-    setPage(1);
-  }, [searchParam]);
 
   const selectedCategory = useMemo(
     () =>
@@ -197,7 +191,7 @@ export default function ProductsPage() {
               return (
                 <div
                   key={product.id}
-                  className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                  className="flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                   <Link
                     href={`/products/${product.slug}`}
                     className="group block">
@@ -222,7 +216,7 @@ export default function ProductsPage() {
                     </div>
                   </Link>
 
-                  <div className="space-y-3 p-3">
+                  <div className="flex flex-1 flex-col p-3">
                     <div className="space-y-1">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                         {product.category.name}
@@ -247,6 +241,14 @@ export default function ProductsPage() {
                                 {formatCurrencyIDR(product.price)}
                               </p>
                             )}
+                          {(!discountPreview ||
+                            discountPreview.discountedPrice === null) && (
+                            <p
+                              className="invisible text-xs text-muted-foreground"
+                              aria-hidden="true">
+                              {formatCurrencyIDR(product.price)}
+                            </p>
+                          )}
                         </div>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {selectedStoreId 
@@ -254,16 +256,20 @@ export default function ProductsPage() {
                             : `Stock: ${totalStock}`}
                         </span>
                       </div>
-                      {discountPreview && discountPreview.description && (
-                        <p className="text-xs font-medium text-rose-600">
-                          {discountPreview.description}
-                        </p>
-                      )}
+                      <p
+                        className={`min-h-4 text-xs font-medium ${
+                          discountPreview?.description
+                            ? 'line-clamp-1 text-rose-600'
+                            : 'invisible text-rose-600'
+                        }`}
+                        aria-hidden={!discountPreview?.description}>
+                        {discountPreview?.description ?? 'Discount placeholder'}
+                      </p>
                     </div>
 
                     <Button
                       type="button"
-                      className="w-full"
+                      className="mt-auto w-full"
                       size="sm"
                       disabled={
                         isOutOfStock || !defaultStoreId || isAddingToCart
